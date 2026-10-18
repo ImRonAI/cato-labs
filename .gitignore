@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+.env.local
+.env*.local
+.DS_Store
+*.log
+
+# local tooling artifacts
+.playwright-cli/
+.playwright-mcp/
+.screen_monitor/
+output/
+.codegraph
+tsconfig.tsbuildinfo

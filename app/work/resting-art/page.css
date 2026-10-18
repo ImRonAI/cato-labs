@@ -1,0 +1,126 @@
+/* ============================================================
+   RESTING ART — case detail, scoped styles (ra-* prefix only)
+   Loaded exclusively by app/work/resting-art/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- hero ---------- */
+.ra-hero {
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+.ra-hero .lede {
+  max-width: 36rem;
+}
+
+/* ---------- chapters — alternating editorial blocks ---------- */
+.ra-chapters {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(80px, 11vw, 150px);
+  padding-block: calc(var(--section-y) * 0.4) calc(var(--section-y) * 0.3);
+}
+.ra-chapter {
+  max-width: 600px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.ra-chapter:nth-child(even) {
+  align-self: flex-end;
+}
+.ra-chapter .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.ra-chapter__title {
+  margin-bottom: 16px;
+}
+.ra-chapter__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- pull quote — the full-width statement ---------- */
+.ra-quote {
+  padding-block: calc(var(--section-y) * 0.45);
+  text-align: center;
+}
+.ra-quote__blockquote {
+  max-width: 900px;
+  margin-inline: auto;
+}
+.ra-quote__text {
+  margin-inline: auto;
+  max-width: 21ch;
+}
+.ra-quote__attr {
+  margin-top: 36px;
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.ra-quote__attr::before {
+  content: '';
+  width: 34px;
+  height: 1px;
+  background: var(--blue);
+  flex: none;
+}
+
+/* ---------- outcomes — the stat row ---------- */
+.ra-stats {
+  padding-block: 0 calc(var(--section-y) * 0.45);
+}
+.ra-stats__grid {
+  margin-top: clamp(32px, 4vw, 48px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(28px, 4vw, 56px);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding-block: clamp(32px, 4.5vw, 52px);
+}
+/* display-3 — the stat metric scale (brief spec), blue accent */
+.ra-stat__metric {
+  display: block;
+  font-size: clamp(2.2rem, 4vw, 3.6rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+}
+.ra-stat__label {
+  display: block;
+  margin-top: 12px;
+  max-width: 26ch;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .ra-chapter,
+  .ra-chapter:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .ra-stats__grid {
+    grid-template-columns: 1fr;
+  }
+  .ra-stat__label {
+    max-width: none;
+  }
+}

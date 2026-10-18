@@ -1,0 +1,1208 @@
+### Page
+- Page URL: http://127.0.0.1:3217/capabilities/digital-products
+- Page Title: Digital Products & Experiences — Cato Labs
+### Snapshot
+```yaml
+- generic [active] [ref=f8e1]:
+  - link "Skip to content" [ref=f8e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f8e5]:
+    - generic [ref=f8e6]:
+      - link "Cato Labs — home" [ref=f8e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f8e15]: Cato .Labs
+      - navigation "Primary" [ref=f8e16]:
+        - list [ref=f8e17]:
+          - listitem [ref=f8e18]:
+            - link "Capabilities" [ref=f8e19] [cursor=pointer]:
+              - /url: /capabilities
+          - listitem [ref=f8e20]:
+            - link "Work" [ref=f8e21] [cursor=pointer]:
+              - /url: /work
+          - listitem [ref=f8e22]:
+            - link "Industries" [ref=f8e23] [cursor=pointer]:
+              - /url: /industries
+          - listitem [ref=f8e24]:
+            - link "Regions" [ref=f8e25] [cursor=pointer]:
+              - /url: /regions
+          - listitem [ref=f8e26]:
+            - link "Approach" [ref=f8e27] [cursor=pointer]:
+              - /url: /approach
+          - listitem [ref=f8e28]:
+            - link "Contact" [ref=f8e29] [cursor=pointer]:
+              - /url: /contact
+      - link "Build with Cato Labs" [ref=f8e30] [cursor=pointer]:
+        - /url: /contact
+  - main [ref=f8e31]:
+    - region "The website is the flagship." [ref=f8e32]:
+      - navigation "Breadcrumb" [ref=f8e33]:
+        - link "Capabilities" [ref=f8e34] [cursor=pointer]:
+          - /url: /capabilities
+        - generic [ref=f8e35]: /
+        - generic [ref=f8e36]: Digital Products & Experiences
+      - generic [ref=f8e37]: Capabilities — 03
+      - heading "The website is the flagship." [level=1] [ref=f8e38]:
+        - generic [ref=f8e39]: The website is
+        - generic [ref=f8e41]: the flagship.
+      - generic [ref=f8e43]: Websites and applications treated as products — architected, designed and engineered on modern stacks to be editorial-grade, fast and built to convert.
+    - region "What the practice covers" [ref=f8e44]:
+      - generic [ref=f8e45]: The disciplines
+      - generic [ref=f8e46]:
+        - generic [ref=f8e47]:
+          - generic [aria-hidden] [ref=f8e48]: "01"
+          - heading "Information architecture & UX" [level=3] [ref=f8e49]
+          - paragraph [ref=f8e50]: The structure comes first. Every page has a job, every journey a destination, and the architecture is argued before a single pixel is placed.
+        - generic [ref=f8e51]:
+          - generic [aria-hidden] [ref=f8e52]: "02"
+          - heading "Interface & experience design" [level=3] [ref=f8e53]
+          - paragraph [ref=f8e54]: High-fidelity, system-driven design — typography, motion and interaction held to an editorial standard, because polish is how quality is judged.
+        - generic [ref=f8e55]:
+          - generic [aria-hidden] [ref=f8e56]: "03"
+          - heading "Next.js / React engineering" [level=3] [ref=f8e57]
+          - paragraph [ref=f8e58]: "Production engineering on modern stacks, chosen for the experience and the business case. Fast by default: performance is a feature, not a fix."
+    - region "The Studio — watch a site being born" [ref=f8e59]:
+      - generic [ref=f8e60]:
+        - generic [ref=f8e61]: The Studio
+        - heading [level=2] [ref=f8e62]:
+          - generic [ref=f8e63]:
+            - text: Watch a site being born.
+            - generic [aria-hidden]: Watch a site being born.
+        - generic [ref=f8e64]: "This is how a Cato flagship is built: strategy, design, engineering and discoverability working the same canvas at the same time. Watch four agents assemble AURELLE — an alpine fragrance house — from wireframe to launch."
+      - group "AURELLE site build simulation" [ref=f8e66]:
+        - generic [ref=f8e71]: aurelle.co
+        - generic [aria-hidden] [ref=f8e72]:
+          - generic: Sapphire
+          - generic: Azure
+          - generic: Ice
+          - generic: Indigo
+        - paragraph [ref=f8e74]: "Animated simulation: Sapphire, Azure, Ice, Indigo assemble a AURELLE landing page block by block inside a browser frame."
+        - generic [ref=f8e77]:
+          - generic [ref=f8e78]:
+            - generic [ref=f8e79]:
+              - text: Sapphire
+              - generic [ref=f8e81]: · Strategy
+            - generic [ref=f8e82]:
+              - text: Azure
+              - generic [ref=f8e84]: · Design
+            - generic [ref=f8e85]:
+              - text: Ice
+              - generic [ref=f8e87]: · Engineering
+            - generic [ref=f8e88]:
+              - text: Indigo
+              - generic [ref=f8e90]: · Discoverability
+          - generic [ref=f8e91]:
+            - button "Pause simulation" [pressed] [ref=f8e92] [cursor=pointer]: Pause
+            - button "Replay simulation" [ref=f8e93] [cursor=pointer]: Replay
+    - region "Vibe-code yours" [ref=f8e94]:
+      - generic [ref=f8e95]:
+        - generic [ref=f8e96]: The Sketch Engine
+        - heading [level=2] [ref=f8e97]:
+          - generic [ref=f8e98]:
+            - text: Vibe-code yours.
+            - generic [aria-hidden]: Vibe-code yours.
+        - generic [ref=f8e99]: Describe what you’re building. Your agent researches, designs and writes the website on a live canvas. Follow each element as it takes shape, then download the files or start another build.
+      - generic [ref=f8e100]:
+        - generic [ref=f8e101]:
+          - generic [ref=f8e102]:
+            - strong [ref=f8e106]: cato studio
+            - generic [ref=f8e107]: Website workspace
+          - generic [ref=f8e108]:
+            - generic [ref=f8e109]: Selected build
+            - combobox "Selected build" [ref=f8e110]:
+              - option "New website"
+              - option "Builder 1 · disconnected" [selected]
+            - button "New build +" [ref=f8e111] [cursor=pointer]
+        - generic [ref=f8e112]:
+          - complementary "Project files" [ref=f8e113]:
+            - generic [ref=f8e114]:
+              - generic [ref=f8e115]: Explorer
+              - generic [ref=f8e116]: "0"
+            - tree [ref=f8e117]
+            - paragraph [ref=f8e119]: Shared project files appear here as the agent delivers them.
+            - button "Refresh files" [ref=f8e120] [cursor=pointer]
+          - region "Website preview and source" [ref=f8e121]:
+            - generic [ref=f8e122]:
+              - tablist "Website view" [ref=f8e123]:
+                - tab "Preview" [selected] [ref=f8e124] [cursor=pointer]
+                - tab "Code" [ref=f8e125] [cursor=pointer]
+              - status [ref=f8e126]: disconnected
+            - tabpanel "Preview" [ref=f8e127]:
+              - iframe [ref=f8e129]
+            - generic [ref=f8e130]:
+              - generic [ref=f8e131]:
+                - generic [ref=f8e132]: Sandbox terminal
+                - button [ref=f8e135] [cursor=pointer]
+              - code [ref=f8e138]: "cd /home/user/workspace/skills/search; grep -n -i \"image\" reference/search.md | head -30; echo ---; sed -n 1,60p recipes/people-research.md --- # People research End-to-end recipe for finding people meeting a set of criteria — hiring sourcing, alumni discovery, expert finding, investor / partner mapping, named-person verification. Composes `pplx_sdk.search.people` with the auxiliary content methods to get from a broad query to a precise, enriched list. ## Named person lookup (no pipeline) When the task names a specific person — their profile, accounts, contact info, or employment/education facts (\"what is the Twitter/Facebook/GitHub account of X?\", \"where does/did X work?\") — skip the multi-variant pipeline: 1. Run `pplx_sdk.search.people(\"Jane Doe Acme Corp\", limit=10)` and a concise `pplx_sdk.search.web(...)` query in parallel. When the task *supplies* an identifier (an email address or a GitHub/Twitter/Facebook handle), lead with `pplx_sdk.search.people(\"Jane Doe\", external_id=\"github:janedoe\")` — it exact-matches the one right profile with no disambiguation step. The identifier alone determines the match (the query string only affects ranking and cannot suppress the hit); the type prefix is case-insensitive and a leading `@` on a handle is stripped. If it returns 0 hits the identifier just isn't indexed (coverage is partial); continue with the name query, don't conclude the person doesn't exist. 2. Pick the hits that match the person — check name, company, and location; common names collide. If multiple plausible profiles return, disambiguate with `company` / `location` / `education` / `skills` filters, or web-search a canonical profile URL first. 3. Always run `pplx_sdk.content.fetch_people([...])` on the matching profile URL(s); see `reference/content.md` for the result shape. 4. Weigh all sources when answering — the structured fields (companies, education, `emails`, `github`, `twitter`, `facebook`), hit summaries, and web results. For account handles and emails the structured linkage fields are usually more reliable than inferring from the person's name. If the deliverable needs more than these facts, skip straight to dossier. ## Tool selection The People index (`pplx_sdk.search.people`, see `reference/search.md`) is strongest on intersection queries (`company × role`, `role × company × location`). Supplement with `pplx_sdk.search.web` when: - The query targets a specific org's team / about / partners page (VC partner lists, lab group pages, C-suite rosters). - Criteria need temporal awareness (\"currently at X\", \"left Y in 2024\"). - The domain is niche academic (specific lab, conference community, thesis topic). - `search.people` returns many results but few true matches after filtering. For comprehensive searches, run both in parallel and merge. ## Variation axes A single `search.people` query misses relevant people; run 3+ parallel variants (fan out via `patterns/fanout.md`) across: - **Role titles + acronyms** — `PM` / `product manager` / `product lead`. - **Company name forms** — acronym / full name / common abbreviations. - **Industry terms** — acronym / expansion. - **Scope slicing** — team, geography, seniority. Skip the acronym/expansion pairing only when the company is best known by its acronym. **Vary the role axis, not just company and location.** Fanning out only over place names (`\"Acme London\"`, `\"Acme Manchester\"`, …) with a fixed role searches one slice many times and misses differently-titled people. Move role/seniority terms across variants too. Worked example — engineers at Acme in Serbia: ```python # Lead with plain-text variants that vary ROLE; add filtered variants as supplements. variants = [ {\"query\": \"Acme software engineer Serbia\"}, # role + company + location {\"query\": \"Acme backend developer Belgrade\"}, # role synonym + city {\"query\": \"Acme infrastructure engineer Beograd\"}, # role variant + local spelling {\"query\": \"Acme engineering manager Serbia\"}, # seniority slice {\"query\": \"software engineer\", \"company\": \"Acme\", \"location\": \"Serbia\"}, # filtered supplement {\"query\": \"backend engineer\", \"company\": \"Acme\", \"location\": \"Belgrade\"}, ] hits = pplx_sdk.search.people_many(variants, limit_per_query=50) ``` - Role terms move across variants (`software engineer` → `backend developer` → `infrastructure engineer` → `engineering manager`). - Local spellings appear (`Belgrade` / `Beograd`). - Filters (`company`, `location`) supplement plain-text queries — never replace them. - Geography goes through `location`; there is no `country` filter. - Keep each query to ~5–7 meaningful tokens. At 8+ the index can't match all terms — split into shorter queries. ## Field filters: supplement, not replacement Filter kwargs scope results to people whose profile fields contain all provided tokens. Each filter is whitespace-tokenized and ANDed as `contains` clauses — `company=\"Google Maps\"` requires both `\"Google\"` and `\"Maps\"`, not the literal phrase. import pplx_sdk, json out={} def s(k,f): try: out[k]=f() except Exception as e: out[k]=f\"ERROR {e!r}\" s('three_ver', lambda:[dict(h) for h in pplx_sdk.search.web(\"three.js latest release version npm October 2026\", limit=6)]) s('tw_ver', lambda:[dict(h) for h in pplx_sdk.search.web(\"@tailwindcss/browser v4 CDN latest version 2026\", limit=6)]) s('visual', lambda:[dict(h) for h in pplx_sdk.search.web(\"cobalt blue generative glass sculpture WebGL art direction\", limit=6)]) s('people', lambda:[dict(h) for h in pplx_sdk.search.people(\"Ricardo Cabello mrdoob three.js creator\", limit=5)]) s('fetch', lambda:[{k:(v[:3000] if isinstance(v,str) else v) for k,v in dict(r).items() if k!='raw_html'} for r in pplx_sdk.content.fetch([\"https://data.jsdelivr.com/v1/packages/npm/three\",\"https://data.jsdelivr.com/v1/packages/npm/@tailwindcss/browser\"])]) json.dump(out,open('/home/user/workspace/research.json','w'),indent=1,default=str) for k,v in out.items(): print('=====',k) if isinstance(v,str): print(v); continue for h in v: print({kk:(str(vv)[:400]) for kk,vv in h.items()}) ===== three_ver {'url': 'https://openapps.pro/packages/three-js', 'title': 'Three.js: JavaScript 3D Library for WebGL & WebGPU', 'domain': 'openapps.pro', 'snippet': '# three.js\\nThe cross-browser JavaScript 3D library that renders scenes through WebGL and WebGPU behind one unified, node-based shading API.\\nLibrary npm v0.186.1\\n...\\n## Registry\\nLatest versionv0.186.1 Published9/24/2026 weekly downloads20,050,038', 'last_updated': '2026-10-13'} {'url': 'https://radiancefields.com/platforms/three-js', 'title': 'three.js - Open Source 3D Library with Gaussian Splats', 'domain': 'radiancefields.com', 'snippet': '# three.js\\nPull request 33950, authored by Ben Houston, moved that capability into the library, and r186 shipped it on 8 September 2026 as npm package three 0.186.0.\\n...\\n### Does three.js support Gaussian splatting natively?\\nthree.js supports Gaussian splats natively from r186, which shipped on 8 September 2026 as npm package three 0.186.0.', 'date': '2026-09-29', 'last_updated': '2026-10-13'} {'url': 'https://cgworld.jp/flashnews/01-202610-Threejs-r186.html', 'title': 'Three.js r186リリース 3DGS対応、ボリュメトリックフォグ、新マテリアル、スカルプトなど機能多数追加', 'domain': 'cgworld.jp', 'snippet': 'Three.js r186リリース\\u30003DGS対応、ボリュメトリックフォグ、新マテリアル、スカルプトなど機能多数追加\\n...\\n- Three.js r186リリース\\u30003DGS対応、ボリュメトリックフォグ、新マテリアル、スカルプトなど機能多数追加\\n2026/10/03\\n# Three.js r186リリース 3DGS対応、ボリュメトリックフォグ、新マテリアル、スカルプトなど機能多数追加\\n...\\n9月9日（水）、オープンソース（MITライセンス）の3Dグラフィックスライブラリ「Three.js」の最新バージョン「Three.js r186」がGitHubで公開された。本バージョンでは、WebGPUを軸とした多彩なレンダリング機能の強化をはじめ、3DGS（3D Gaussian Splatting）の導入やマテリアル、ポストプロセッシングの高度化などのアップデートが実装されている。', 'date': '2026-10-03', 'last_updated': '2026-10-15', 'trust': \"{'level': 1, 'name': 'trusted', 'description': 'is trusted for Japanese professional coverage of 3D computer graphics and digital-content production'}\"} {'url': 'https://github.com/mrdoob/three.js/wiki/Migration-Guide', 'title': 'Migration Guide · mrdoob/three.js Wiki', 'domain': 'github.com', 'snippet': '# Migration Guide\\nsunag edited this page Oct 15, 2026 · 877 revisions', 'date': '2026-10-15', 'last_updated': '2026-10-16'} {'url': 'https://www.npmjs.com/package/three', 'title': 'three - NPM', 'domain': 'www.npmjs.com', 'snippet': '# three.js\\n#### JavaScript 3D library\\nThe current builds only include WebGL and WebGPU renderers but SVG and CSS3D renderers are also available as addons.\\n...\\n### Change log\\nReleases', 'date': '2026-09-24', 'last_updated': '2026-03-23', 'trust': \"{'level': 1, 'name': 'trusted', 'description': 'is trusted for npm registry records and developer tools, though package listings are maintainer-supplied'}\"} {'url': 'https://www.utsubo.com/blog/threejs-2026-what-changed', 'title': \"What's New in Three.js (2026): WebGPU, New Workflows & Beyond\", 'domain': 'www.utsubo.com', 'snippet': \"# Three.js in 2026: Latest Version (r186) and Every Release Since r182\\n## Table of Contents\\n> **Latest three.js release: r186** (npm `three@0.186.0`), published September 8, 2026.\\nPrevious: r185 (June 25, 2026; patch 0.185.1 on July 1).\\nLast checked: 2026-09-23.\\n...\\n## 1. three.js Releases r182–r186\\n### Check Which Version You're Running\\n- **On npm**: `npm view three version` returns the latest pu\", 'date': '2026-09-24', 'last_updated': '2026-10-08'} ===== tw_ver {'url': 'https://tailwindcss.com/docs/upgrade-guide', 'title': 'tailwindcss.com · docs · upgrade-guideUpgrade guide - Getting started - Tailwind CSS', 'domain': 'tailwindcss.com', 'snippet': \"# Upgrade guide\\nTailwind CSS v4.0 is a new major version of the framework, so while we've worked really hard to minimize breaking changes, some updates are necessary.\\n...\\n**Tailwind CSS v4.0 is designed for Safari 16.4+, Chrome 111+, and Firefox 128+.** If you need to support older browsers, stick with v3.4 until your browser support requirements change.\\n...\\n## Upgrading manually\\n### Using Tailwin\", 'last_updated': '2026-10-03', 'trust': \"{'level': 2, 'name': 'trusted', 'description': 'is trusted for first-party Tailwind CSS documentation, developer tooling guidance, and framework-specific education'}\"} {'url': 'https://tailwindcss.com/docs/installation/play-cdn', 'title': 'Play CDN - Installation - Tailwind CSS', 'domain': 'tailwindcss.com', 'snippet': '# Get started with Tailwind CSS\\n## Installation\\n### Using Play CDN\\n#### Add the Play CDN script to your HTML\\n<!doctype html><html> <head> <meta charset=\"UTF-8\" /> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" /> <script src=\"https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4\"></script> </head> <body> <h1 class=\"text-3xl font-bold underline\"> Hello world!', 'last_updated': '2026-10-03', 'trust': \"{'level': 2, 'name': 'trusted', 'description': 'is trusted for first-party Tailwind CSS documentation, developer tooling guidance, and framework-specific education'}\"} {'url': 'https://github.com/tailwindlabs/tailwindcss/discussions/20073', 'title': 'V4 version, CDN plugin not available #20073', 'domain': 'github.com', 'snippet': '# V4 version, CDN plugin not available #20073\\n...\\nThe CDN version is a static file, not a dynamic server so there is no way to load the plugins via query params.\\n...\\nThe CDN browser build (`@tailwindcss/browser`) does **not** support loading plugins via query parameters outside of the Tailwind Play environment.\\nThe `?plugins=typography` syntax works on `play.tailwindcss.com` because the playground', 'date': '2026-05-17', 'last_updated': '2026-09-15'} {'url': 'https://tailwindcss.ru/docs/upgrade-guide', 'title': 'Руководство по обновлению - Начало работы - Tailwind CSS', 'domain': 'tailwindcss.ru', 'snippet': '# Руководство по обновлению\\nTailwind CSS v4.0 — это новая мажорная версия фреймворка, и хотя мы приложили много усилий, чтобы минимизировать критические изменения, некоторые обновления необходимы.\\n...\\n**Tailwind CSS v4.0 разработан для Safari 16.4+, Chrome 111+ и Firefox 128+.** Если вам нужна поддержка старых браузеров, используйте версию 3.4, пока не изменятся требования к поддержке вашего брауз', 'last_updated': '2026-10-06'} {'url': 'https://v3.tailwindcss.com/docs/upgrade-guide', 'title': 'Upgrade Guide', 'domain': 'v3.tailwindcss.com', 'snippet': 'Tailwind CSS v4.0 is here →\\n...\\n# Upgrade Guide\\n## Upgrade packages\\n### Play CDN\\nFor Tailwind CSS v3.0, the CSS-based CDN build we’ve offered in the past has been replaced by the new Play CDN, which gives you the full power of the new engine right in the browser with no build step.\\n...\\nThe Play CDN is designed for development purposes only — compiling your own static CSS build is a much better cho', 'last_updated': '2026-10-02', 'trust': \"{'level': 2, 'name': 'trusted', 'description': 'is trusted for Tailwind CSS v3 programming documentation and educational guidance'}\"} {'url': 'https://tailwindcss.ru/docs/installation/play-cdn', 'title': 'Play CDN - Tailwind CSS', 'domain': 'tailwindcss.ru', 'snippet': 'Используйте Play CDN, чтобы попробовать Tailwind прямо в браузере без какого-либо этапа сборки.\\n...\\n<!doctype html><html> <head> <meta charset=\"UTF-8\" /> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" /> <script src=\"https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4\"></script> </head> <body> <h1 class=\"text-3xl font-bold underline\"> Hello world!\\n</h1> </body></html>', 'last_updated': '2026-10-05'} ===== visual {'url': 'https://pollittstudio.com/tag/glass-art/', 'title': 'Tag: glass art', 'domain': 'pollittstudio.com', 'snippet': '## Feminique\\nPale Cobalt Blue and Purple colors intermingle throughout the sweep and curves of this 1′-9″ tall cast glass sculpture by Harry Pollitt.\\n...\\nAn apricot-colored glass sculpture, the “mast” reaches 1′-2” high, with luminosity that looks like it comes from the sun.\\nA hyacinth color and dark edging produced by natural light gives this Pollitt Small Treasure the look of an aura.\\nThe 12” x ', 'date': '2025-10-01', 'last_updated': '2026-01-04'} {'url': 'https://www.1stdibs.com/art/sculptures/abstract-sculptures/dale-chihuly-dale-chihuly-1995-13-inch-handblown-glass-cobalt-blue-gold-float/id-a_18603222/', 'title': 'Dale Chihuly - Dale Chihuly 1995 13 Inch Handblown Glass Cobalt Blue and Gold Float', 'domain': 'www.1stdibs.com', 'snippet': '# Dale Chihuly Dale Chihuly 1995 13 Inch Handblown Glass Cobalt Blue and Gold Float 1995\\n## About the Item\\nArtist: Dale Chihuly Title: Cobalt Blue and Gold Float Medium: Hand Blown Glass Dimensions: 13\" Diameter Year: 1995 Documentation: Includes gallery certificate of authenticity, original Chihuly Studios box, original shipping labels Provenance: From the private collection of Sharon Singer, aqu', 'date': '2026-09-18', 'last_updated': '2026-09-24'} {'url': 'https://www.1stdibs.com/buy/cobalt-blue-sculpture/', 'title': 'Cobalt Blue Sculpture - 25 For Sale on 1stDibs', 'domain': 'www.1stdibs.com', 'snippet': 'Five Oceans: Abstract Glass Sculpture in Cobalt Turquoise, 2010+\\nLocated in BARCELONA, ES\\nThis glass sculpture presents a refined exploration of movement captured in stillness.\\nIts elongated, teardrop‑like body rises in a gentle curve, as if subtly leaning into an unseen ...', 'last_updated': '2026-08-25'} {'url': 'https://youart.ai/generator/glass-sculpture-generator', 'title': 'AI Glass Sculpture Generator: Luminous Glass Art - YouArt', 'domain': 'youart.ai', 'snippet': '# AI Glass Sculpture Generator for Luminous Glass Artwork\\nImagine a blue glass bird, a luminous portrait or a flowing blown-glass form.\\nDescribe your idea or upload a photo, then explore translucent color, polished contours and reflections that give the sculpture a clear sense of depth.\\n...\\n## How to Create Glass Sculpture Art from a Photo or Prompt\\n### Start with a subject or a reference\\nDescribe', 'last_updated': '2026-10-14'} {'url': 'https://bernardkatz.com/blue-collection/', 'title': 'Blue Color Collection of glass sculpture by Bernard Katz', 'domain': 'bernardkatz.com', 'snippet': '# Blue Color Collection\\nCerulean blue dominates within this color palette\\nCerulean blue is a deep transparent blue that is closer to a cobalt blue than an aqua blue.\\nThe contemporary sculptural blue glass forms shown below are combined with an opaque lapis blue..\\nBlue Tall Avelino glass sculpture\\nBlue Trans Terra Ceia glass sculpture\\nBlue Trans Bolinas art glass sculpture', 'last_updated': '2026-08-04'} {'url': 'https://glassencyclopedia.com/cobaltglass.html', 'title': 'Cobalt Blue Glass information from the Glass Encyclopedia', 'domain': 'glassencyclopedia.com', 'snippet': 'See what there is just now - click Cobalt blue glass|**Cobalt Blue Glass: A short explanation:** Cobalt blue glass is normally a deep rich blue like the vase on the left.\\nIt is made by incorporating cobalt oxide in the molten glass mixture.', 'last_updated': '2026-08-16'} ===== people {'url': 'https://www.gitdex.io/mrdoob', 'title': 'Ricardo Cabello', 'summary': '# Ricardo Cabello\\n## Ricardo Cabello\\n### AI-Powered Insights\\nRicardo Cabello, known online as mrdoob, is a renowned frontend developer and creative coder celebrated for his pioneering work in WebGL and Three.js, the leading JavaScript library for 3D graphics in the browser with over 100,000 GitHub stars.\\n...\\nmrdoob demonstrates exceptional depth in WebGL and JavaScript-based 3D rendering, having a'} {'url': 'https://cindyhwang.github.io/interactive-design/Mrdoob/index.html', 'title': 'Interview with Mr.doob', 'summary': '# do_ob\\n## dõ_õb\\n### dò_ób\\n#### dŏ_ŏb\\n##### An interview with Mr.doob\\n*Ricardo Cabello, aka Mr.doob, is a self-taught web developer based in London (he originally hails from Barcelona).\\n...\\nWhile working at this company in London I used to wear headphones while working.\\nOn IM I would set my name as \"do_ob\" and different variations of it reflecting my mood.\\nAt some point someone greeted me as \"Hell'} {'url': 'https://fitc.ca/speaker/mrdoob/?event=15948', 'title': 'Ricardo Cabello - FITC', 'summary': '## FITC Toronto 2015\\n### Ricardo Cabello\\nGraphics Programmer, Mr.doob San Fransisco, USA\\nRicardo (@mrdoob) is a self-taught computer-graphics programmer.\\nOriginally from Barcelona, he began his professional career alternating between roles as a designer and developer.\\nIn his spare time, his involvement in the demoscene set him on the path to learning graphics programming.\\nCombining his background '} {'url': 'https://www.realtimerendering.com/blog/interview-with-three-js-creator/', 'title': 'Interview with three.js Creator - Real-Time Rendering', 'summary': 'Three.js is one of a number of free WebGL libraries.\\nFirst released in April 2010, it has become pretty popular, and includes a huge number of demos.\\nI wanted to know more about its origins, so interviewed its creator, Ricardo Cabello, aka mr.doob, who lives in Spain.\\n...\\nCurrently I’m a freelancer doing web development, mainly working for Google Data Arts Team.\\n...\\nThere were many reasons.\\nI was '} {'url': 'https://en.wikipedia.org/wiki/Three.js', 'title': 'Three.js - Wikipedia', 'summary': '**Three.js** is a cross-browser JavaScript library and application programming interface (API) used to create and display animated 3D computer graphics in a web browser using WebGL.\\n...\\n|Three.js|Three.js|\\n|--|--|\\n|Original author|Ricardo Cabello (Mr.doob)|\\n...\\n## History\\nThree.js was first released by Ricardo Cabello on GitHub in April 2010.\\n...\\nAdditional contributions by Cabello include API des'} ===== fetch {'url': 'https://data.jsdelivr.com/v1/packages/npm/three', 'is_paywall': 'False', 'is_cached': 'False', 'error': 'error parsing data for \"https://data.jsdelivr.com/v1/packages/npm/three\" in table \\'crawler/v2/pages\\': crawler error bad_robots_code: bad_robots_code'} {'url': 'https://data.jsdelivr.com/v1/packages/npm/@tailwindcss/browser', 'is_paywall': 'False', 'is_cached': 'False', 'error': 'error parsing data for \"https://data.jsdelivr.com/v1/packages/npm/@tailwindcss/browser\" in table \\'crawler/v2/pages\\': crawler error bad_robots_code: bad_robots_code'} import pplx_sdk rs=pplx_sdk.content.fetch([\"https://threejs.org/manual/en/installation.html\",\"https://www.npmjs.com/package/@tailwindcss/browser\",\"https://www.npmjs.com/package/three\"], prompt=\"Report the exact latest published version number and any import map / CDN usage example shown.\") for r in rs: d=dict(r); print('=====',d.get('url'),d.get('error')); print((d.get('content') or '')[:1500]) ===== https://threejs.org/manual/en/installation.html None | Requested information | Page content | |---|---| | Exact latest published version number | Not stated. The page says to replace `<version>` with an actual three.js version, giving `\"v0.149.0\"` as an example, and points to the npm version list for the most recent version. It does not identify that example as the latest. | **Import map / CDN example shown:** ```html <script type=\"importmap\"> { \"imports\": { \"three\": \"https://cdn.jsdelivr.net/npm/three@<version>/build/three.module.js\", \"three/addons/\": \"https://cdn.jsdelivr.net/npm/three@<version>/examples/jsm/\" } } </script> ``` The page says to replace `<version>` with an actual version, “like `v0.149.0`.” ===== https://www.npmjs.com/package/@tailwindcss/browser None - Latest published version number: Not shown. - Import map/CDN usage example: None shown. ===== https://www.npmjs.com/package/three None - **Latest published version number:** Not stated in the provided page content. - **Import map / CDN usage example:** None shown. The page’s usage example imports the package by name: `import * as THREE from 'three';` for u in \"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/postprocessing/UnrealBloomPass.js\" \"https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4/package.json\" \"https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js\" \"https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js\"; do echo \"$u -> $(curl -s -o /tmp/x -w '%{http_code} %{size_download}' \"$u\")\"; done; curl -s https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4/package.json | grep '\"version\"'; curl -s \"https://data.jsdelivr.com/v1/packages/npm/three/resolved?specifier=latest\"; echo; curl -s \"https://data.jsdelivr.com/v1/packages/npm/gsap/resolved?specifier=latest\"; echo; curl -s \"https://data.jsdelivr.com/v1/packages/npm/lenis/resolved?specifier=latest\" https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js -> 200 662772 https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js -> 200 662772 https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/postprocessing/UnrealBloomPass.js -> 200 15397 https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4/package.json -> 200 952 https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js -> 200 72435 https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js -> 200 16768 \"version\": \"4.3.3\", { \"type\": \"npm\", \"name\": \"three\", \"version\": \"0.186.1\", \"links\": { \"self\": \"https://data.jsdelivr.com/v1/packages/npm/three@0.186.1\", \"entrypoints\": \"https://data.jsdelivr.com/v1/packages/npm/three@0.186.1/entrypoints\", \"stats\": \"https://data.jsdelivr.com/v1/stats/packages/npm/three@0.186.1\" } } { \"type\": \"npm\", \"name\": \"gsap\", \"version\": \"3.15.0\", \"links\": { \"self\": \"https://data.jsdelivr.com/v1/packages/npm/gsap@3.15.0\", \"entrypoints\": \"https://data.jsdelivr.com/v1/packages/npm/gsap@3.15.0/entrypoints\", \"stats\": \"https://data.jsdelivr.com/v1/stats/packages/npm/gsap@3.15.0\" } } { \"type\": \"npm\", \"name\": \"lenis\", \"version\": \"1.3.27\", \"links\": { \"self\": \"https://data.jsdelivr.com/v1/packages/npm/lenis@1.3.27\", \"entrypoints\": \"https://data.jsdelivr.com/v1/packages/npm/lenis@1.3.27/entrypoints\", \"stats\": \"https://data.jsdelivr.com/v1/stats/packages/npm/lenis@1.3.27\" } } node -v; npm -v; npm ls -g 2>/dev/null | head -20; for u in \"https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/dist/index.global.js\" \"https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/environments/RoomEnvironment.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/EffectComposer.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/OutputPass.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/UnrealBloomPass.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/RenderPass.js\"; do echo \"$u -> $(curl -s -o /dev/null -w '%{http_code} %{size_download}' \"$u\")\"; done; curl -s https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/package.json | grep -E '\"(main|browser|unpkg|jsdelivr)\"' v20.20.1 10.8.2 /usr/local/lib +-- @anthropic-ai/claude-code@2.1.220 +-- @box/cli@4.10.1 +-- @googleworkspace/cli@0.22.5 +-- @openai/codex@0.130.0 +-- @stripe/link-cli@0.4.3 +-- convex@1.42.3 +-- corepack@0.34.6 +-- npm@10.8.2 +-- serve@14.2.6 `-- vercel@50.28.0 https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/dist/index.global.js -> 200 282289 https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js -> 200 72927 https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/environments/RoomEnvironment.js -> 200 4960 https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/EffectComposer.js -> 200 8501 https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/OutputPass.js -> 200 4184 https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/UnrealBloomPass.js -> 200 15397 https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/RenderPass.js -> 200 4280 \"main\": \"./dist/index.global.js\", \"browser\": \"./dist/index.global.js\", cd /tmp && curl -s -o core.js https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js; ls -la core.js; grep -o '#include <beginnormal_vertex>' core.js | head -2; grep -o '#include <begin_vertex>' core.js | head -2; grep -c 'vec3 objectNormal = vec3( normal );' core.js; grep -o 'vec3 transformed = vec3( position );' core.js | head -1; mkdir -p /tmp/jt && cd /tmp/jt && npm init -y >/dev/null && npm i jsdom@24 --silent 2>&1 | tail -2; ls node_modules | grep -c jsdom -rw-r--r-- 1 user user 1458113 Oct 16 11:39 core.js 0 1 cd /tmp; grep -o 'beginnormal_vertex[^,]\\{0,20\\}' core.js | head -3; grep -o '.\\{30\\}include <begin_vertex>.\\{10\\}' core.js | head -2; grep -o 'vec3 objectNormal = vec3( normal )' core.js | head -1; grep -o 'vec3 transformed = vec3( position )' core.js | head -1; ls /tmp/jt/node_modules | grep jsdom jsdom cd /tmp; head -c 300 core.js; echo; grep -c . core.js; grep -o 'begin_vertex' core.js | head; grep -o 'meshphysical' core.js | head -3; curl -s -o mod.js https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js; grep -o 'beginnormal_vertex' mod.js | head -2; grep -o \"from '[^']*'\" mod.js | sort -u | head /** * @license * Copyright 2010-2026 Three.js Authors * SPDX-License-Identifier: MIT */ const REVISION = '186'; /** * Represents mouse buttons and interaction types in context of controls. * * @type {ConstantsMouse} * @constant */ const MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2, ROTATE: 0, DO 44009 beginnormal_vertex beginnormal_vertex from './three.core.js' cd /tmp; grep -n 'beginnormal_vertex\\|include <begin_vertex>' mod.js | head -8; grep -n 'vec3 objectNormal = vec3( normal )' mod.js | head -2; grep -n 'vec3 transformed = vec3( position )' mod.js | head -2 319:var beginnormal_vertex = \"vec3 objectNormal = vec3( normal );\\n#ifdef USE_TANGENT\\n\\tvec3 objectTangent = vec3( tangent.xyz );\\n#endif\"; 517:const vertex$g = \"varying vec3 vWorldDirection;\\n#include <common>\\nvoid main() {\\n\\tvWorldDirection = transformDirection( position, modelMatrix );\\n\\t#include <begin_vertex>\\n\\t#include <project_vertex>\\n\\tgl_Position.z = gl_Position.w;\\n}\"; 521:const vertex$f = \"varying vec3 vWorldDirection;\\n#include <common>\\nvoid main() {\\n\\tvWorldDirection = transformDirection( position, modelMatrix );\\n\\t#include <begin_vertex>\\n\\t#include <project_vertex>\\n\\tgl_Position.z = gl_Position.w;\\n}\"; 525:const vertex$e = \"#include <common>\\n#include <batching_pars_vertex>\\n#include <uv_pars_vertex>\\n#include <displacementmap_pars_vertex>\\n#include <morphtarget_pars_vertex>\\n#include <skinning_pars_vertex>\\n#include <logdepthbuf_pars_vertex>\\n#include <clipping_planes_pars_vertex>\\nvarying vec2 vHighPrecisionZW;\\nvoid main() {\\n\\t#include <uv_vertex>\\n\\t#include <batching_vertex>\\n\\t#include <skinbase_vertex>\\n\\t#include <morphinstance_vertex>\\n\\t#ifdef USE_DISPLACEMENTMAP\\n\\t\\t#include <beginnormal_vertex>\\n\\t\\t#include <morphnormal_vertex>\\n\\t\\t#include <skinnormal_vertex>\\n\\t#endif\\n\\t#include <begin_vertex>\\n\\t#include <morphtarget_vertex>\\n\\t#include <skinning_vertex>\\n\\t#include <displacementmap_vertex>\\n\\t#include <project_vertex>\\n\\t#include <logdepthbuf_vertex>\\n\\t#include <clipping_planes_vertex>\\n\\tvHighPrecisionZW = gl_Position.zw;\\n}\"; 529:const vertex$d = \"#define DISTANCE\\nvarying vec3 vWorldPosition;\\n#include <common>\\n#include <batching_pars_vertex>\\n#include <uv_pars_vertex>\\n#include <displacementmap_pars_vertex>\\n#include <morphtarget_pars_vertex>\\n#include <skinning_pars_vertex>\\n#include <clipping_planes_pars_vertex>\\nvoid main() {\\n\\t#include <uv_vertex>\\n\\t#include <batching_vertex>\\n\\t#include <skinbase_vertex>\\n\\t#include <morphinstance_vertex>\\n\\t#ifdef USE_DISPLACEMENTMAP\\n\\t\\t#include <beginnormal_vertex>\\n\\t\\t#include <morphnormal_vertex>\\n\\t\\t#include <skinnormal_vertex>\\n\\t#endif\\n\\t#include <begin_vertex>\\n\\t#include <morphtarget_vertex>\\n\\t#include <skinning_vertex>\\n\\t#include <displacementmap_vertex>\\n\\t#include <project_vertex>\\n\\t#include <worldpos_vertex>\\n\\t#include <clipping_planes_vertex>\\n\\tvWorldPosition = worldPosition.xyz;\\n}\"; 533:const vertex$c = \"varying vec3 vWorldDirection;\\n#include <common>\\nvoid main() {\\n\\tvWorldDirection = transformDirection( position, modelMatrix );\\n\\t#include <begin_vertex>\\n\\t#include <project_vertex>\\n}\"; 537:const vertex$b = \"uniform float scale;\\nattribute float lineDistance;\\nvarying float vLineDistance;\\n#include <common>\\n#include <uv_pars_vertex>\\n#include <color_pars_vertex>\\n#include <fog_pars_vertex>\\n#include <morphtarget_pars_vertex>\\n#include <logdepthbuf_pars_vertex>\\n#include <clipping_planes_pars_vertex>\\nvoid main() {\\n\\tvLineDistance = scale * lineDistance;\\n\\t#include <uv_vertex>\\n\\t#include <color_vertex>\\n\\t#include <morphinstance_vertex>\\n\\t#include <morphcolor_vertex>\\n\\t#include <begin_vertex>\\n\\t#include <morphtarget_vertex>\\n\\t#include <project_vertex>\\n\\t#include <logdepthbuf_vertex>\\n\\t#include <clipping_planes_vertex>\\n\\t#include <fog_vertex>\\n}\"; 541:const vertex$a = \"#include <common>\\n#include <batching_pars_vertex>\\n#include <uv_pars_vertex>\\n#include <envmap_pars_vertex>\\n#include <color_pars_vertex>\\n#include <fog_pars_vertex>\\n#include <morphtarget_pars_vertex>\\n#include <skinning_pars_vertex>\\n#include <logdepthbuf_pars_vertex>\\n#include <clipping_planes_pars_vertex>\\nvoid main() {\\n\\t#include <uv_vertex>\\n\\t#include <color_vertex>\\n\\t#include <morphinstance_vertex>\\n\\t#include <morphcolor_vertex>\\n\\t#include <batching_vertex>\\n\\t#if defined ( USE_ENVMAP ) || defined ( USE_SKINNING )\\n\\t\\t#include <beginnormal_vertex>\\n\\t\\t#include <morphnormal_vertex>\\n\\t\\t#include <skinbase_vertex>\\n\\t\\t#include <skinnormal_vertex>\\n\\t\\t#include <defaultnormal_vertex>\\n\\t#endif\\n\\t#include <begin_vertex>\\n\\t#include <morphtarget_vertex>\\n\\t#include <skinning_vertex>\\n\\t#include <project_vertex>\\n\\t#include <logdepthbuf_vertex>\\n\\t#include <clipping_planes_vertex>\\n\\t#include <worldpos_vertex>\\n\\t#include <envmap_vertex>\\n\\t#include <fog_vertex>\\n}\"; 319:var beginnormal_vertex = \"vec3 objectNormal = vec3( normal );\\n#ifdef USE_TANGENT\\n\\tvec3 objectTangent = vec3( tangent.xyz );\\n#endif\"; 317:var begin_vertex = \"vec3 transformed = vec3( position );\\n#ifdef USE_ALPHAHASH\\n\\tvPosition = vec3( position );\\n#endif\"; p='/home/user/workspace/site/index.html' s=open(p).read() reps=[ (\"font: 600 .95rem/1 inherit; font-family: inherit;\",\"font-family: inherit; font-weight: 600; font-size: .95rem; line-height: 1;\"), (\"font: 600 .88rem/1 inherit; font-family: inherit;\",\"font-family: inherit; font-weight: 600; font-size: .88rem; line-height: 1;\"), (\"font: 400 .95rem/1.4 inherit; font-family: inherit;\",\"font-family: inherit; font-weight: 400; font-size: .95rem; line-height: 1.4;\"), (\"font: 600 .92rem/1 inherit; font-family: inherit;\",\"font-family: inherit; font-weight: 600; font-size: .92rem; line-height: 1;\"), (\"color: var(--c-ice); display: flex; flex-direction: column; align-items: flex-end; gap: .75rem; }\\n .cato-chat [hidden]\", \"color: var(--c-ice); display: flex; flex-direction: column; align-items: flex-end; gap: .75rem; pointer-events: none; }\\n .cato-chat > * { pointer-events: auto; }\\n .cato-chat [hidden]\"), (\"\"\" var store = (function () { try { var s = window.sessionStorage, k = '__cato_probe'; s.setItem(k, '1'); s.removeItem(k); return s; } catch (e) { return null; } })();\"\"\", \"\"\" var store = (function () { try { var s = window.sessionStorage, k = '__cato_probe'; s.setItem(k, '1'); s.removeItem(k); return s; } catch (e) {} /* Fallback: window.name survives same-frame navigation between this site's pages. */ var PREFIX = 'cato-store:'; function readAll() { try { return window.name.indexOf(PREFIX) === 0 ? JSON.parse(window.name.slice(PREFIX.length)) : {}; } catch (e) { return {}; } } if (window.name && window.name.indexOf(PREFIX) !== 0) return null; return { getItem: function (k) { var all = readAll(); return Object.prototype.hasOwnProperty.call(all, k) ? all[k] : null; }, setItem: function (k, v) { var all = readAll(); all[k] = String(v); try { window.name = PREFIX + JSON.stringify(all); } catch (e) {} } }; })();\"\"\"), ] for a,b in reps: assert s.count(a)==1, a[:60] s=s.replace(a,b) assert 'inherit;' not in s.replace('font-family: inherit;','') or True import re print(re.findall(r'font:[^;]*inherit',s)) open(p,'w').write(s) [] import re, pathlib B=pathlib.Path('/home/user/workspace/build'); S=pathlib.Path('/home/user/workspace/site') c=(B/'contact.tpl.html').read_text() c=c.replace(\" const sphere = new THREE.Points(g, sphereMat);\\n\",\" const sphere = new THREE.Points(g, sphereMat);\\n sphere.frustumCulled = false;\\n\") c=c.replace(\" scene.add(line);\\n\",\" line.frustumCulled = false;\\n scene.add(line);\\n\",1) c=c.replace(\" m.lookAt(camera.position.x - rig.position.x, camera.position.y - rig.position.y, camera.position.z);\",\" m.lookAt(camera.position);\") (B/'contact.tpl.html').write_text(c) idx=(S/'index.html').read_text() def between(a,b): i=idx.index(a); j=idx.index(b)+len(b); return idx[i:j] shared=between('<!-- shared-head:start -->','<!-- shared-head:end -->') widget=between('<!-- cato-widget:start -->','<!-- cato-widget:end -->') header=idx[idx.index('<header class=\"site-head\">'):idx.index('</header>')+len('</header>')] footer=idx[idx.index('<footer class=\"site-foot\">'):idx.index('</footer>')+len('</footer>')] # shared practice/ice styles used by studio def hdr(page): h=header.replace(' aria-current=\"page\"','') target={'studio':'<a href=\"studio.html\">Studio</a>','contact':'<a href=\"contact.html\">Contact</a>'}[page] assert h.count(target)==1 h=h.replace(target,target.replace('<a ','<a aria-current=\"page\" ')) if page=='contact': h=h.replace('<a class=\"nav-cta\" href=\"contact.html\">Start a project</a>','<a class=\"nav-cta\" href=\"#brief\">Write a brief</a>') return h for page in ['studio','contact']: t=(B/f'{page}.tpl.html').read_text() out=t.replace('{{SHARED_HEAD}}',shared).replace('{{WIDGET}}',widget).replace('{{HEADER}}',hdr(page)).replace('{{FOOTER}}',footer) assert '{{' not in out (S/f'{page}.html').write_text(out) print(page,len(out)) studio 60283 contact 60770 import re, pathlib, subprocess, json from html.parser import HTMLParser S=pathlib.Path('/home/user/workspace/site'); T=pathlib.Path('/tmp/chk'); T.mkdir(exist_ok=True) pages=['index.html','studio.html','contact.html'] urls=set() for p in pages: s=(S/p).read_text() scripts=re.findall(r'<script([^>]*)>(.*?)</script>',s,re.S) for i,(attrs,body) in enumerate(scripts): if 'src=' in attrs: urls.add(re.search(r'src=\"([^\"]+)\"',attrs).group(1)); continue if 'importmap' in attrs: m=json.loads(body); urls.update(m['imports'].values()); continue ext='.mjs' if 'module' in attrs else '.js' f=T/f'{p}.{i}{ext}'; f.write_text(body) r=subprocess.run(['node','--check',str(f)],capture_output=True,text=True) print(p,i,ext,'OK' if r.returncode==0 else r.stderr[:500]) if ext=='.mjs': for imp in re.findall(r\"from '([^']+)'\",body): urls.add(imp.replace('three/addons/','https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/') if imp.startswith('three/addons/') else imp) urls.update(re.findall(r'<link[^>]+href=\"(https://fonts.googleapis[^\"]+)\"',s)) # structure class P(HTMLParser): def __init__(s2): super().__init__(); s2.ids=[]; s2.hrefs=[]; s2.stack=[]; s2.errs=[] def handle_starttag(s2,t,a): a=dict(a) if 'id' in a: s2.ids.append(a['id']) if t=='a' and 'href' in a: s2.hrefs.append(a['href']) if t not in ('meta','link','br','img','input','hr','source','path','rect','circle'): s2.stack.append(t) def handle_endtag(s2,t): if t in ('path','rect','circle'): return if s2.stack and s2.stack[-1]==t: s2.stack.pop() else: s2.errs.append((t, s2.stack[-3:], s2.getpos())) pr=P(); pr.feed(s) dup={i for i in pr.ids if pr.ids.count(i)>1} print(p,'dup ids:',dup,'unclosed:',pr.stack,'mismatch:',pr.errs[:5]) for h in set(pr.hrefs): if h.startswith('#'): ok = h[1:] in pr.ids elif h.startswith('http'): ok='ext' else: ok=(S/h.split('#')[0]).exists() if ok is not True: print(' link',h,ok) # aria-controls/labelledby/describedby targets for attr in re.findall(r'aria-(?:controls|labelledby|describedby)=\"([^\"]+)\"',s): for i in attr.split(): if i not in pr.ids: print(' missing aria target',i) print(' widget present:', 'id=\"cato-chat\"' in s and 'cato-widget-js' in s, 'tailwind theme:', '@theme' in s) print(sorted(urls)) open('/tmp/chk/urls.txt','w').write('\\n'.join(sorted(urls))) index.html 0 .js OK index.html 3 .js OK index.html 5 .js OK index.html 6 .mjs OK index.html dup ids: set() unclosed: [] mismatch: [] widget present: True tailwind theme: True studio.html 0 .js OK studio.html 3 .js OK studio.html 5 .js OK studio.html 6 .mjs OK studio.html dup ids: set() unclosed: [] mismatch: [] widget present: True tailwind theme: True contact.html 0 .js OK contact.html 3 .js OK contact.html 4 .js OK contact.html 6 .js OK contact.html 7 .mjs OK contact.html dup ids: set() unclosed: [] mismatch: [] widget present: True tailwind theme: True ['https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/dist/index.global.js', 'https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js', 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js', 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/', 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/environments/RoomEnvironment.js', 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/geometries/RoundedBoxGeometry.js', 'https://fonts.googleapis.com', 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hanken+Grotesk:wght@300..700&display=swap', 'three'] while read u; do case \"$u\" in https://cdn*/jsm/|three|https://fonts.googleapis.com) continue;; esac; echo \"$(curl -s -o /dev/null -w '%{http_code}' -A 'Mozilla/5.0 Chrome/130' \"$u\") $u\"; done < /tmp/chk/urls.txt cd /tmp/jt && npm i three@0.186.1 --silent 2>&1 | tail -1 cat > /tmp/jt/exports.mjs <<'EOF' import * as THREE from 'three'; import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'; import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'; import fs from 'fs'; console.log('REVISION', THREE.REVISION, typeof RoomEnvironment, typeof RoundedBoxGeometry); const used = new Set(); for (const f of fs.readdirSync('/tmp/chk').filter(f=>f.endsWith('.mjs'))) for (const m of fs.readFileSync('/tmp/chk/'+f,'utf8').matchAll(/THREE\\.([A-Za-z0-9_]+)/g)) used.add(m[1]); const missing=[...used].filter(n=>!(n in THREE)); console.log('used', used.size, 'missing', missing); // quick geometry construction sanity const g = new THREE.TorusKnotGeometry(1.12,.42,440,72,2,3); console.log('knot verts', g.attributes.position.count); const rb = new RoundedBoxGeometry(.54,.18,.54,2,.06); console.log('tile verts', rb.attributes.position.count); EOF node /tmp/jt/exports.mjs 200 https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/dist/index.global.js 200 https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js 200 https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js 200 https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/environments/RoomEnvironment.js 200 https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/geometries/RoundedBoxGeometry.js 200 https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hanken+Grotesk:wght@300..700&display=swap REVISION 186 function function used 37 missing [] knot verts 32193 tile verts 900 cat > /tmp/jt/shader.mjs <<'EOF' import * as THREE from 'three'; const vs = THREE.ShaderLib.physical.vertexShader; const a = vs.includes('#include <beginnormal_vertex>'), b = vs.includes('#include <begin_vertex>'); const iN = vs.indexOf('#include <beginnormal_vertex>'), iB = vs.indexOf('#include <begin_vertex>'); console.log('chunks present', a, b, 'normal-before-begin', iN < iB, 'main at', vs.indexOf('void main'), iN); EOF node /tmp/jt/shader.mjs; which glslangValidator || pip download glslang 2>&1 | tail -1 >/dev/null; echo chunks present true true normal-before-begin true main at 481 634 cat > /tmp/jt/widget.test.js <<'EOF' const { JSDOM } = require('jsdom'); const fs = require('fs'); const html = fs.readFileSync(process.argv[2], 'utf8'); const sleep = (ms) => new Promise(r => setTimeout(r, ms)); let pass = 0, fail = 0; const ok = (c, m) => { if (c) { pass++; console.log(' ok ', m); } else { fail++; console.log(' FAIL', m); } }; async function hostMode() { console.log('host (canvas bridge) mode'); const sent = []; const dom = new JSDOM(html, { url: 'https://preview.example/index.html', runScripts: 'dangerously', pretendToBeVisual: true, beforeParse(w) { const fakeParent = { postMessage: (m, o) => sent.push({ m, o }) }; Object.defineProperty(w, 'parent', { value: fakeParent, configurable: true }); w.__fakeParent = fakeParent; w.matchMedia = () => ({ matches: false, addEventListener() {} }); w.requestIdleCallback = (f) => setTimeout(f, 1); } }); const w = dom.window, d = w.document; const emit = (requestId, event, extra = {}) => w.dispatchEvent(Object.assign(new w.Event('message'), { data: { type: 'cato:chat:event', requestId, event, ...extra }, source: w.__fakeParent })); const emitFrom = (src, requestId, event) => w.dispatchEvent(Object.assign(new w.Event('message'), { data: { type: 'cato:chat:event', requestId, event }, source: src })); w.dispatchEvent(new w.Event('load')); ok(sent.length === 0, 'no request before page has rendered'); await sleep(1400); ok(sent.length === 1, 'exactly one proactive intro request after render'); const intro = sent[0]; ok(intro.m.type === 'cato:chat' && intro.o === '*' && typeof intro.m.requestId === 'string', 'intro uses cato:chat postMessage with requestId'); ok(intro.m.input === 'A visitor has opened the generated website. Introduce Cato Labs and offer help with their website and AI implementation project.', 'intro input is the exact contract string'); ok(Object.keys(intro.m).sort().join() === 'input,requestId,type', 'message carries only type, requestId, input (no history, no previous id)'); ok(!d.querySelector('.cato-msg-visitor'), 'intro is not shown as a visitor message'); ok(/started this conversation/.test(d.getElementById('cato-log').textContent), 'intro labelled as started by Cato Labs'); ok(d.getElementById('cato-chat').dataset.busy === 'true', 'busy state on during intro'); emit('other-id', { type: 'response.output_text.delta', delta: 'WRONG' }); emitFrom({}, intro.m.requestId, { type: 'response.output_text.delta', delta: 'SPOOF' }); w.dispatchEvent(Object.assign(new w.Event('message'), { data: { type: 'something', requestId: intro.m.requestId, event: { type: 'response.output_text.delta', delta: 'BADTYPE' } }, source: w.__fakeParent })); emit(intro.m.requestId, { type: 'response.created' }); ok(/Request received/.test(d.getElementById('cato-activity').textContent), 'non-text native events shown as activity'); emit(intro.m.requestId, { type: 'response.output_text.delta', delta: 'Hi, I\\'m the Cato Labs assistant. <img src=x onerror=alert(1)>' }); emit(intro.m.requestId, { type: 'response.output_text.delta', delta: ' What are you building?' }); const bubbleText = d.querySelector('.cato-msg-assistant .cato-msg-text').textContent; ok(!/WRONG|SPOOF|BADTYPE/.test(d.body.textContent), 'events with wrong requestId / source / type ignored'); ok(bubbleText.includes('<img src=x') && !d.querySelector('.cato-msg-assistant img'), 'assistant text rendered as text, never as HTML'); ok(!d.getElementById('cato-teaser').hidden && /What are you building/.test(d.getElementById('cato-teaser-text').textContent), 'teaser streams intro while panel stays closed'); ok(d.getElementById('cato-panel').hidden, 'panel not forced open'); // try to send while busy w.CatoChat.open(); d.getElementById('cato-input').value = 'too early'; d.getElementById('cato-form').dispatchEvent(new w.Event('submit', { cancelable: true })); ok(sent.length === 1, 'second turn blocked while busy'); emit(intro.m.requestId, { type: 'response.completed', response: { id: 'resp_1' } }); ok(d.getElementById('cato-chat').dataset.busy === 'false', 'busy cleared on response.completed'); // visitor turn d.getElementById('cato-input').value = 'I run a bakery and need a site with an ordering assistant.'; d.getElementById('cato-form').dispatchEvent(new w.Event('submit', { cancelable: true })); ok(sent.length === 2 && sent[1].m.input === 'I run a bakery and need a site with an ordering assistant.', 'visitor turn sends only the new message'); ok(sent[1].m.requestId !== intro.m.requestId, 'unique requestId per turn'); ok(d.querySelectorAll('.cato-msg-visitor').length === 1, 'visitor message shown in history'); ok(d.getElementById('cato-send').getAttribute('aria-disabled') === 'true', 'send button disabled while replying'); emit(sent[1].m.requestId, { type: 'response.output_text.delta', delta: 'Partial' }); emit(sent[1].m.requestId, { type: 'response.failed', response: { error: { message: 'Telnyx voice profile is not configured.' } } }); const err = d.querySelector('.cato-error'); ok(err && /Telnyx voice profile is not configured/.test(err.textContent), 'failure shows event.response.error.message honestly'); ok(d.querySelector('.cato-msg[data-failed=\"true\"]'), 'partial reply kept and marked failed'); err.querySelector('button').click(); ok(sent.length === 3 && sent[2].m.input === sent[1].m.input && sent[2].m.requestId !== sent[1].m.requestId, 'retry resends same input with new requestId'); ok(d.querySelectorAll('.cato-msg-visitor').length === 1, 'retry does not duplicate the visitor bubble'); emit(sent[2].m.requestId, { type: 'error', error: { message: 'Rate limited' } }); ok(/Rate limited/.test(d.getElementById('cato-log').textContent), 'error event uses event.error.message'); // escape closes d.getElementById('cato-input').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); ok(d.getElementById('cato-panel').hidden && d.getElementById('cato-launcher').getAttribute('aria-expanded') === 'false', 'Escape closes panel'); ok(d.activeElement === d.getElementById('cato-launcher'), 'focus returns to launcher'); // persistence across a page navigation in same tab const stored = w.sessionStorage.getItem('cato-labs-chat:v1'); ok(stored && JSON.parse(stored).introStarted === true, 'intro recorded so other pages do not repeat it'); w.close(); return stored; } async function secondPage(stored) { console.log('second page, same session'); const sent = []; const dom = new JSDOM(html, { url: 'https://preview.example/studio.html', runScripts: 'dangerously', beforeParse(w) { w.sessionStorage.setItem('cato-labs-chat:v1', stored); Object.defineProperty(w, 'parent', { value: { postMessage: (m) => sent.push(m) } }); w.matchMedia = () => ({ matches: false, addEventListener() {} }); } }); const w = dom.window, d = w.document; w.dispatchEvent(new w.Event('load')); await sleep(1400); ok(sent.length === 0, 'no second introduction on another page'); ok(d.querySelectorAll('.cato-msg').length >= 2, 'visible history restored'); w.close(); } async function httpMode() { console.log('deployed HTTP/SSE mode'); const bodies = []; const dom = new JSDOM(html, { url: 'https://cato.example/index.html', runScripts: 'dangerously', beforeParse(w) { w.matchMedia = () => ({ matches: false, addEventListener() {} }); w.TextDecoder = TextDecoder; w.fetch = async (url, init) => { bodies.push({ url, body: JSON.parse(init.body), headers: init.headers }); const n = bodies.length; const events = n === 1 ? [{ type: 'response.created', response: { id: 'resp_q', status: 'queued' } }, { type: 'response.output_text.delta', delta: 'Hello from ' }, { type: 'response.output_text.delta', delta: 'Cato Labs.' }, { type: 'response.completed', response: { id: 'resp_A' } }] : n === 2 ? [{ type: 'response.output_text.delta', delta: 'Oops' }, { type: 'response.incomplete', response: { id: 'resp_B', incomplete_details: { reason: 'max_output_tokens' } } }] : [{ type: 'response.output_text.delta', delta: 'ok' }, { type: 'response.completed', response: { id: 'resp_C' } }]; const text = events.map(e => 'event: ' + e.type + '\\r\\ndata: ' + JSON.stringify(e) + '\\r\\n\\r\\n').join('') + 'data: [DONE]\\n\\n'; const enc = new TextEncoder().encode(text); let i = 0; const stream = new ReadableStream({ pull(c) { if (i >= enc.length) return c.close(); c.enqueue(enc.slice(i, i + 17)); i += 17; } }); return { ok: true, status: 200, body: stream }; }; } }); const w = dom.window, d = w.document; w.dispatchEvent(new w.Event('load')); await sleep(1500); ok(bodies.length === 1 && bodies[0].url === '/api/vibe-chat' && !('previous_response_id' in bodies[0].body), 'first POST to /api/vibe-chat without previous id'); ok(/Hello from Cato Labs\\./.test(d.getElementById('cato-log').textContent), 'SSE deltas parsed across chunk boundaries and CRLF'); ok(w.sessionStorage.getItem('cato-labs-chat:previous-response-id') === 'resp_A', 'remembers response id only from response.completed (not queued resp_q)'); w.CatoChat.send('Second question'); await sleep(200); ok(bodies[1].body.previous_response_id === 'resp_A' && bodies[1].body.input === 'Second question', 'next POST sends {input, previous_response_id}'); ok(/max_output_tokens/.test(d.getElementById('cato-log').textContent), 'response.incomplete reported honestly'); ok(w.sessionStorage.getItem('cato-labs-chat:previous-response-id') === 'resp_A', 'incomplete response not used as continuation'); w.CatoChat.send('Third'); await sleep(200); ok(bodies[2].body.previous_response_id === 'resp_A', 'continuation still from last completed response'); w.close(); } async function http404() { console.log('deployed copy without backend'); const dom = new JSDOM(html, { url: 'https://static-host.example/index.html', runScripts: 'dangerously', beforeParse(w) { w.matchMedia = () => ({ matches: false, addEventListener() {} }); w.fetch = async () => ({ ok: false, status: 404, text: async () => '<h1>Not found</h1>' }); } }); const w = dom.window, d = w.document; w.dispatchEvent(new w.Event('load')); await sleep(1500); ok(!d.getElementById('cato-availability').hidden && /not connected/.test(d.getElementById('cato-availability').textContent), 'clear unavailable state when endpoint missing'); ok(!d.querySelector('.cato-msg-assistant'), 'no simulated assistant reply'); w.close(); } async function fileMode() { console.log('opened from disk'); let calls = 0; const dom = new JSDOM(html, { url: 'file:///Users/me/site/index.html', runScripts: 'dangerously', beforeParse(w) { w.matchMedia = () => ({ matches: false, addEventListener() {} }); w.fetch = async () => { calls++; throw new Error('x'); }; } }); const w = dom.window, d = w.document; w.dispatchEvent(new w.Event('load')); await sleep(1500); ok(calls === 0, 'no request attempted from file://'); d.getElementById('cato-launcher').click(); ok(/opened from a file/.test(d.getElementById('cato-availability').textContent) && d.getElementById('cato-input').disabled, 'file:// shows unavailable state, input disabled'); w.close(); } (async () => { const stored = await hostMode(); await secondPage(stored); await httpMode(); await http404(); await fileMode(); console.log(`\\n${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0); })(); EOF cd /tmp/jt && node widget.test.js /home/user/workspace/site/index.html 2>&1 | grep -v \"Not implemented\" host (canvas bridge) mode ok no request before page has rendered ok exactly one proactive intro request after render ok intro uses cato:chat postMessage with requestId ok intro input is the exact contract string ok message carries only type, requestId, input (no history, no previous id) ok intro is not shown as a visitor message ok intro labelled as started by Cato Labs ok busy state on during intro ok non-text native events shown as activity ok events with wrong requestId / source / type ignored ok assistant text rendered as text, never as HTML ok teaser streams intro while panel stays closed ok panel not forced open ok second turn blocked while busy ok busy cleared on response.completed ok visitor turn sends only the new message ok unique requestId per turn ok visitor message shown in history ok send button disabled while replying ok failure shows event.response.error.message honestly ok partial reply kept and marked failed ok retry resends same input with new requestId ok retry does not duplicate the visitor bubble ok error event uses event.error.message ok Escape closes panel ok focus returns to launcher ok intro recorded so other pages do not repeat it second page, same session ok no second introduction on another page ok visible history restored deployed HTTP/SSE mode ok first POST to /api/vibe-chat without previous id ok SSE deltas parsed across chunk boundaries and CRLF ok remembers response id only from response.completed (not queued resp_q) ok next POST sends {input, previous_response_id} ok response.incomplete reported honestly ok incomplete response not used as continuation ok continuation still from last completed response deployed copy without backend ok clear unavailable state when endpoint missing ok no simulated assistant reply opened from disk ok no request attempted from file:// ok file:// shows unavailable state, input disabled 40 passed, 0 failed cd /tmp/jt; for p in studio contact; do echo \"== $p\"; node widget.test.js /home/user/workspace/site/$p.html 2>&1 | grep -E \"passed|FAIL\"; done cat > /tmp/jt/extra.test.js <<'EOF' const { JSDOM } = require('jsdom'); const fs = require('fs'); const sleep = (ms) => new Promise(r => setTimeout(r, ms)); let pass=0, fail=0; const ok=(c,m)=>{ c?pass++:fail++; console.log(c?' ok ':' FAIL', m); }; (async () => { console.log('contact brief composer'); const html = fs.readFileSync('/home/user/workspace/site/contact.html','utf8'); const sent=[]; const dom = new JSDOM(html, { url:'https://preview.example/contact.html', runScripts:'dangerously', beforeParse(w){ Object.defineProperty(w,'parent',{value:{postMessage:(m)=>sent.push(m)}}); w.matchMedia=()=>({matches:false,addEventListener(){}}); w.sessionStorage.setItem('cato-labs-chat:v1', JSON.stringify({messages:[],introStarted:true,dismissed:false})); } }); const w=dom.window, d=w.document; w.dispatchEvent(new w.Event('load')); const form=d.getElementById('brief'); form.dispatchEvent(new w.Event('submit',{cancelable:true})); ok(sent.length===0 && d.getElementById('b-name').getAttribute('aria-invalid')==='true' && /Check the highlighted/.test(d.getElementById('brief-status').textContent), 'empty brief blocked with inline errors'); d.getElementById('b-name').value='Ana'; d.getElementById('b-business').value='Harbor Bakery'; d.getElementById('b-details').value='A site with online ordering and an assistant that answers allergy questions.'; d.getElementById('b-phone').value='abc'; form.dispatchEvent(new w.Event('submit',{cancelable:true})); ok(sent.length===0 && /digits/.test(d.getElementById('b-phone-err').textContent), 'invalid phone rejected'); d.getElementById('b-phone').value='+1 415 555 0134'; form.querySelector('input[value=\"a website\"]').checked=true; form.querySelector('input[value=\"an AI chat assistant\"]').checked=true; form.dispatchEvent(new w.Event('submit',{cancelable:true})); ok(sent.length===1 && /Ana from Harbor Bakery/.test(sent[0].input) && /a website, an AI chat assistant/.test(sent[0].input) && /ask me in this chat before placing any call/.test(sent[0].input), 'brief sent as one real visitor turn incl. consent note'); ok(!d.getElementById('cato-panel').hidden && d.querySelectorAll('.cato-msg-visitor').length===1, 'chat panel opened showing the brief as visitor message'); ok(/streaming into the chat/.test(d.getElementById('brief-status').textContent), 'status explains where the reply goes'); form.dispatchEvent(new w.Event('submit',{cancelable:true})); ok(sent.length===1 && /still replying/.test(d.getElementById('brief-status').textContent), 'second brief blocked while busy'); d.dispatchEvent(new w.CustomEvent('cato:chat-state',{detail:{busy:true}})); ok(d.getElementById('signal-label').textContent==='Assistant replying', 'signal status reflects busy'); w.close(); console.log('blocked sessionStorage (opaque origin) fallback'); const idx = fs.readFileSync('/home/user/workspace/site/index.html','utf8'); const sent2=[]; let name=''; const mk = () => new JSDOM(idx, { url:'https://preview.example/index.html', runScripts:'dangerously', beforeParse(w){ Object.defineProperty(w,'sessionStorage',{get(){ throw new Error('SecurityError'); }}); Object.defineProperty(w,'parent',{value:{postMessage:(m)=>sent2.push(m)}}); w.name = name; w.matchMedia=()=>({matches:false,addEventListener(){}}); } }); let dm = mk(); dm.window.dispatchEvent(new dm.window.Event('load')); await sleep(1400); ok(sent2.length===1, 'intro sent once with storage blocked'); name = dm.window.name; dm.window.close(); ok(name.startsWith('cato-store:'), 'state kept in window.name'); dm = mk(); dm.window.dispatchEvent(new dm.window.Event('load')); await sleep(1400); ok(sent2.length===1, 'no repeated intro after navigation when storage is blocked'); dm.window.close(); console.log(`\\n${pass} passed, ${fail} failed`); process.exit(fail?1:0); })(); EOF node extra.test.js 2>&1 | grep -v \"Not implemented\" == studio 40 passed, 0 failed == contact 40 passed, 0 failed contact brief composer ok empty brief blocked with inline errors ok invalid phone rejected ok brief sent as one real visitor turn incl. consent note ok chat panel opened showing the brief as visitor message ok status explains where the reply goes ok second brief blocked while busy ok signal status reflects busy blocked sessionStorage (opaque origin) fallback ok intro sent once with storage blocked ok state kept in window.name ok no repeated intro after navigation when storage is blocked 10 passed, 0 failed cd /home/user/workspace/site; grep -n -i -E \"bearer|authorization|api[_-]?key|pplx-|KEY[0-9A-Z]{6}|api\\.perplexity|api\\.telnyx|telnyx_api\" *.html | head; echo \"scan done\"; which chromium chromium-browser google-chrome 2>/dev/null; ls ~/.cache/ms-playwright 2>/dev/null; python3 -c \"import playwright; print('playwright py')\" 2>&1 | tail -1 contact.html:301: @keyframes cato-spin { to { transform: rotate(360deg); } } contact.html:313: @keyframes cato-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } } contact.html:330: @keyframes cato-blink { 50% { opacity: 0; } } index.html:405: @keyframes cato-spin { to { transform: rotate(360deg); } } index.html:417: @keyframes cato-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } } index.html:434: @keyframes cato-blink { 50% { opacity: 0; } } studio.html:161: @keyframes faq-open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } } studio.html:343: @keyframes cato-spin { to { transform: rotate(360deg); } } studio.html:355: @keyframes cato-in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } } studio.html:372: @keyframes cato-blink { 50% { opacity: 0; } } scan done chromium-1217 chromium_headless_shell-1217 ffmpeg-1011 ModuleNotFoundError: No module named 'playwright' cd /tmp/jt && npm i playwright-core --silent 2>&1 | tail -1; ls ~/.cache/ms-playwright/chromium-1217/; find ~/.cache/ms-playwright/chromium-1217 -maxdepth 3 -name chrome -type f; (cd /home/user/workspace/site && nohup python3 -m http.server 8765 >/tmp/srv.log 2>&1 &) ; sleep 1; curl -s -o /dev/null -w '%{http_code}\\n' http://localhost:8765/index.html DEPENDENCIES_VALIDATED INSTALLATION_COMPLETE chrome-linux64 /home/user/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome 200 mkdir -p /home/user/workspace/shots; cat > /tmp/jt/shots.js <<'EOF' const { chromium } = require('playwright-core'); (async () => { const browser = await chromium.launch({ executablePath: process.env.HOME + '/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] }); const results = {}; for (const [label, vp] of [['desk', { width: 1440, height: 900 }], ['mobile', { width: 390, height: 844 }]]) { for (const page of ['index', 'studio', 'contact']) { const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1 }); const p = await ctx.newPage(); const errs = []; p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)); }); p.on('pageerror', e => errs.push('PAGEERROR ' + e.message.slice(0, 200))); await p.goto('http://localhost:8765/' + page + '.html', { waitUntil: 'load', timeout: 60000 }); await p.waitForTimeout(5000); const info = await p.evaluate(() => { const st = document.querySelector('#sculpture-stage, #lattice, #signal'); return { scene: st && st.dataset.state, canvas: !!(st && st.querySelector('canvas')), tw: getComputedStyle(document.querySelector('.bg-midnight') || document.body).backgroundColor, font: document.fonts.check('500 40px \"Bodoni Moda\"'), gsap: !!window.gsap, chatMode: window.CatoChat && window.CatoChat.mode, avail: document.getElementById('cato-availability').textContent, teaser: !document.getElementById('cato-teaser').hidden }; }); await p.screenshot({ path: `/home/user/workspace/shots/${page}-${label}.png` }); if (label === 'desk') await p.screenshot({ path: `/home/user/workspace/shots/${page}-full.png`, fullPage: true }); results[page + '-' + label] = { ...info, errs }; await ctx.close(); } } // navigation + chat interaction on desktop const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } }); const p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1500); await p.click('nav[aria-label=\"Primary\"] a[href=\"studio.html\"]'); await p.waitForLoadState('load'); const u1 = p.url(); await p.click('nav[aria-label=\"Primary\"] a[href=\"contact.html\"]'); await p.waitForLoadState('load'); const u2 = p.url(); await p.click('a.brand'); await p.waitForLoadState('load'); const u3 = p.url(); await p.waitForTimeout(3500); await p.click('#cato-launcher'); await p.waitForTimeout(600); await p.screenshot({ path: '/home/user/workspace/shots/chat-open.png' }); const chat = await p.evaluate(() => ({ open: !document.getElementById('cato-panel').hidden, focus: document.activeElement && document.activeElement.id, log: document.getElementById('cato-log').innerText.slice(0, 400), avail: document.getElementById('cato-availability').innerText })); // glaze control + pause await p.keyboard.press('Escape'); await p.check('input[name=\"glaze\"][value=\"ice\"]'); await p.click('#motion-toggle'); await p.waitForTimeout(1800); const ctl = await p.evaluate(() => ({ glaze: document.getElementById('sculpture-stage').dataset.glaze, pressed: document.getElementById('motion-toggle').getAttribute('aria-pressed') })); await p.screenshot({ path: '/home/user/workspace/shots/index-ice.png' }); console.log(JSON.stringify({ results, nav: [u1, u2, u3], chat, ctl }, null, 1)); await browser.close(); })().catch(e => { console.error(e); process.exit(1); }); EOF cd /tmp/jt && timeout 280 node shots.js page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:8765/index.html Call log: - navigating to \"http://localhost:8765/index.html\", waiting until \"load\" at /tmp/jt/shots.js:12:15 { log: [ ' - navigating to \"http://localhost:8765/index.html\", waiting until \"load\"' ], name: 'Error' } cd /home/user/workspace/site && (python3 -m http.server 8765 >/tmp/srv.log 2>&1 &) && sleep 1 && cd /tmp/jt && timeout 280 node shots.js; tail -5 /tmp/srv.log { \"results\": { \"index-desk\": { \"scene\": \"fallback\", \"canvas\": true, \"tw\": \"rgb(7, 12, 43)\", \"font\": true, \"gsap\": true, \"chatMode\": \"http\", \"avail\": \"This copy of the site is not connected to the Cato Labs chat service (/api/vibe-chat returned 501).\", \"teaser\": false, \"errs\": [ \"Sculpture failed to start ReferenceError: Cannot access 'activeUntil' before initialization\\n at requestFrame (http://localhost:8765/index.html:1202:28)\\n at applyHeat (http://localhost:8765/index\", \"Failed to load resource: the server responded with a status of 404 (File not found)\", \"Failed to load resource: the server responded with a status of 501 (Unsupported method ('POST'))\" ] }, \"studio-desk\": { \"scene\": \"ready\", \"canvas\": true, \"tw\": \"rgb(7, 12, 43)\", \"font\": true, \"gsap\": true, \"chatMode\": \"http\", \"avail\": \"This copy of the site is not connected to the Cato Labs chat service (/api/vibe-chat returned 501).\", \"teaser\": false, \"errs\": [ \"Failed to load resource: the server responded with a status of 501 (Unsupported method ('POST'))\" ] }, \"contact-desk\": { \"scene\": \"ready\", \"canvas\": true, \"tw\": \"rgb(7, 12, 43)\", \"font\": true, \"gsap\": true, \"chatMode\": \"http\", \"avail\": \"This copy of the site is not connected to the Cato Labs chat service (/api/vibe-chat returned 501).\", \"teaser\": false, \"errs\": [ \"Failed to load resource: the server responded with a status of 501 (Unsupported method ('POST'))\" ] }, \"index-mobile\": { \"scene\": \"fallback\", \"canvas\": true, \"tw\": \"rgb(7, 12, 43)\", \"font\": true, \"gsap\": true, \"chatMode\": \"http\", \"avail\": \"This copy of the site is not connected to the Cato Labs chat service (/api/vibe-chat returned 501).\", \"teaser\": false, \"errs\": [ \"Sculpture failed to start ReferenceError: Cannot access 'activeUntil' before initialization\\n at requestFrame (http://localhost:8765/index.html:1202:28)\\n at applyHeat (http://localhost:8765/index\", \"Failed to load resource: the server responded with a status of 501 (Unsupported method ('POST'))\" ] }, \"studio-mobile\": { \"scene\": \"ready\", \"canvas\": true, \"tw\": \"rgb(7, 12, 43)\", \"font\": true, \"gsap\": true, \"chatMode\": \"http\", \"avail\": \"This copy of the site is not connected to the Cato Labs chat service (/api/vibe-chat returned 501).\", \"teaser\": false, \"errs\": [ \"Failed to load resource: the server responded with a status of 501 (Unsupported method ('POST'))\" ] }, \"contact-mobile\": { \"scene\": \"ready\", \"canvas\": true, \"tw\": \"rgb(7, 12, 43)\", \"font\": true, \"gsap\": true, \"chatMode\": \"http\", \"avail\": \"This copy of the site is not connected to the Cato Labs chat service (/api/vibe-chat returned 501).\", \"teaser\": false, \"errs\": [ \"Failed to load resource: the server responded with a status of 501 (Unsupported method ('POST'))\" ] } }, \"nav\": [ \"http://localhost:8765/studio.html\", \"http://localhost:8765/contact.html\", \"http://localhost:8765/index.html\" ], \"chat\": { \"open\": true, \"focus\": \"cato-input\", \"log\": \"Cato Labs started this conversation.\", \"avail\": \"\" }, \"ctl\": { \"glaze\": \"cobalt\", \"pressed\": \"false\" } } 127.0.0.1 - - [16/Oct/2026 11:52:43] \"GET /index.html HTTP/1.1\" 200 - 127.0.0.1 - - [16/Oct/2026 11:52:50] code 501, message Unsupported method ('POST') 127.0.0.1 - - [16/Oct/2026 11:52:50] \"POST /api/vibe-chat HTTP/1.1\" 501 - 127.0.0.1 - - [16/Oct/2026 11:52:50] \"GET /studio.html HTTP/1.1\" 200 - 127.0.0.1 - - [16/Oct/2026 11:52:56] \"GET /contact.html HTTP/1.1\" 200 - p='/home/user/workspace/site/index.html' s=open(p).read() reps=[ # hoist loop state (\"\"\" stage.appendChild(canvas); const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100); camera.position.set(0, 0, 9);\"\"\", \"\"\" stage.appendChild(canvas); /* Loop state is declared first: controls may request frames during setup. */ let rafId = 0, last = performance.now(), activeUntil = 0, time = 0, firstFrame = true; const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100); camera.position.set(0, 0, 9);\"\"\"), (\"\"\" let rafId = 0, last = performance.now(), activeUntil = 0, time = 0, firstFrame = true; function requestFrame(ms) {\"\"\",\"\"\" function requestFrame(ms) {\"\"\"), # fallback wiring in both paths (\"\"\"if (!hasWebGL()) { stage.dataset.state = 'fallback'; glazeInputs.forEach((el) => el.addEventListener('change', () => { stage.dataset.glaze = el.value; })); motionBtn.disabled = true; heat.disabled = true; } else { try { start(); } catch (err) { console.error('Sculpture failed to start', err); stage.dataset.state = 'fallback'; } }\"\"\",\"\"\"function useFallback() { stage.dataset.state = 'fallback'; glazeInputs.forEach((el) => el.addEventListener('change', () => { if (el.checked) stage.dataset.glaze = el.value; })); motionBtn.disabled = true; heat.disabled = true; } if (!hasWebGL()) useFallback(); else { try { start(); } catch (err) { console.error('Sculpture failed to start', err); stage.querySelector('canvas')?.remove(); useFallback(); } }\"\"\"), # intro note persisted only when meaningful (\"\"\" if (opts.intro) { noteLine('Cato Labs started this conversation.'); state.messages.push({ role: 'note', text: 'Cato Labs started this conversation.' }); } else { bubble('visitor', text); state.messages.push({ role: 'visitor', text: text }); } saveState();\"\"\",\"\"\" if (opts.intro) noteLine(INTRO_NOTE); else { bubble('visitor', text); state.messages.push({ role: 'visitor', text: text }); saveState(); }\"\"\"), (\"\"\" if (!acc) { reply.set('The assistant finished without a written reply.'); } state.messages.push({ role: 'assistant', text: acc || 'The assistant finished without a written reply.' });\"\"\",\"\"\" if (!acc) { reply.set('The assistant finished without a written reply.'); } if (opts.intro) state.messages.push({ role: 'note', text: INTRO_NOTE }); state.messages.push({ role: 'assistant', text: acc || 'The assistant finished without a written reply.' });\"\"\"), (\"\"\" if (acc) { reply.el.setAttribute('data-failed', 'true'); state.messages.push({ role: 'assistant', text: acc, failed: true }); saveState(); }\"\"\",\"\"\" if (acc) { reply.el.setAttribute('data-failed', 'true'); if (opts.intro) state.messages.push({ role: 'note', text: INTRO_NOTE }); state.messages.push({ role: 'assistant', text: acc, failed: true }); saveState(); }\"\"\"), (\"\"\" var MAX_INPUT = 4000;\"\"\",\"\"\" var MAX_INPUT = 4000; var INTRO_NOTE = 'Cato Labs started this conversation.';\"\"\"), # favicon (\"\"\"<!-- shared-head:start --> \"\"\",\"\"\"<!-- shared-head:start --> <link rel=\"icon\" href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23070C2B'/%3E%3Cpath d='M22.5 10.2a8.6 8.6 0 1 0 0 11.6' fill='none' stroke='%236F8BFF' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E\"> \"\"\"), ] for a,b in reps: assert s.count(a)==1, a[:70] s=s.replace(a,b) open(p,'w').write(s) print('ok') ok cat > /home/user/workspace/build/build.py <<'EOF' import pathlib B=pathlib.Path('/home/user/workspace/build'); S=pathlib.Path('/home/user/workspace/site') idx=(S/'index.html').read_text() def between(a,b): i=idx.index(a); j=idx.index(b)+len(b); return idx[i:j] shared=between('<!-- shared-head:start -->','<!-- shared-head:end -->') widget=between('<!-- cato-widget:start -->','<!-- cato-widget:end -->') header=idx[idx.index('<header class=\"site-head\">'):idx.index('</header>')+len('</header>')] footer=idx[idx.index('<footer class=\"site-foot\">'):idx.index('</footer>')+len('</footer>')] def hdr(page): h=header.replace(' aria-current=\"page\"','') t={'studio':'<a href=\"studio.html\">Studio</a>','contact':'<a href=\"contact.html\">Contact</a>'}[page] h=h.replace(t,t.replace('<a ','<a aria-current=\"page\" ')) if page=='contact': h=h.replace('<a class=\"nav-cta\" href=\"contact.html\">Start a project</a>','<a class=\"nav-cta\" href=\"#brief\">Write a brief</a>') return h for page in ['studio','contact']: out=(B/f'{page}.tpl.html').read_text().replace('{{SHARED_HEAD}}',shared).replace('{{WIDGET}}',widget).replace('{{HEADER}}',hdr(page)).replace('{{FOOTER}}',footer) assert '{{' not in out; (S/f'{page}.html').write_text(out); print(page,len(out)) EOF python3 /home/user/workspace/build/build.py cd /tmp/jt; for p in index studio contact; do echo \"== $p $(node widget.test.js /home/user/workspace/site/$p.html 2>&1 | grep -E 'passed|FAIL' | tr '\\n' ' ')\"; done; node extra.test.js 2>&1 | grep -E 'passed|FAIL' cd /home/user/workspace/site && (python3 -m http.server 8765 >/tmp/srv.log 2>&1 &) && sleep 1 && cd /tmp/jt && timeout 280 node shots.js | python3 -c \" import json,sys; d=json.load(sys.stdin) for k,v in d['results'].items(): print(k, v['scene'], 'gsap',v['gsap'],'font',v['font'], 'errs', [e for e in v['errs'] if '501' not in e]) print('nav', d['nav']); print('chat', d['chat']); print('ctl', d['ctl'])\" studio 60668 contact 61155 == index 40 passed, 0 failed == studio 40 passed, 0 failed == contact 40 passed, 0 failed 10 passed, 0 failed page.click: Timeout 30000ms exceeded. Call log: - waiting for locator('#motion-toggle') - locator resolved to <button type=\"button\" class=\"icon-btn\" id=\"motion-toggle\" aria-pressed=\"false\">…</button> - attempting click action - waiting for element to be visible, enabled and stable - element is visible, enabled and stable - scrolling into view if needed - done scrolling - <button type=\"button\" id=\"cato-launcher\" class=\"cato-launcher\" aria-expanded=\"false\" aria-controls=\"cato-panel\">…</button> from <div id=\"cato-chat\" class=\"cato-chat\" data-busy=\"false\">…</div> subtree intercepts pointer events - retrying click action - waiting for element to be visible, enabled and stable - element is not stable - retrying click action - waiting 20ms 2 × waiting for element to be visible, enabled and stable - element is not stable - retrying click action - waiting 100ms 9 × waiting for element to be visible, enabled and stable - element is not stable - retrying click action - waiting 500ms - waiting for element to be visible, enabled and stable at /tmp/jt/shots.js:40:62 { log: [ \" - waiting for locator('#motion-toggle')\", ' - locator resolved to <button type=\"button\" class=\"icon-btn\" id=\"motion-toggle\" aria-pressed=\"false\">…</button>', ' - attempting click action', ' - waiting for element to be visible, enabled and stable', ' - element is visible, enabled and stable', ' - scrolling into view if needed', ' - done scrolling', ' - <button type=\"button\" id=\"cato-launcher\" class=\"cato-launcher\" aria-expanded=\"false\" aria-controls=\"cato-panel\">…</button> from <div id=\"cato-chat\" class=\"cato-chat\" data-busy=\"false\">…</div> subtree intercepts pointer events', ' - retrying click action', ' - waiting for element to be visible, enabled and stable', ' - element is not stable', ' - retrying click action', ' - waiting 20ms', ' 2 × waiting for element to be visible, enabled and stable', ' - element is not stable', ' - retrying click action', ' - waiting 100ms', ' 9 × waiting for element to be visible, enabled and stable', ' - element is not stable', ' - retrying click action', ' - waiting 500ms', ' - waiting for element to be visible, enabled and stable' ], name: 'TimeoutError' } Traceback (most recent call last): File \"<string>\", line 2, in <module> import json,sys; d=json.load(sys.stdin) ~~~~~~~~~^^^^^^^^^^^ File \"/usr/local/lib/python3.14/json/__init__.py\", line 298, in load return loads(fp.read(), cls=cls, object_hook=object_hook, parse_float=parse_float, parse_int=parse_int, parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw) File \"/usr/local/lib/python3.14/json/__init__.py\", line 352, in loads return _default_decoder.decode(s) ~~~~~~~~~~~~~~~~~~~~~~~^^^ File \"/usr/local/lib/python3.14/json/decoder.py\", line 345, in decode obj, end = self.raw_decode(s, idx=_w(s, 0).end()) ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^ File \"/usr/local/lib/python3.14/json/decoder.py\", line 363, in raw_decode raise JSONDecodeError(\"Expecting value\", s, err.value) from None json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) p='/home/user/workspace/site/index.html'; s=open(p).read() a=\".hero-ui { position: absolute; z-index: 3; inset: auto 0 0 0; pointer-events: none; padding-bottom: clamp(1.5rem, 4vh, 3rem); }\" b=\".hero-ui { position: absolute; z-index: 3; inset: auto 0 0 0; pointer-events: none; padding-bottom: calc(clamp(1.5rem, 4vh, 3rem) + 4.25rem); }\" assert s.count(a)==1; s=s.replace(a,b) a2=\" .fallback-note { position: absolute; right: var(--gutter); bottom: 9.5rem;\" b2=\" .fallback-note { position: absolute; right: var(--gutter); bottom: 22rem;\" assert s.count(a2)==1; s=s.replace(a2,b2) open(p,'w').write(s) c='/home/user/workspace/build/contact.tpl.html'; t=open(c).read() a3=\" .signal-status { position: absolute; z-index: 2; right: var(--gutter); bottom: clamp(1.25rem, 4vh, 2.5rem);\" b3=\" .signal-status { position: absolute; z-index: 2; left: var(--gutter); bottom: clamp(1.25rem, 4vh, 2.5rem);\" assert t.count(a3)==1; t=t.replace(a3,b3); open(c,'w').write(t) st='/home/user/workspace/build/studio.tpl.html'; u=open(st).read() a4=\" .lattice-ui { position: absolute; left: 0; right: 0; bottom: clamp(1rem, 3vh, 2rem); z-index: 3; pointer-events: none; }\" b4=\" .lattice-ui { position: absolute; left: 0; right: 0; bottom: clamp(1rem, 3vh, 2rem); z-index: 3; pointer-events: none; }\\n @media (min-width: 761px) { .lattice-caption { margin-right: 12rem; } }\" assert u.count(a4)==1; u=u.replace(a4,b4); open(st,'w').write(u) print('ok') ok"
+          - complementary "AI build conversation" [ref=f8e139]:
+            - generic [ref=f8e140]: Studio agent
+            - generic [ref=f8e143]:
+              - generic [ref=f8e144]:
+                - generic [ref=f8e145]:
+                  - generic [ref=f8e146]:
+                    - generic [ref=f8e147]: Build objective
+                    - generic [ref=f8e148]: Your brief and observed provider activity
+                  - button "Toggle build objective" [expanded] [ref=f8e150] [cursor=pointer]:
+                    - generic [ref=f8e151]: Toggle plan
+                - generic [ref=f8e152]:
+                  - paragraph [ref=f8e153]: "Create an ambitious three-page Cato Labs concept website: index.html, studio.html, and contact.html. Make it visually striking in cobalt blue, ice white, and midnight, with sophisticated typography, generous editorial composition, a substantial animated and interactive Three.js sculpture, and polished motion. Use Tailwind CDN with embedded configuration and version-pinned JavaScript CDNs. Each page needs real navigation and the mandatory live Cato Labs chatbot widget. The chatbot should proactively introduce itself and discuss website and AI implementation projects, using the supplied native backend and conversation-state contract. Research with every available hosted tool at least once; keep unrelated research out of site copy. Stream the entry page, share all three HTML pages and a complete archive. Verify the files and scripts with available native tools; do not spend the run installing a browser. Do not invent customers, statistics, prices, or endorsements."
+                  - paragraph [ref=f8e159] [cursor=pointer]: Provider work
+              - generic [ref=f8e163]:
+                - button "1 Pending" [expanded] [ref=f8e164] [cursor=pointer]
+                - list [ref=f8e183]:
+                  - listitem [ref=f8e184]:
+                    - button "Builder 1 · disconnected" [ref=f8e187] [cursor=pointer]
+            - log [ref=f8e188]:
+              - generic [ref=f8e190]:
+                - generic [ref=f8e191]: "Create an ambitious three-page Cato Labs concept website: index.html, studio.html, and contact.html. Make it visually striking in cobalt blue, ice white, and midnight, with sophisticated typography, generous editorial composition, a substantial animated and interactive Three.js sculpture, and polished motion. Use Tailwind CDN with embedded configuration and version-pinned JavaScript CDNs. Each page needs real navigation and the mandatory live Cato Labs chatbot widget. The chatbot should proactively introduce itself and discuss website and AI implementation projects, using the supplied native backend and conversation-state contract. Research with every available hosted tool at least once; keep unrelated research out of site copy. Stream the entry page, share all three HTML pages and a complete archive. Verify the files and scripts with available native tools; do not spend the run installing a browser. Do not invent customers, statistics, prices, or endorsements."
+                - generic [ref=f8e194]:
+                  - generic [ref=f8e195]:
+                    - generic [ref=f8e196]: Builder 1
+                    - generic [ref=f8e203]:
+                      - paragraph [ref=f8e208] [cursor=pointer]: Agent activity
+                      - generic [ref=f8e213]:
+                        - button "Activity" [expanded] [ref=f8e215] [cursor=pointer]
+                        - generic [ref=f8e229]:
+                          - generic [ref=f8e230]: frontend-design · Completed
+                          - generic [ref=f8e236]: frontend-development · Completed
+                          - generic [ref=f8e243]: search · Completed
+                          - generic [ref=f8e249]: frontend-design · Completed
+                          - generic [ref=f8e255]: search · Completed
+                          - generic [ref=f8e267]:
+                            - generic [ref=f8e268]: Sandbox · Completed
+                            - generic [ref=f8e269]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e270] [cursor=pointer]:
+                                - generic [ref=f8e271]:
+                                  - generic [ref=f8e275]: Sandbox · bash
+                                  - generic [ref=f8e276]: Completed
+                              - generic [ref=f8e280]:
+                                - tablist [ref=f8e282]:
+                                  - tab "Code" [selected] [ref=f8e283] [cursor=pointer]
+                                  - tab "Output" [ref=f8e284] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e285]:
+                                  - code [ref=f8e289]:
+                                    - generic [ref=f8e290]: cd /home/user/workspace/skills/search; grep -n -i "image" reference/search.md | head -30; echo ---; sed -n 1,60p recipes/people-research.md
+                          - generic [ref=f8e297]:
+                            - generic [ref=f8e298]: Sandbox · Completed
+                            - generic [ref=f8e299]:
+                              - button "Sandbox · python Completed" [expanded] [ref=f8e300] [cursor=pointer]:
+                                - generic [ref=f8e301]:
+                                  - generic [ref=f8e305]: Sandbox · python
+                                  - generic [ref=f8e306]: Completed
+                              - generic [ref=f8e310]:
+                                - tablist [ref=f8e312]:
+                                  - tab "Code" [selected] [ref=f8e313] [cursor=pointer]
+                                  - tab "Output" [ref=f8e314] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e315]:
+                                  - code [ref=f8e319]:
+                                    - generic [ref=f8e321]: import pplx_sdk, json
+                                    - generic [ref=f8e322]: "out={}"
+                                    - generic [ref=f8e323]: "def s(k,f):"
+                                    - generic [ref=f8e324]: "try: out[k]=f()"
+                                    - generic [ref=f8e325]: "except Exception as e: out[k]=f\"ERROR {e!r}\""
+                                    - generic [ref=f8e326]: s('three_ver', lambda:[dict(h) for h in pplx_sdk.search.web("three.js latest release version npm October 2026", limit=6)])
+                                    - generic [ref=f8e327]: s('tw_ver', lambda:[dict(h) for h in pplx_sdk.search.web("@tailwindcss/browser v4 CDN latest version 2026", limit=6)])
+                                    - generic [ref=f8e328]: s('visual', lambda:[dict(h) for h in pplx_sdk.search.web("cobalt blue generative glass sculpture WebGL art direction", limit=6)])
+                                    - generic [ref=f8e329]: s('people', lambda:[dict(h) for h in pplx_sdk.search.people("Ricardo Cabello mrdoob three.js creator", limit=5)])
+                                    - generic [ref=f8e330]: "s('fetch', lambda:[{k:(v[:3000] if isinstance(v,str) else v) for k,v in dict(r).items() if k!='raw_html'} for r in pplx_sdk.content.fetch([\"https://data.jsdelivr.com/v1/packages/npm/three\",\"https://data.jsdelivr.com/v1/packages/npm/@tailwindcss/browser\"])])"
+                                    - generic [ref=f8e331]: json.dump(out,open('/home/user/workspace/research.json','w'),indent=1,default=str)
+                                    - generic [ref=f8e332]: "for k,v in out.items():"
+                                    - generic [ref=f8e333]: print('=====',k)
+                                    - generic [ref=f8e334]: "if isinstance(v,str): print(v); continue"
+                                    - generic [ref=f8e335]: "for h in v: print({kk:(str(vv)[:400]) for kk,vv in h.items()})"
+                          - generic [ref=f8e342]:
+                            - generic [ref=f8e343]: finance search · Completed
+                            - generic [ref=f8e344]: WIX
+                            - link "https://www.perplexity.ai/finance/WIX" [ref=f8e347] [cursor=pointer]:
+                              - /url: https://www.perplexity.ai/finance/WIX
+                          - generic [ref=f8e359]:
+                            - generic [ref=f8e360]: Reasoning · Completed
+                            - paragraph [ref=f8e362]: Fetched 1 finance result
+                          - generic [ref=f8e368]:
+                            - generic [ref=f8e369]: finance search · Completed
+                            - link "https://www.perplexity.ai/finance/WIX" [ref=f8e372] [cursor=pointer]:
+                              - /url: https://www.perplexity.ai/finance/WIX
+                          - generic [ref=f8e379]:
+                            - generic [ref=f8e380]: Sandbox · Completed
+                            - generic [ref=f8e381]:
+                              - button "Sandbox · python Completed" [expanded] [ref=f8e382] [cursor=pointer]:
+                                - generic [ref=f8e383]:
+                                  - generic [ref=f8e387]: Sandbox · python
+                                  - generic [ref=f8e388]: Completed
+                              - generic [ref=f8e392]:
+                                - tablist [ref=f8e394]:
+                                  - tab "Code" [selected] [ref=f8e395] [cursor=pointer]
+                                  - tab "Output" [ref=f8e396] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e397]:
+                                  - code [ref=f8e401]:
+                                    - generic [ref=f8e403]: import pplx_sdk
+                                    - generic [ref=f8e404]: rs=pplx_sdk.content.fetch(["https://threejs.org/manual/en/installation.html","https://www.npmjs.com/package/@tailwindcss/browser","https://www.npmjs.com/package/three"], prompt="Report the exact latest published version number and any import map / CDN usage example shown.")
+                                    - generic [ref=f8e405]: "for r in rs:"
+                                    - generic [ref=f8e406]: d=dict(r); print('=====',d.get('url'),d.get('error')); print((d.get('content') or '')[:1500])
+                          - generic [ref=f8e413]:
+                            - generic [ref=f8e414]: finance search · Completed
+                            - generic [ref=f8e415]: WIX
+                            - link "https://www.perplexity.ai/finance/WIX" [ref=f8e418] [cursor=pointer]:
+                              - /url: https://www.perplexity.ai/finance/WIX
+                          - generic [ref=f8e419]:
+                            - text: sandbox_write_file
+                            - generic [ref=f8e424]: /home/user/workspace/.tool_artifacts/finance/f555f72863a8b1a0/WIX_quotes_40e644.csv
+                          - generic [ref=f8e436]:
+                            - generic [ref=f8e437]: Reasoning · Completed
+                            - paragraph [ref=f8e439]: Fetched 1 finance result
+                          - generic [ref=f8e445]:
+                            - generic [ref=f8e446]: finance search · Completed
+                            - link "https://www.perplexity.ai/finance/WIX" [ref=f8e449] [cursor=pointer]:
+                              - /url: https://www.perplexity.ai/finance/WIX
+                          - generic [ref=f8e456]:
+                            - generic [ref=f8e457]: Sandbox · Completed
+                            - generic [ref=f8e458]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e459] [cursor=pointer]:
+                                - generic [ref=f8e460]:
+                                  - generic [ref=f8e464]: Sandbox · bash
+                                  - generic [ref=f8e465]: Completed
+                              - generic [ref=f8e469]:
+                                - tablist [ref=f8e471]:
+                                  - tab "Code" [selected] [ref=f8e472] [cursor=pointer]
+                                  - tab "Output" [ref=f8e473] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e474]:
+                                  - code [ref=f8e478]:
+                                    - generic [ref=f8e479]: "for u in \"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/postprocessing/UnrealBloomPass.js\" \"https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4/package.json\" \"https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js\" \"https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js\"; do echo \"$u -> $(curl -s -o /tmp/x -w '%{http_code} %{size_download}' \"$u\")\"; done; curl -s https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4/package.json | grep '\"version\"'; curl -s \"https://data.jsdelivr.com/v1/packages/npm/three/resolved?specifier=latest\"; echo; curl -s \"https://data.jsdelivr.com/v1/packages/npm/gsap/resolved?specifier=latest\"; echo; curl -s \"https://data.jsdelivr.com/v1/packages/npm/lenis/resolved?specifier=latest\""
+                          - generic [ref=f8e486]:
+                            - generic [ref=f8e487]: Sandbox · Completed
+                            - generic [ref=f8e488]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e489] [cursor=pointer]:
+                                - generic [ref=f8e490]:
+                                  - generic [ref=f8e494]: Sandbox · bash
+                                  - generic [ref=f8e495]: Completed
+                              - generic [ref=f8e499]:
+                                - tablist [ref=f8e501]:
+                                  - tab "Code" [selected] [ref=f8e502] [cursor=pointer]
+                                  - tab "Output" [ref=f8e503] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e504]:
+                                  - code [ref=f8e508]:
+                                    - generic [ref=f8e509]: "node -v; npm -v; npm ls -g 2>/dev/null | head -20; for u in \"https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/dist/index.global.js\" \"https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/environments/RoomEnvironment.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/EffectComposer.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/OutputPass.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/UnrealBloomPass.js\" \"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/postprocessing/RenderPass.js\"; do echo \"$u -> $(curl -s -o /dev/null -w '%{http_code} %{size_download}' \"$u\")\"; done; curl -s https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/package.json | grep -E '\"(main|browser|unpkg|jsdelivr)\"'"
+                          - generic [ref=f8e516]:
+                            - generic [ref=f8e517]: Sandbox · Completed
+                            - generic [ref=f8e518]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e519] [cursor=pointer]:
+                                - generic [ref=f8e520]:
+                                  - generic [ref=f8e524]: Sandbox · bash
+                                  - generic [ref=f8e525]: Completed
+                              - generic [ref=f8e529]:
+                                - tablist [ref=f8e531]:
+                                  - tab "Code" [selected] [ref=f8e532] [cursor=pointer]
+                                  - tab "Output" [ref=f8e533] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e534]:
+                                  - code [ref=f8e538]:
+                                    - generic [ref=f8e539]: cd /tmp && curl -s -o core.js https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js; ls -la core.js; grep -o '#include <beginnormal_vertex>' core.js | head -2; grep -o '#include <begin_vertex>' core.js | head -2; grep -c 'vec3 objectNormal = vec3( normal );' core.js; grep -o 'vec3 transformed = vec3( position );' core.js | head -1; mkdir -p /tmp/jt && cd /tmp/jt && npm init -y >/dev/null && npm i jsdom@24 --silent 2>&1 | tail -2; ls node_modules | grep -c jsdom
+                          - generic [ref=f8e546]:
+                            - generic [ref=f8e547]: Sandbox · Completed
+                            - generic [ref=f8e548]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e549] [cursor=pointer]:
+                                - generic [ref=f8e550]:
+                                  - generic [ref=f8e554]: Sandbox · bash
+                                  - generic [ref=f8e555]: Completed
+                              - generic [ref=f8e559]:
+                                - tablist [ref=f8e561]:
+                                  - tab "Code" [selected] [ref=f8e562] [cursor=pointer]
+                                  - tab "Output" [ref=f8e563] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e564]:
+                                  - code [ref=f8e568]:
+                                    - generic [ref=f8e569]: "cd /tmp; grep -o 'beginnormal_vertex[^,]\\{0,20\\}' core.js | head -3; grep -o '.\\{30\\}include <begin_vertex>.\\{10\\}' core.js | head -2; grep -o 'vec3 objectNormal = vec3( normal )' core.js | head -1; grep -o 'vec3 transformed = vec3( position )' core.js | head -1; ls /tmp/jt/node_modules | grep jsdom"
+                          - generic [ref=f8e576]:
+                            - generic [ref=f8e577]: Sandbox · Completed
+                            - generic [ref=f8e578]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e579] [cursor=pointer]:
+                                - generic [ref=f8e580]:
+                                  - generic [ref=f8e584]: Sandbox · bash
+                                  - generic [ref=f8e585]: Completed
+                              - generic [ref=f8e589]:
+                                - tablist [ref=f8e591]:
+                                  - tab "Code" [selected] [ref=f8e592] [cursor=pointer]
+                                  - tab "Output" [ref=f8e593] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e594]:
+                                  - code [ref=f8e598]:
+                                    - generic [ref=f8e599]: cd /tmp; head -c 300 core.js; echo; grep -c . core.js; grep -o 'begin_vertex' core.js | head; grep -o 'meshphysical' core.js | head -3; curl -s -o mod.js https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js; grep -o 'beginnormal_vertex' mod.js | head -2; grep -o "from '[^']*'" mod.js | sort -u | head
+                          - generic [ref=f8e606]:
+                            - generic [ref=f8e607]: Sandbox · Completed
+                            - generic [ref=f8e608]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e609] [cursor=pointer]:
+                                - generic [ref=f8e610]:
+                                  - generic [ref=f8e614]: Sandbox · bash
+                                  - generic [ref=f8e615]: Completed
+                              - generic [ref=f8e619]:
+                                - tablist [ref=f8e621]:
+                                  - tab "Code" [selected] [ref=f8e622] [cursor=pointer]
+                                  - tab "Output" [ref=f8e623] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e624]:
+                                  - code [ref=f8e628]:
+                                    - generic [ref=f8e629]: cd /tmp; grep -n 'beginnormal_vertex\|include <begin_vertex>' mod.js | head -8; grep -n 'vec3 objectNormal = vec3( normal )' mod.js | head -2; grep -n 'vec3 transformed = vec3( position )' mod.js | head -2
+                          - generic [ref=f8e630]:
+                            - text: sandbox_write_file
+                            - generic [ref=f8e635]: /home/user/workspace/site/index.html
+                          - generic [ref=f8e642]:
+                            - generic [ref=f8e643]: Sandbox · Completed
+                            - generic [ref=f8e644]:
+                              - button "Sandbox · python Completed" [expanded] [ref=f8e645] [cursor=pointer]:
+                                - generic [ref=f8e646]:
+                                  - generic [ref=f8e650]: Sandbox · python
+                                  - generic [ref=f8e651]: Completed
+                              - generic [ref=f8e655]:
+                                - tablist [ref=f8e657]:
+                                  - tab "Code" [selected] [ref=f8e658] [cursor=pointer]
+                                  - tab "Output" [ref=f8e659] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e660]:
+                                  - code [ref=f8e664]:
+                                    - generic [ref=f8e666]: p='/home/user/workspace/site/index.html'
+                                    - generic [ref=f8e667]: s=open(p).read()
+                                    - generic [ref=f8e668]: reps=[
+                                    - generic [ref=f8e669]: "(\"font: 600 .95rem/1 inherit; font-family: inherit;\",\"font-family: inherit; font-weight: 600; font-size: .95rem; line-height: 1;\"),"
+                                    - generic [ref=f8e670]: "(\"font: 600 .88rem/1 inherit; font-family: inherit;\",\"font-family: inherit; font-weight: 600; font-size: .88rem; line-height: 1;\"),"
+                                    - generic [ref=f8e671]: "(\"font: 400 .95rem/1.4 inherit; font-family: inherit;\",\"font-family: inherit; font-weight: 400; font-size: .95rem; line-height: 1.4;\"),"
+                                    - generic [ref=f8e672]: "(\"font: 600 .92rem/1 inherit; font-family: inherit;\",\"font-family: inherit; font-weight: 600; font-size: .92rem; line-height: 1;\"),"
+                                    - generic [ref=f8e673]: "(\"color: var(--c-ice); display: flex; flex-direction: column; align-items: flex-end; gap: .75rem; }\\n .cato-chat [hidden]\","
+                                    - generic [ref=f8e674]: "\"color: var(--c-ice); display: flex; flex-direction: column; align-items: flex-end; gap: .75rem; pointer-events: none; }\\n .cato-chat > * { pointer-events: auto; }\\n .cato-chat [hidden]\"),"
+                                    - generic [ref=f8e675]: "(\"\"\" var store = (function () {"
+                                    - generic [ref=f8e676]: "try { var s = window.sessionStorage, k = '__cato_probe'; s.setItem(k, '1'); s.removeItem(k); return s; } catch (e) { return null; }"
+                                    - generic [ref=f8e677]: "})();\"\"\","
+                                    - generic [ref=f8e678]: "\"\"\" var store = (function () {"
+                                    - generic [ref=f8e679]: "try { var s = window.sessionStorage, k = '__cato_probe'; s.setItem(k, '1'); s.removeItem(k); return s; } catch (e) {}"
+                                    - generic [ref=f8e680]: "/* Fallback: window.name survives same-frame navigation between this site's pages. */"
+                                    - generic [ref=f8e681]: var PREFIX = 'cato-store:';
+                                    - generic [ref=f8e682]: "function readAll() { try { return window.name.indexOf(PREFIX) === 0 ? JSON.parse(window.name.slice(PREFIX.length)) : {}; } catch (e) { return {}; } }"
+                                    - generic [ref=f8e683]: if (window.name && window.name.indexOf(PREFIX) !== 0) return null;
+                                    - generic [ref=f8e684]: "return {"
+                                    - generic [ref=f8e685]: "getItem: function (k) { var all = readAll(); return Object.prototype.hasOwnProperty.call(all, k) ? all[k] : null; },"
+                                    - generic [ref=f8e686]: "setItem: function (k, v) { var all = readAll(); all[k] = String(v); try { window.name = PREFIX + JSON.stringify(all); } catch (e) {} }"
+                                    - generic [ref=f8e687]: "};"
+                                    - generic [ref=f8e688]: "})();\"\"\"),"
+                                    - generic [ref=f8e689]: "]"
+                                    - generic [ref=f8e690]: "for a,b in reps:"
+                                    - generic [ref=f8e691]: assert s.count(a)==1, a[:60]
+                                    - generic [ref=f8e692]: s=s.replace(a,b)
+                                    - generic [ref=f8e693]: "assert 'inherit;' not in s.replace('font-family: inherit;','') or True"
+                                    - generic [ref=f8e694]: import re
+                                    - generic [ref=f8e695]: print(re.findall(r'font:[^;]*inherit',s))
+                                    - generic [ref=f8e696]: open(p,'w').write(s)
+                          - generic [ref=f8e698]:
+                            - text: sandbox_write_file
+                            - generic [ref=f8e703]: /home/user/workspace/build/studio.tpl.html
+                          - generic [ref=f8e704]:
+                            - text: sandbox_write_file
+                            - generic [ref=f8e709]: /home/user/workspace/build/contact.tpl.html
+                          - generic [ref=f8e716]:
+                            - generic [ref=f8e717]: Sandbox · Completed
+                            - generic [ref=f8e718]:
+                              - button "Sandbox · python Completed" [expanded] [ref=f8e719] [cursor=pointer]:
+                                - generic [ref=f8e720]:
+                                  - generic [ref=f8e724]: Sandbox · python
+                                  - generic [ref=f8e725]: Completed
+                              - generic [ref=f8e729]:
+                                - tablist [ref=f8e731]:
+                                  - tab "Code" [selected] [ref=f8e732] [cursor=pointer]
+                                  - tab "Output" [ref=f8e733] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e734]:
+                                  - code [ref=f8e738]:
+                                    - generic [ref=f8e740]: import re, pathlib
+                                    - generic [ref=f8e741]: B=pathlib.Path('/home/user/workspace/build'); S=pathlib.Path('/home/user/workspace/site')
+                                    - generic [ref=f8e742]: c=(B/'contact.tpl.html').read_text()
+                                    - generic [ref=f8e743]: c=c.replace(" const sphere = new THREE.Points(g, sphereMat);\n"," const sphere = new THREE.Points(g, sphereMat);\n sphere.frustumCulled = false;\n")
+                                    - generic [ref=f8e744]: c=c.replace(" scene.add(line);\n"," line.frustumCulled = false;\n scene.add(line);\n",1)
+                                    - generic [ref=f8e745]: c=c.replace(" m.lookAt(camera.position.x - rig.position.x, camera.position.y - rig.position.y, camera.position.z);"," m.lookAt(camera.position);")
+                                    - generic [ref=f8e746]: (B/'contact.tpl.html').write_text(c)
+                                    - generic [ref=f8e748]: idx=(S/'index.html').read_text()
+                                    - generic [ref=f8e749]: "def between(a,b):"
+                                    - generic [ref=f8e750]: i=idx.index(a); j=idx.index(b)+len(b); return idx[i:j]
+                                    - generic [ref=f8e751]: shared=between('<!-- shared-head:start -->','<!-- shared-head:end -->')
+                                    - generic [ref=f8e752]: widget=between('<!-- cato-widget:start -->','<!-- cato-widget:end -->')
+                                    - generic [ref=f8e753]: header=idx[idx.index('<header class="site-head">'):idx.index('</header>')+len('</header>')]
+                                    - generic [ref=f8e754]: footer=idx[idx.index('<footer class="site-foot">'):idx.index('</footer>')+len('</footer>')]
+                                    - generic [ref=f8e755]: "# shared practice/ice styles used by studio"
+                                    - generic [ref=f8e756]: "def hdr(page):"
+                                    - generic [ref=f8e757]: h=header.replace(' aria-current="page"','')
+                                    - generic [ref=f8e758]: "target={'studio':'<a href=\"studio.html\">Studio</a>','contact':'<a href=\"contact.html\">Contact</a>'}[page]"
+                                    - generic [ref=f8e759]: assert h.count(target)==1
+                                    - generic [ref=f8e760]: h=h.replace(target,target.replace('<a ','<a aria-current="page" '))
+                                    - generic [ref=f8e761]: "if page=='contact':"
+                                    - generic [ref=f8e762]: h=h.replace('<a class="nav-cta" href="contact.html">Start a project</a>','<a class="nav-cta" href="#brief">Write a brief</a>')
+                                    - generic [ref=f8e763]: return h
+                                    - generic [ref=f8e764]: "for page in ['studio','contact']:"
+                                    - generic [ref=f8e765]: "t=(B/f'{page}.tpl.html').read_text()"
+                                    - generic [ref=f8e766]: "out=t.replace('{{SHARED_HEAD}}',shared).replace('{{WIDGET}}',widget).replace('{{HEADER}}',hdr(page)).replace('{{FOOTER}}',footer)"
+                                    - generic [ref=f8e767]: "assert '{{' not in out"
+                                    - generic [ref=f8e768]: "(S/f'{page}.html').write_text(out)"
+                                    - generic [ref=f8e769]: print(page,len(out))
+                          - generic [ref=f8e777]:
+                            - generic [ref=f8e778]: Sandbox · Completed
+                            - generic [ref=f8e779]:
+                              - button "Sandbox · python Completed" [expanded] [ref=f8e780] [cursor=pointer]:
+                                - generic [ref=f8e781]:
+                                  - generic [ref=f8e785]: Sandbox · python
+                                  - generic [ref=f8e786]: Completed
+                              - generic [ref=f8e790]:
+                                - tablist [ref=f8e792]:
+                                  - tab "Code" [selected] [ref=f8e793] [cursor=pointer]
+                                  - tab "Output" [ref=f8e794] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e795]:
+                                  - code [ref=f8e799]:
+                                    - generic [ref=f8e801]: import re, pathlib, subprocess, json
+                                    - generic [ref=f8e802]: from html.parser import HTMLParser
+                                    - generic [ref=f8e803]: S=pathlib.Path('/home/user/workspace/site'); T=pathlib.Path('/tmp/chk'); T.mkdir(exist_ok=True)
+                                    - generic [ref=f8e804]: pages=['index.html','studio.html','contact.html']
+                                    - generic [ref=f8e805]: urls=set()
+                                    - generic [ref=f8e806]: "for p in pages:"
+                                    - generic [ref=f8e807]: s=(S/p).read_text()
+                                    - generic [ref=f8e808]: scripts=re.findall(r'<script([^>]*)>(.*?)</script>',s,re.S)
+                                    - generic [ref=f8e809]: "for i,(attrs,body) in enumerate(scripts):"
+                                    - generic [ref=f8e810]: "if 'src=' in attrs: urls.add(re.search(r'src=\"([^\"]+)\"',attrs).group(1)); continue"
+                                    - generic [ref=f8e811]: "if 'importmap' in attrs:"
+                                    - generic [ref=f8e812]: m=json.loads(body); urls.update(m['imports'].values()); continue
+                                    - generic [ref=f8e813]: ext='.mjs' if 'module' in attrs else '.js'
+                                    - generic [ref=f8e814]: "f=T/f'{p}.{i}{ext}'; f.write_text(body)"
+                                    - generic [ref=f8e815]: r=subprocess.run(['node','--check',str(f)],capture_output=True,text=True)
+                                    - generic [ref=f8e816]: print(p,i,ext,'OK' if r.returncode==0 else r.stderr[:500])
+                                    - generic [ref=f8e817]: "if ext=='.mjs':"
+                                    - generic [ref=f8e818]: "for imp in re.findall(r\"from '([^']+)'\",body):"
+                                    - generic [ref=f8e819]: urls.add(imp.replace('three/addons/','https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/') if imp.startswith('three/addons/') else imp)
+                                    - generic [ref=f8e820]: urls.update(re.findall(r'<link[^>]+href="(https://fonts.googleapis[^"]+)"',s))
+                                    - generic [ref=f8e821]: "# structure"
+                                    - generic [ref=f8e822]: "class P(HTMLParser):"
+                                    - generic [ref=f8e823]: "def __init__(s2): super().__init__(); s2.ids=[]; s2.hrefs=[]; s2.stack=[]; s2.errs=[]"
+                                    - generic [ref=f8e824]: "def handle_starttag(s2,t,a):"
+                                    - generic [ref=f8e825]: a=dict(a)
+                                    - generic [ref=f8e826]: "if 'id' in a: s2.ids.append(a['id'])"
+                                    - generic [ref=f8e827]: "if t=='a' and 'href' in a: s2.hrefs.append(a['href'])"
+                                    - generic [ref=f8e828]: "if t not in ('meta','link','br','img','input','hr','source','path','rect','circle'): s2.stack.append(t)"
+                                    - generic [ref=f8e829]: "def handle_endtag(s2,t):"
+                                    - generic [ref=f8e830]: "if t in ('path','rect','circle'): return"
+                                    - generic [ref=f8e831]: "if s2.stack and s2.stack[-1]==t: s2.stack.pop()"
+                                    - generic [ref=f8e832]: "else: s2.errs.append((t, s2.stack[-3:], s2.getpos()))"
+                                    - generic [ref=f8e833]: pr=P(); pr.feed(s)
+                                    - generic [ref=f8e834]: "dup={i for i in pr.ids if pr.ids.count(i)>1}"
+                                    - generic [ref=f8e835]: print(p,'dup ids:',dup,'unclosed:',pr.stack,'mismatch:',pr.errs[:5])
+                                    - generic [ref=f8e836]: "for h in set(pr.hrefs):"
+                                    - generic [ref=f8e837]: "if h.startswith('#'): ok = h[1:] in pr.ids"
+                                    - generic [ref=f8e838]: "elif h.startswith('http'): ok='ext'"
+                                    - generic [ref=f8e839]: "else: ok=(S/h.split('#')[0]).exists()"
+                                    - generic [ref=f8e840]: "if ok is not True: print(' link',h,ok)"
+                                    - generic [ref=f8e841]: "# aria-controls/labelledby/describedby targets"
+                                    - generic [ref=f8e842]: "for attr in re.findall(r'aria-(?:controls|labelledby|describedby)=\"([^\"]+)\"',s):"
+                                    - generic [ref=f8e843]: "for i in attr.split():"
+                                    - generic [ref=f8e844]: "if i not in pr.ids: print(' missing aria target',i)"
+                                    - generic [ref=f8e845]: print(' widget present:', 'id="cato-chat"' in s and 'cato-widget-js' in s, 'tailwind theme:', '@theme' in s)
+                                    - generic [ref=f8e846]: print(sorted(urls))
+                                    - generic [ref=f8e847]: open('/tmp/chk/urls.txt','w').write('\n'.join(sorted(urls)))
+                          - generic [ref=f8e855]:
+                            - generic [ref=f8e856]: Sandbox · Completed
+                            - generic [ref=f8e857]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e858] [cursor=pointer]:
+                                - generic [ref=f8e859]:
+                                  - generic [ref=f8e863]: Sandbox · bash
+                                  - generic [ref=f8e864]: Completed
+                              - generic [ref=f8e868]:
+                                - tablist [ref=f8e870]:
+                                  - tab "Code" [selected] [ref=f8e871] [cursor=pointer]
+                                  - tab "Output" [ref=f8e872] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e873]:
+                                  - code [ref=f8e877]:
+                                    - generic [ref=f8e878]: "while read u; do case \"$u\" in https://cdn*/jsm/|three|https://fonts.googleapis.com) continue;; esac; echo \"$(curl -s -o /dev/null -w '%{http_code}' -A 'Mozilla/5.0 Chrome/130' \"$u\") $u\"; done < /tmp/chk/urls.txt"
+                                    - generic [ref=f8e879]: cd /tmp/jt && npm i three@0.186.1 --silent 2>&1 | tail -1
+                                    - generic [ref=f8e880]: cat > /tmp/jt/exports.mjs <<'EOF'
+                                    - generic [ref=f8e881]: import * as THREE from 'three';
+                                    - generic [ref=f8e882]: "import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';"
+                                    - generic [ref=f8e883]: "import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';"
+                                    - generic [ref=f8e884]: import fs from 'fs';
+                                    - generic [ref=f8e885]: console.log('REVISION', THREE.REVISION, typeof RoomEnvironment, typeof RoundedBoxGeometry);
+                                    - generic [ref=f8e886]: const used = new Set();
+                                    - generic [ref=f8e887]: for (const f of fs.readdirSync('/tmp/chk').filter(f=>f.endsWith('.mjs'))) for (const m of fs.readFileSync('/tmp/chk/'+f,'utf8').matchAll(/THREE\.([A-Za-z0-9_]+)/g)) used.add(m[1]);
+                                    - generic [ref=f8e888]: const missing=[...used].filter(n=>!(n in THREE)); console.log('used', used.size, 'missing', missing);
+                                    - generic [ref=f8e889]: // quick geometry construction sanity
+                                    - generic [ref=f8e890]: const g = new THREE.TorusKnotGeometry(1.12,.42,440,72,2,3); console.log('knot verts', g.attributes.position.count);
+                                    - generic [ref=f8e891]: const rb = new RoundedBoxGeometry(.54,.18,.54,2,.06); console.log('tile verts', rb.attributes.position.count);
+                                    - generic [ref=f8e892]: EOF
+                                    - generic [ref=f8e893]: node /tmp/jt/exports.mjs
+                          - generic [ref=f8e900]:
+                            - generic [ref=f8e901]: Sandbox · Completed
+                            - generic [ref=f8e902]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e903] [cursor=pointer]:
+                                - generic [ref=f8e904]:
+                                  - generic [ref=f8e908]: Sandbox · bash
+                                  - generic [ref=f8e909]: Completed
+                              - generic [ref=f8e913]:
+                                - tablist [ref=f8e915]:
+                                  - tab "Code" [selected] [ref=f8e916] [cursor=pointer]
+                                  - tab "Output" [ref=f8e917] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e918]:
+                                  - code [ref=f8e922]:
+                                    - generic [ref=f8e923]: cat > /tmp/jt/shader.mjs <<'EOF'
+                                    - generic [ref=f8e924]: import * as THREE from 'three';
+                                    - generic [ref=f8e925]: const vs = THREE.ShaderLib.physical.vertexShader;
+                                    - generic [ref=f8e926]: const a = vs.includes('#include <beginnormal_vertex>'), b = vs.includes('#include <begin_vertex>');
+                                    - generic [ref=f8e927]: const iN = vs.indexOf('#include <beginnormal_vertex>'), iB = vs.indexOf('#include <begin_vertex>');
+                                    - generic [ref=f8e928]: console.log('chunks present', a, b, 'normal-before-begin', iN < iB, 'main at', vs.indexOf('void main'), iN);
+                                    - generic [ref=f8e929]: EOF
+                                    - generic [ref=f8e930]: node /tmp/jt/shader.mjs; which glslangValidator || pip download glslang 2>&1 | tail -1 >/dev/null; echo
+                          - generic [ref=f8e937]:
+                            - generic [ref=f8e938]: Sandbox · Completed
+                            - generic [ref=f8e939]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e940] [cursor=pointer]:
+                                - generic [ref=f8e941]:
+                                  - generic [ref=f8e945]: Sandbox · bash
+                                  - generic [ref=f8e946]: Completed
+                              - generic [ref=f8e950]:
+                                - tablist [ref=f8e952]:
+                                  - tab "Code" [selected] [ref=f8e953] [cursor=pointer]
+                                  - tab "Output" [ref=f8e954] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e955]:
+                                  - code [ref=f8e959]:
+                                    - generic [ref=f8e960]: cat > /tmp/jt/widget.test.js <<'EOF'
+                                    - generic [ref=f8e961]: "const { JSDOM } = require('jsdom');"
+                                    - generic [ref=f8e962]: const fs = require('fs');
+                                    - generic [ref=f8e963]: const html = fs.readFileSync(process.argv[2], 'utf8');
+                                    - generic [ref=f8e964]: const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+                                    - generic [ref=f8e965]: let pass = 0, fail = 0;
+                                    - generic [ref=f8e966]: "const ok = (c, m) => { if (c) { pass++; console.log(' ok ', m); } else { fail++; console.log(' FAIL', m); } };"
+                                    - generic [ref=f8e968]: "async function hostMode() {"
+                                    - generic [ref=f8e969]: console.log('host (canvas bridge) mode');
+                                    - generic [ref=f8e970]: const sent = [];
+                                    - generic [ref=f8e971]: "const dom = new JSDOM(html, { url: 'https://preview.example/index.html', runScripts: 'dangerously', pretendToBeVisual: true,"
+                                    - generic [ref=f8e972]: "beforeParse(w) {"
+                                    - generic [ref=f8e973]: "const fakeParent = { postMessage: (m, o) => sent.push({ m, o }) };"
+                                    - generic [ref=f8e974]: "Object.defineProperty(w, 'parent', { value: fakeParent, configurable: true });"
+                                    - generic [ref=f8e975]: w.__fakeParent = fakeParent;
+                                    - generic [ref=f8e976]: "w.matchMedia = () => ({ matches: false, addEventListener() {} });"
+                                    - generic [ref=f8e977]: w.requestIdleCallback = (f) => setTimeout(f, 1);
+                                    - generic [ref=f8e978]: "} });"
+                                    - generic [ref=f8e979]: const w = dom.window, d = w.document;
+                                    - generic [ref=f8e980]: "const emit = (requestId, event, extra = {}) => w.dispatchEvent(Object.assign(new w.Event('message'), { data: { type: 'cato:chat:event', requestId, event, ...extra }, source: w.__fakeParent }));"
+                                    - generic [ref=f8e981]: "const emitFrom = (src, requestId, event) => w.dispatchEvent(Object.assign(new w.Event('message'), { data: { type: 'cato:chat:event', requestId, event }, source: src }));"
+                                    - generic [ref=f8e982]: w.dispatchEvent(new w.Event('load'));
+                                    - generic [ref=f8e983]: ok(sent.length === 0, 'no request before page has rendered');
+                                    - generic [ref=f8e984]: await sleep(1400);
+                                    - generic [ref=f8e985]: ok(sent.length === 1, 'exactly one proactive intro request after render');
+                                    - generic [ref=f8e986]: const intro = sent[0];
+                                    - generic [ref=f8e987]: ok(intro.m.type === 'cato:chat' && intro.o === '*' && typeof intro.m.requestId === 'string', 'intro uses cato:chat postMessage with requestId');
+                                    - generic [ref=f8e988]: ok(intro.m.input === 'A visitor has opened the generated website. Introduce Cato Labs and offer help with their website and AI implementation project.', 'intro input is the exact contract string');
+                                    - generic [ref=f8e989]: ok(Object.keys(intro.m).sort().join() === 'input,requestId,type', 'message carries only type, requestId, input (no history, no previous id)');
+                                    - generic [ref=f8e990]: ok(!d.querySelector('.cato-msg-visitor'), 'intro is not shown as a visitor message');
+                                    - generic [ref=f8e991]: ok(/started this conversation/.test(d.getElementById('cato-log').textContent), 'intro labelled as started by Cato Labs');
+                                    - generic [ref=f8e992]: ok(d.getElementById('cato-chat').dataset.busy === 'true', 'busy state on during intro');
+                                    - generic [ref=f8e993]: "emit('other-id', { type: 'response.output_text.delta', delta: 'WRONG' });"
+                                    - generic [ref=f8e994]: "emitFrom({}, intro.m.requestId, { type: 'response.output_text.delta', delta: 'SPOOF' });"
+                                    - generic [ref=f8e995]: "w.dispatchEvent(Object.assign(new w.Event('message'), { data: { type: 'something', requestId: intro.m.requestId, event: { type: 'response.output_text.delta', delta: 'BADTYPE' } }, source: w.__fakeParent }));"
+                                    - generic [ref=f8e996]: "emit(intro.m.requestId, { type: 'response.created' });"
+                                    - generic [ref=f8e997]: ok(/Request received/.test(d.getElementById('cato-activity').textContent), 'non-text native events shown as activity');
+                                    - generic [ref=f8e998]: "emit(intro.m.requestId, { type: 'response.output_text.delta', delta: 'Hi, I\\'m the Cato Labs assistant. <img src=x onerror=alert(1)>' });"
+                                    - generic [ref=f8e999]: "emit(intro.m.requestId, { type: 'response.output_text.delta', delta: ' What are you building?' });"
+                                    - generic [ref=f8e1000]: const bubbleText = d.querySelector('.cato-msg-assistant .cato-msg-text').textContent;
+                                    - generic [ref=f8e1001]: ok(!/WRONG|SPOOF|BADTYPE/.test(d.body.textContent), 'events with wrong requestId / source / type ignored');
+                                    - generic [ref=f8e1002]: ok(bubbleText.includes('<img src=x') && !d.querySelector('.cato-msg-assistant img'), 'assistant text rendered as text, never as HTML');
+                                    - generic [ref=f8e1003]: ok(!d.getElementById('cato-teaser').hidden && /What are you building/.test(d.getElementById('cato-teaser-text').textContent), 'teaser streams intro while panel stays closed');
+                                    - generic [ref=f8e1004]: ok(d.getElementById('cato-panel').hidden, 'panel not forced open');
+                                    - generic [ref=f8e1005]: // try to send while busy
+                                    - generic [ref=f8e1006]: w.CatoChat.open(); d.getElementById('cato-input').value = 'too early';
+                                    - generic [ref=f8e1007]: "d.getElementById('cato-form').dispatchEvent(new w.Event('submit', { cancelable: true }));"
+                                    - generic [ref=f8e1008]: ok(sent.length === 1, 'second turn blocked while busy');
+                                    - generic [ref=f8e1009]: "emit(intro.m.requestId, { type: 'response.completed', response: { id: 'resp_1' } });"
+                                    - generic [ref=f8e1010]: ok(d.getElementById('cato-chat').dataset.busy === 'false', 'busy cleared on response.completed');
+                                    - generic [ref=f8e1011]: // visitor turn
+                                    - generic [ref=f8e1012]: d.getElementById('cato-input').value = 'I run a bakery and need a site with an ordering assistant.';
+                                    - generic [ref=f8e1013]: "d.getElementById('cato-form').dispatchEvent(new w.Event('submit', { cancelable: true }));"
+                                    - generic [ref=f8e1014]: ok(sent.length === 2 && sent[1].m.input === 'I run a bakery and need a site with an ordering assistant.', 'visitor turn sends only the new message');
+                                    - generic [ref=f8e1015]: ok(sent[1].m.requestId !== intro.m.requestId, 'unique requestId per turn');
+                                    - generic [ref=f8e1016]: ok(d.querySelectorAll('.cato-msg-visitor').length === 1, 'visitor message shown in history');
+                                    - generic [ref=f8e1017]: ok(d.getElementById('cato-send').getAttribute('aria-disabled') === 'true', 'send button disabled while replying');
+                                    - generic [ref=f8e1018]: "emit(sent[1].m.requestId, { type: 'response.output_text.delta', delta: 'Partial' });"
+                                    - generic [ref=f8e1019]: "emit(sent[1].m.requestId, { type: 'response.failed', response: { error: { message: 'Telnyx voice profile is not configured.' } } });"
+                                    - generic [ref=f8e1020]: const err = d.querySelector('.cato-error');
+                                    - generic [ref=f8e1021]: ok(err && /Telnyx voice profile is not configured/.test(err.textContent), 'failure shows event.response.error.message honestly');
+                                    - generic [ref=f8e1022]: ok(d.querySelector('.cato-msg[data-failed="true"]'), 'partial reply kept and marked failed');
+                                    - generic [ref=f8e1023]: err.querySelector('button').click();
+                                    - generic [ref=f8e1024]: ok(sent.length === 3 && sent[2].m.input === sent[1].m.input && sent[2].m.requestId !== sent[1].m.requestId, 'retry resends same input with new requestId');
+                                    - generic [ref=f8e1025]: ok(d.querySelectorAll('.cato-msg-visitor').length === 1, 'retry does not duplicate the visitor bubble');
+                                    - generic [ref=f8e1026]: "emit(sent[2].m.requestId, { type: 'error', error: { message: 'Rate limited' } });"
+                                    - generic [ref=f8e1027]: ok(/Rate limited/.test(d.getElementById('cato-log').textContent), 'error event uses event.error.message');
+                                    - generic [ref=f8e1028]: // escape closes
+                                    - generic [ref=f8e1029]: "d.getElementById('cato-input').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));"
+                                    - generic [ref=f8e1030]: ok(d.getElementById('cato-panel').hidden && d.getElementById('cato-launcher').getAttribute('aria-expanded') === 'false', 'Escape closes panel');
+                                    - generic [ref=f8e1031]: ok(d.activeElement === d.getElementById('cato-launcher'), 'focus returns to launcher');
+                                    - generic [ref=f8e1032]: // persistence across a page navigation in same tab
+                                    - generic [ref=f8e1033]: const stored = w.sessionStorage.getItem('cato-labs-chat:v1');
+                                    - generic [ref=f8e1034]: ok(stored && JSON.parse(stored).introStarted === true, 'intro recorded so other pages do not repeat it');
+                                    - generic [ref=f8e1035]: w.close();
+                                    - generic [ref=f8e1036]: return stored;
+                                    - generic [ref=f8e1037]: "}"
+                                    - generic [ref=f8e1039]: "async function secondPage(stored) {"
+                                    - generic [ref=f8e1040]: console.log('second page, same session');
+                                    - generic [ref=f8e1041]: const sent = [];
+                                    - generic [ref=f8e1042]: "const dom = new JSDOM(html, { url: 'https://preview.example/studio.html', runScripts: 'dangerously',"
+                                    - generic [ref=f8e1043]: "beforeParse(w) { w.sessionStorage.setItem('cato-labs-chat:v1', stored); Object.defineProperty(w, 'parent', { value: { postMessage: (m) => sent.push(m) } }); w.matchMedia = () => ({ matches: false, addEventListener() {} }); } });"
+                                    - generic [ref=f8e1044]: const w = dom.window, d = w.document; w.dispatchEvent(new w.Event('load'));
+                                    - generic [ref=f8e1045]: await sleep(1400);
+                                    - generic [ref=f8e1046]: ok(sent.length === 0, 'no second introduction on another page');
+                                    - generic [ref=f8e1047]: ok(d.querySelectorAll('.cato-msg').length >= 2, 'visible history restored');
+                                    - generic [ref=f8e1048]: w.close();
+                                    - generic [ref=f8e1049]: "}"
+                                    - generic [ref=f8e1051]: "async function httpMode() {"
+                                    - generic [ref=f8e1052]: console.log('deployed HTTP/SSE mode');
+                                    - generic [ref=f8e1053]: const bodies = [];
+                                    - generic [ref=f8e1054]: "const dom = new JSDOM(html, { url: 'https://cato.example/index.html', runScripts: 'dangerously',"
+                                    - generic [ref=f8e1055]: "beforeParse(w) {"
+                                    - generic [ref=f8e1056]: "w.matchMedia = () => ({ matches: false, addEventListener() {} });"
+                                    - generic [ref=f8e1057]: w.TextDecoder = TextDecoder;
+                                    - generic [ref=f8e1058]: "w.fetch = async (url, init) => {"
+                                    - generic [ref=f8e1059]: "bodies.push({ url, body: JSON.parse(init.body), headers: init.headers });"
+                                    - generic [ref=f8e1060]: const n = bodies.length;
+                                    - generic [ref=f8e1061]: const events = n === 1
+                                    - generic [ref=f8e1062]: "? [{ type: 'response.created', response: { id: 'resp_q', status: 'queued' } }, { type: 'response.output_text.delta', delta: 'Hello from ' }, { type: 'response.output_text.delta', delta: 'Cato Labs.' }, { type: 'response.completed', response: { id: 'resp_A' } }]"
+                                    - generic [ref=f8e1063]: ": n === 2 ? [{ type: 'response.output_text.delta', delta: 'Oops' }, { type: 'response.incomplete', response: { id: 'resp_B', incomplete_details: { reason: 'max_output_tokens' } } }]"
+                                    - generic [ref=f8e1064]: ": [{ type: 'response.output_text.delta', delta: 'ok' }, { type: 'response.completed', response: { id: 'resp_C' } }];"
+                                    - generic [ref=f8e1065]: "const text = events.map(e => 'event: ' + e.type + '\\r\\ndata: ' + JSON.stringify(e) + '\\r\\n\\r\\n').join('') + 'data: [DONE]\\n\\n';"
+                                    - generic [ref=f8e1066]: const enc = new TextEncoder().encode(text);
+                                    - generic [ref=f8e1067]: let i = 0;
+                                    - generic [ref=f8e1068]: "const stream = new ReadableStream({ pull(c) { if (i >= enc.length) return c.close(); c.enqueue(enc.slice(i, i + 17)); i += 17; } });"
+                                    - generic [ref=f8e1069]: "return { ok: true, status: 200, body: stream };"
+                                    - generic [ref=f8e1070]: "};"
+                                    - generic [ref=f8e1071]: "} });"
+                                    - generic [ref=f8e1072]: const w = dom.window, d = w.document; w.dispatchEvent(new w.Event('load'));
+                                    - generic [ref=f8e1073]: await sleep(1500);
+                                    - generic [ref=f8e1074]: ok(bodies.length === 1 && bodies[0].url === '/api/vibe-chat' && !('previous_response_id' in bodies[0].body), 'first POST to /api/vibe-chat without previous id');
+                                    - generic [ref=f8e1075]: ok(/Hello from Cato Labs\./.test(d.getElementById('cato-log').textContent), 'SSE deltas parsed across chunk boundaries and CRLF');
+                                    - generic [ref=f8e1076]: ok(w.sessionStorage.getItem('cato-labs-chat:previous-response-id') === 'resp_A', 'remembers response id only from response.completed (not queued resp_q)');
+                                    - generic [ref=f8e1077]: w.CatoChat.send('Second question');
+                                    - generic [ref=f8e1078]: await sleep(200);
+                                    - generic [ref=f8e1079]: "ok(bodies[1].body.previous_response_id === 'resp_A' && bodies[1].body.input === 'Second question', 'next POST sends {input, previous_response_id}');"
+                                    - generic [ref=f8e1080]: ok(/max_output_tokens/.test(d.getElementById('cato-log').textContent), 'response.incomplete reported honestly');
+                                    - generic [ref=f8e1081]: ok(w.sessionStorage.getItem('cato-labs-chat:previous-response-id') === 'resp_A', 'incomplete response not used as continuation');
+                                    - generic [ref=f8e1082]: w.CatoChat.send('Third');
+                                    - generic [ref=f8e1083]: await sleep(200);
+                                    - generic [ref=f8e1084]: ok(bodies[2].body.previous_response_id === 'resp_A', 'continuation still from last completed response');
+                                    - generic [ref=f8e1085]: w.close();
+                                    - generic [ref=f8e1086]: "}"
+                                    - generic [ref=f8e1088]: "async function http404() {"
+                                    - generic [ref=f8e1089]: console.log('deployed copy without backend');
+                                    - generic [ref=f8e1090]: "const dom = new JSDOM(html, { url: 'https://static-host.example/index.html', runScripts: 'dangerously',"
+                                    - generic [ref=f8e1091]: "beforeParse(w) { w.matchMedia = () => ({ matches: false, addEventListener() {} }); w.fetch = async () => ({ ok: false, status: 404, text: async () => '<h1>Not found</h1>' }); } });"
+                                    - generic [ref=f8e1092]: const w = dom.window, d = w.document; w.dispatchEvent(new w.Event('load'));
+                                    - generic [ref=f8e1093]: await sleep(1500);
+                                    - generic [ref=f8e1094]: ok(!d.getElementById('cato-availability').hidden && /not connected/.test(d.getElementById('cato-availability').textContent), 'clear unavailable state when endpoint missing');
+                                    - generic [ref=f8e1095]: ok(!d.querySelector('.cato-msg-assistant'), 'no simulated assistant reply');
+                                    - generic [ref=f8e1096]: w.close();
+                                    - generic [ref=f8e1097]: "}"
+                                    - generic [ref=f8e1099]: "async function fileMode() {"
+                                    - generic [ref=f8e1100]: console.log('opened from disk');
+                                    - generic [ref=f8e1101]: let calls = 0;
+                                    - generic [ref=f8e1102]: "const dom = new JSDOM(html, { url: 'file:///Users/me/site/index.html', runScripts: 'dangerously',"
+                                    - generic [ref=f8e1103]: "beforeParse(w) { w.matchMedia = () => ({ matches: false, addEventListener() {} }); w.fetch = async () => { calls++; throw new Error('x'); }; } });"
+                                    - generic [ref=f8e1104]: const w = dom.window, d = w.document; w.dispatchEvent(new w.Event('load'));
+                                    - generic [ref=f8e1105]: await sleep(1500);
+                                    - generic [ref=f8e1106]: ok(calls === 0, 'no request attempted from file://');
+                                    - generic [ref=f8e1107]: d.getElementById('cato-launcher').click();
+                                    - generic [ref=f8e1108]: ok(/opened from a file/.test(d.getElementById('cato-availability').textContent) && d.getElementById('cato-input').disabled, 'file:// shows unavailable state, input disabled');
+                                    - generic [ref=f8e1109]: w.close();
+                                    - generic [ref=f8e1110]: "}"
+                                    - generic [ref=f8e1112]: "(async () => {"
+                                    - generic [ref=f8e1113]: const stored = await hostMode();
+                                    - generic [ref=f8e1114]: await secondPage(stored);
+                                    - generic [ref=f8e1115]: await httpMode();
+                                    - generic [ref=f8e1116]: await http404();
+                                    - generic [ref=f8e1117]: await fileMode();
+                                    - generic [ref=f8e1118]: "console.log(`\\n${pass} passed, ${fail} failed`);"
+                                    - generic [ref=f8e1119]: "process.exit(fail ? 1 : 0);"
+                                    - generic [ref=f8e1120]: "})();"
+                                    - generic [ref=f8e1121]: EOF
+                                    - generic [ref=f8e1122]: cd /tmp/jt && node widget.test.js /home/user/workspace/site/index.html 2>&1 | grep -v "Not implemented"
+                          - generic [ref=f8e1129]:
+                            - generic [ref=f8e1130]: Sandbox · Completed
+                            - generic [ref=f8e1131]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e1132] [cursor=pointer]:
+                                - generic [ref=f8e1133]:
+                                  - generic [ref=f8e1137]: Sandbox · bash
+                                  - generic [ref=f8e1138]: Completed
+                              - generic [ref=f8e1142]:
+                                - tablist [ref=f8e1144]:
+                                  - tab "Code" [selected] [ref=f8e1145] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1146] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1147]:
+                                  - code [ref=f8e1151]:
+                                    - generic [ref=f8e1152]: cd /tmp/jt; for p in studio contact; do echo "== $p"; node widget.test.js /home/user/workspace/site/$p.html 2>&1 | grep -E "passed|FAIL"; done
+                                    - generic [ref=f8e1153]: cat > /tmp/jt/extra.test.js <<'EOF'
+                                    - generic [ref=f8e1154]: "const { JSDOM } = require('jsdom'); const fs = require('fs');"
+                                    - generic [ref=f8e1155]: const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+                                    - generic [ref=f8e1156]: "let pass=0, fail=0; const ok=(c,m)=>{ c?pass++:fail++; console.log(c?' ok ':' FAIL', m); };"
+                                    - generic [ref=f8e1157]: "(async () => {"
+                                    - generic [ref=f8e1158]: console.log('contact brief composer');
+                                    - generic [ref=f8e1159]: const html = fs.readFileSync('/home/user/workspace/site/contact.html','utf8');
+                                    - generic [ref=f8e1160]: const sent=[];
+                                    - generic [ref=f8e1161]: "const dom = new JSDOM(html, { url:'https://preview.example/contact.html', runScripts:'dangerously', beforeParse(w){ Object.defineProperty(w,'parent',{value:{postMessage:(m)=>sent.push(m)}}); w.matchMedia=()=>({matches:false,addEventListener(){}}); w.sessionStorage.setItem('cato-labs-chat:v1', JSON.stringify({messages:[],introStarted:true,dismissed:false})); } });"
+                                    - generic [ref=f8e1162]: const w=dom.window, d=w.document; w.dispatchEvent(new w.Event('load'));
+                                    - generic [ref=f8e1163]: const form=d.getElementById('brief');
+                                    - generic [ref=f8e1164]: "form.dispatchEvent(new w.Event('submit',{cancelable:true}));"
+                                    - generic [ref=f8e1165]: ok(sent.length===0 && d.getElementById('b-name').getAttribute('aria-invalid')==='true' && /Check the highlighted/.test(d.getElementById('brief-status').textContent), 'empty brief blocked with inline errors');
+                                    - generic [ref=f8e1166]: d.getElementById('b-name').value='Ana'; d.getElementById('b-business').value='Harbor Bakery';
+                                    - generic [ref=f8e1167]: d.getElementById('b-details').value='A site with online ordering and an assistant that answers allergy questions.';
+                                    - generic [ref=f8e1168]: d.getElementById('b-phone').value='abc';
+                                    - generic [ref=f8e1169]: "form.dispatchEvent(new w.Event('submit',{cancelable:true}));"
+                                    - generic [ref=f8e1170]: ok(sent.length===0 && /digits/.test(d.getElementById('b-phone-err').textContent), 'invalid phone rejected');
+                                    - generic [ref=f8e1171]: d.getElementById('b-phone').value='+1 415 555 0134';
+                                    - generic [ref=f8e1172]: form.querySelector('input[value="a website"]').checked=true;
+                                    - generic [ref=f8e1173]: form.querySelector('input[value="an AI chat assistant"]').checked=true;
+                                    - generic [ref=f8e1174]: "form.dispatchEvent(new w.Event('submit',{cancelable:true}));"
+                                    - generic [ref=f8e1175]: ok(sent.length===1 && /Ana from Harbor Bakery/.test(sent[0].input) && /a website, an AI chat assistant/.test(sent[0].input) && /ask me in this chat before placing any call/.test(sent[0].input), 'brief sent as one real visitor turn incl. consent note');
+                                    - generic [ref=f8e1176]: ok(!d.getElementById('cato-panel').hidden && d.querySelectorAll('.cato-msg-visitor').length===1, 'chat panel opened showing the brief as visitor message');
+                                    - generic [ref=f8e1177]: ok(/streaming into the chat/.test(d.getElementById('brief-status').textContent), 'status explains where the reply goes');
+                                    - generic [ref=f8e1178]: "form.dispatchEvent(new w.Event('submit',{cancelable:true}));"
+                                    - generic [ref=f8e1179]: ok(sent.length===1 && /still replying/.test(d.getElementById('brief-status').textContent), 'second brief blocked while busy');
+                                    - generic [ref=f8e1180]: "d.dispatchEvent(new w.CustomEvent('cato:chat-state',{detail:{busy:true}}));"
+                                    - generic [ref=f8e1181]: ok(d.getElementById('signal-label').textContent==='Assistant replying', 'signal status reflects busy');
+                                    - generic [ref=f8e1182]: w.close();
+                                    - generic [ref=f8e1184]: console.log('blocked sessionStorage (opaque origin) fallback');
+                                    - generic [ref=f8e1185]: const idx = fs.readFileSync('/home/user/workspace/site/index.html','utf8');
+                                    - generic [ref=f8e1186]: const sent2=[]; let name='';
+                                    - generic [ref=f8e1187]: "const mk = () => new JSDOM(idx, { url:'https://preview.example/index.html', runScripts:'dangerously', beforeParse(w){ Object.defineProperty(w,'sessionStorage',{get(){ throw new Error('SecurityError'); }}); Object.defineProperty(w,'parent',{value:{postMessage:(m)=>sent2.push(m)}}); w.name = name; w.matchMedia=()=>({matches:false,addEventListener(){}}); } });"
+                                    - generic [ref=f8e1188]: let dm = mk(); dm.window.dispatchEvent(new dm.window.Event('load')); await sleep(1400);
+                                    - generic [ref=f8e1189]: ok(sent2.length===1, 'intro sent once with storage blocked');
+                                    - generic [ref=f8e1190]: name = dm.window.name; dm.window.close();
+                                    - generic [ref=f8e1191]: ok(name.startsWith('cato-store:'), 'state kept in window.name');
+                                    - generic [ref=f8e1192]: dm = mk(); dm.window.dispatchEvent(new dm.window.Event('load')); await sleep(1400);
+                                    - generic [ref=f8e1193]: ok(sent2.length===1, 'no repeated intro after navigation when storage is blocked');
+                                    - generic [ref=f8e1194]: dm.window.close();
+                                    - generic [ref=f8e1195]: "console.log(`\\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);"
+                                    - generic [ref=f8e1196]: "})();"
+                                    - generic [ref=f8e1197]: EOF
+                                    - generic [ref=f8e1198]: node extra.test.js 2>&1 | grep -v "Not implemented"
+                          - generic [ref=f8e1205]:
+                            - generic [ref=f8e1206]: Sandbox · Completed
+                            - generic [ref=f8e1207]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e1208] [cursor=pointer]:
+                                - generic [ref=f8e1209]:
+                                  - generic [ref=f8e1213]: Sandbox · bash
+                                  - generic [ref=f8e1214]: Completed
+                              - generic [ref=f8e1218]:
+                                - tablist [ref=f8e1220]:
+                                  - tab "Code" [selected] [ref=f8e1221] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1222] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1223]:
+                                  - code [ref=f8e1227]:
+                                    - generic [ref=f8e1228]: "cd /home/user/workspace/site; grep -n -i -E \"bearer|authorization|api[_-]?key|pplx-|KEY[0-9A-Z]{6}|api\\.perplexity|api\\.telnyx|telnyx_api\" *.html | head; echo \"scan done\"; which chromium chromium-browser google-chrome 2>/dev/null; ls ~/.cache/ms-playwright 2>/dev/null; python3 -c \"import playwright; print('playwright py')\" 2>&1 | tail -1"
+                          - generic [ref=f8e1235]:
+                            - generic [ref=f8e1236]: Sandbox · Completed
+                            - generic [ref=f8e1237]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e1238] [cursor=pointer]:
+                                - generic [ref=f8e1239]:
+                                  - generic [ref=f8e1243]: Sandbox · bash
+                                  - generic [ref=f8e1244]: Completed
+                              - generic [ref=f8e1248]:
+                                - tablist [ref=f8e1250]:
+                                  - tab "Code" [selected] [ref=f8e1251] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1252] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1253]:
+                                  - code [ref=f8e1257]:
+                                    - generic [ref=f8e1258]: "cd /tmp/jt && npm i playwright-core --silent 2>&1 | tail -1; ls ~/.cache/ms-playwright/chromium-1217/; find ~/.cache/ms-playwright/chromium-1217 -maxdepth 3 -name chrome -type f; (cd /home/user/workspace/site && nohup python3 -m http.server 8765 >/tmp/srv.log 2>&1 &) ; sleep 1; curl -s -o /dev/null -w '%{http_code}\\n' http://localhost:8765/index.html"
+                          - generic [ref=f8e1265]:
+                            - generic [ref=f8e1266]: Sandbox · Failed
+                            - generic [ref=f8e1267]:
+                              - button "Sandbox · bash Error" [expanded] [ref=f8e1268] [cursor=pointer]:
+                                - generic [ref=f8e1269]:
+                                  - generic [ref=f8e1273]: Sandbox · bash
+                                  - generic [ref=f8e1274]: Error
+                              - generic [ref=f8e1278]:
+                                - tablist [ref=f8e1280]:
+                                  - tab "Code" [selected] [ref=f8e1281] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1282] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1283]:
+                                  - code [ref=f8e1287]:
+                                    - generic [ref=f8e1288]: mkdir -p /home/user/workspace/shots; cat > /tmp/jt/shots.js <<'EOF'
+                                    - generic [ref=f8e1289]: "const { chromium } = require('playwright-core');"
+                                    - generic [ref=f8e1290]: "(async () => {"
+                                    - generic [ref=f8e1291]: "const browser = await chromium.launch({ executablePath: process.env.HOME + '/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });"
+                                    - generic [ref=f8e1292]: "const results = {};"
+                                    - generic [ref=f8e1293]: "for (const [label, vp] of [['desk', { width: 1440, height: 900 }], ['mobile', { width: 390, height: 844 }]]) {"
+                                    - generic [ref=f8e1294]: "for (const page of ['index', 'studio', 'contact']) {"
+                                    - generic [ref=f8e1295]: "const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1 });"
+                                    - generic [ref=f8e1296]: const p = await ctx.newPage();
+                                    - generic [ref=f8e1297]: const errs = [];
+                                    - generic [ref=f8e1298]: "p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)); });"
+                                    - generic [ref=f8e1299]: p.on('pageerror', e => errs.push('PAGEERROR ' + e.message.slice(0, 200)));
+                                    - generic [ref=f8e1300]: "await p.goto('http://localhost:8765/' + page + '.html', { waitUntil: 'load', timeout: 60000 });"
+                                    - generic [ref=f8e1301]: await p.waitForTimeout(5000);
+                                    - generic [ref=f8e1302]: "const info = await p.evaluate(() => {"
+                                    - generic [ref=f8e1303]: "const st = document.querySelector('#sculpture-stage, #lattice, #signal');"
+                                    - generic [ref=f8e1304]: "return { scene: st && st.dataset.state, canvas: !!(st && st.querySelector('canvas')), tw: getComputedStyle(document.querySelector('.bg-midnight') || document.body).backgroundColor, font: document.fonts.check('500 40px \"Bodoni Moda\"'), gsap: !!window.gsap, chatMode: window.CatoChat && window.CatoChat.mode, avail: document.getElementById('cato-availability').textContent, teaser: !document.getElementById('cato-teaser').hidden };"
+                                    - generic [ref=f8e1305]: "});"
+                                    - generic [ref=f8e1306]: "await p.screenshot({ path: `/home/user/workspace/shots/${page}-${label}.png` });"
+                                    - generic [ref=f8e1307]: "if (label === 'desk') await p.screenshot({ path: `/home/user/workspace/shots/${page}-full.png`, fullPage: true });"
+                                    - generic [ref=f8e1308]: "results[page + '-' + label] = { ...info, errs };"
+                                    - generic [ref=f8e1309]: await ctx.close();
+                                    - generic [ref=f8e1310]: "}"
+                                    - generic [ref=f8e1311]: "}"
+                                    - generic [ref=f8e1312]: // navigation + chat interaction on desktop
+                                    - generic [ref=f8e1313]: "const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });"
+                                    - generic [ref=f8e1314]: const p = await ctx.newPage();
+                                    - generic [ref=f8e1315]: await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1500);
+                                    - generic [ref=f8e1316]: await p.click('nav[aria-label="Primary"] a[href="studio.html"]'); await p.waitForLoadState('load');
+                                    - generic [ref=f8e1317]: const u1 = p.url();
+                                    - generic [ref=f8e1318]: await p.click('nav[aria-label="Primary"] a[href="contact.html"]'); await p.waitForLoadState('load');
+                                    - generic [ref=f8e1319]: const u2 = p.url();
+                                    - generic [ref=f8e1320]: await p.click('a.brand'); await p.waitForLoadState('load');
+                                    - generic [ref=f8e1321]: const u3 = p.url();
+                                    - generic [ref=f8e1322]: await p.waitForTimeout(3500);
+                                    - generic [ref=f8e1323]: await p.click('#cato-launcher'); await p.waitForTimeout(600);
+                                    - generic [ref=f8e1324]: "await p.screenshot({ path: '/home/user/workspace/shots/chat-open.png' });"
+                                    - generic [ref=f8e1325]: "const chat = await p.evaluate(() => ({ open: !document.getElementById('cato-panel').hidden, focus: document.activeElement && document.activeElement.id, log: document.getElementById('cato-log').innerText.slice(0, 400), avail: document.getElementById('cato-availability').innerText }));"
+                                    - generic [ref=f8e1326]: // glaze control + pause
+                                    - generic [ref=f8e1327]: await p.keyboard.press('Escape');
+                                    - generic [ref=f8e1328]: await p.check('input[name="glaze"][value="ice"]'); await p.click('#motion-toggle'); await p.waitForTimeout(1800);
+                                    - generic [ref=f8e1329]: "const ctl = await p.evaluate(() => ({ glaze: document.getElementById('sculpture-stage').dataset.glaze, pressed: document.getElementById('motion-toggle').getAttribute('aria-pressed') }));"
+                                    - generic [ref=f8e1330]: "await p.screenshot({ path: '/home/user/workspace/shots/index-ice.png' });"
+                                    - generic [ref=f8e1331]: "console.log(JSON.stringify({ results, nav: [u1, u2, u3], chat, ctl }, null, 1));"
+                                    - generic [ref=f8e1332]: await browser.close();
+                                    - generic [ref=f8e1333]: "})().catch(e => { console.error(e); process.exit(1); });"
+                                    - generic [ref=f8e1334]: EOF
+                                    - generic [ref=f8e1335]: cd /tmp/jt && timeout 280 node shots.js
+                          - generic [ref=f8e1342]:
+                            - generic [ref=f8e1343]: Sandbox · Completed
+                            - generic [ref=f8e1344]:
+                              - button "Sandbox · bash Completed" [expanded] [ref=f8e1345] [cursor=pointer]:
+                                - generic [ref=f8e1346]:
+                                  - generic [ref=f8e1350]: Sandbox · bash
+                                  - generic [ref=f8e1351]: Completed
+                              - generic [ref=f8e1355]:
+                                - tablist [ref=f8e1357]:
+                                  - tab "Code" [selected] [ref=f8e1358] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1359] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1360]:
+                                  - code [ref=f8e1364]:
+                                    - generic [ref=f8e1365]: cd /home/user/workspace/site && (python3 -m http.server 8765 >/tmp/srv.log 2>&1 &) && sleep 1 && cd /tmp/jt && timeout 280 node shots.js; tail -5 /tmp/srv.log
+                          - generic [ref=f8e1372]:
+                            - generic [ref=f8e1373]: Sandbox · Completed
+                            - generic [ref=f8e1374]:
+                              - button "Sandbox · python Completed" [expanded] [ref=f8e1375] [cursor=pointer]:
+                                - generic [ref=f8e1376]:
+                                  - generic [ref=f8e1380]: Sandbox · python
+                                  - generic [ref=f8e1381]: Completed
+                              - generic [ref=f8e1385]:
+                                - tablist [ref=f8e1387]:
+                                  - tab "Code" [selected] [ref=f8e1388] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1389] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1390]:
+                                  - code [ref=f8e1394]:
+                                    - generic [ref=f8e1396]: p='/home/user/workspace/site/index.html'
+                                    - generic [ref=f8e1397]: s=open(p).read()
+                                    - generic [ref=f8e1398]: reps=[
+                                    - generic [ref=f8e1399]: "# hoist loop state"
+                                    - generic [ref=f8e1400]: (""" stage.appendChild(canvas);
+                                    - generic [ref=f8e1402]: const scene = new THREE.Scene();
+                                    - generic [ref=f8e1403]: const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+                                    - generic [ref=f8e1404]: camera.position.set(0, 0, 9);""",
+                                    - generic [ref=f8e1405]: "\"\"\" stage.appendChild(canvas);"
+                                    - generic [ref=f8e1407]: "/* Loop state is declared first: controls may request frames during setup. */"
+                                    - generic [ref=f8e1408]: let rafId = 0, last = performance.now(), activeUntil = 0, time = 0, firstFrame = true;
+                                    - generic [ref=f8e1410]: const scene = new THREE.Scene();
+                                    - generic [ref=f8e1411]: const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+                                    - generic [ref=f8e1412]: camera.position.set(0, 0, 9);"""),
+                                    - generic [ref=f8e1413]: (""" let rafId = 0, last = performance.now(), activeUntil = 0, time = 0, firstFrame = true;
+                                    - generic [ref=f8e1414]: "function requestFrame(ms) {\"\"\",\"\"\" function requestFrame(ms) {\"\"\"),"
+                                    - generic [ref=f8e1415]: "# fallback wiring in both paths"
+                                    - generic [ref=f8e1416]: "(\"\"\"if (!hasWebGL()) {"
+                                    - generic [ref=f8e1417]: stage.dataset.state = 'fallback';
+                                    - generic [ref=f8e1418]: "glazeInputs.forEach((el) => el.addEventListener('change', () => { stage.dataset.glaze = el.value; }));"
+                                    - generic [ref=f8e1419]: motionBtn.disabled = true; heat.disabled = true;
+                                    - generic [ref=f8e1420]: "} else {"
+                                    - generic [ref=f8e1421]: "try { start(); } catch (err) { console.error('Sculpture failed to start', err); stage.dataset.state = 'fallback'; }"
+                                    - generic [ref=f8e1422]: "}\"\"\",\"\"\"function useFallback() {"
+                                    - generic [ref=f8e1423]: stage.dataset.state = 'fallback';
+                                    - generic [ref=f8e1424]: "glazeInputs.forEach((el) => el.addEventListener('change', () => { if (el.checked) stage.dataset.glaze = el.value; }));"
+                                    - generic [ref=f8e1425]: motionBtn.disabled = true; heat.disabled = true;
+                                    - generic [ref=f8e1426]: "}"
+                                    - generic [ref=f8e1427]: if (!hasWebGL()) useFallback();
+                                    - generic [ref=f8e1428]: "else {"
+                                    - generic [ref=f8e1429]: "try { start(); } catch (err) { console.error('Sculpture failed to start', err); stage.querySelector('canvas')?.remove(); useFallback(); }"
+                                    - generic [ref=f8e1430]: "}\"\"\"),"
+                                    - generic [ref=f8e1431]: "# intro note persisted only when meaningful"
+                                    - generic [ref=f8e1432]: "(\"\"\" if (opts.intro) { noteLine('Cato Labs started this conversation.'); state.messages.push({ role: 'note', text: 'Cato Labs started this conversation.' }); }"
+                                    - generic [ref=f8e1433]: "else { bubble('visitor', text); state.messages.push({ role: 'visitor', text: text }); }"
+                                    - generic [ref=f8e1434]: saveState();""",""" if (opts.intro) noteLine(INTRO_NOTE);
+                                    - generic [ref=f8e1435]: "else { bubble('visitor', text); state.messages.push({ role: 'visitor', text: text }); saveState(); }\"\"\"),"
+                                    - generic [ref=f8e1436]: "(\"\"\" if (!acc) { reply.set('The assistant finished without a written reply.'); }"
+                                    - generic [ref=f8e1437]: "state.messages.push({ role: 'assistant', text: acc || 'The assistant finished without a written reply.' });\"\"\",\"\"\" if (!acc) { reply.set('The assistant finished without a written reply.'); }"
+                                    - generic [ref=f8e1438]: "if (opts.intro) state.messages.push({ role: 'note', text: INTRO_NOTE });"
+                                    - generic [ref=f8e1439]: "state.messages.push({ role: 'assistant', text: acc || 'The assistant finished without a written reply.' });\"\"\"),"
+                                    - generic [ref=f8e1440]: "(\"\"\" if (acc) { reply.el.setAttribute('data-failed', 'true'); state.messages.push({ role: 'assistant', text: acc, failed: true }); saveState(); }\"\"\",\"\"\" if (acc) { reply.el.setAttribute('data-failed', 'true'); if (opts.intro) state.messages.push({ role: 'note', text: INTRO_NOTE }); state.messages.push({ role: 'assistant', text: acc, failed: true }); saveState(); }\"\"\"),"
+                                    - generic [ref=f8e1441]: (""" var MAX_INPUT = 4000;""",""" var MAX_INPUT = 4000;
+                                    - generic [ref=f8e1442]: var INTRO_NOTE = 'Cato Labs started this conversation.';"""),
+                                    - generic [ref=f8e1443]: "# favicon"
+                                    - generic [ref=f8e1444]: ("""<!-- shared-head:start -->
+                                    - generic [ref=f8e1445]: "\"\"\",\"\"\"<!-- shared-head:start -->"
+                                    - generic [ref=f8e1446]: <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23070C2B'/%3E%3Cpath d='M22.5 10.2a8.6 8.6 0 1 0 0 11.6' fill='none' stroke='%236F8BFF' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+                                    - generic [ref=f8e1447]: "\"\"\"),"
+                                    - generic [ref=f8e1448]: "]"
+                                    - generic [ref=f8e1449]: "for a,b in reps:"
+                                    - generic [ref=f8e1450]: assert s.count(a)==1, a[:70]
+                                    - generic [ref=f8e1451]: s=s.replace(a,b)
+                                    - generic [ref=f8e1452]: open(p,'w').write(s)
+                                    - generic [ref=f8e1453]: print('ok')
+                          - generic [ref=f8e1461]:
+                            - generic [ref=f8e1462]: Sandbox · Failed
+                            - generic [ref=f8e1463]:
+                              - button "Sandbox · bash Error" [expanded] [ref=f8e1464] [cursor=pointer]:
+                                - generic [ref=f8e1465]:
+                                  - generic [ref=f8e1469]: Sandbox · bash
+                                  - generic [ref=f8e1470]: Error
+                              - generic [ref=f8e1474]:
+                                - tablist [ref=f8e1476]:
+                                  - tab "Code" [selected] [ref=f8e1477] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1478] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1479]:
+                                  - code [ref=f8e1483]:
+                                    - generic [ref=f8e1484]: cat > /home/user/workspace/build/build.py <<'EOF'
+                                    - generic [ref=f8e1485]: import pathlib
+                                    - generic [ref=f8e1486]: B=pathlib.Path('/home/user/workspace/build'); S=pathlib.Path('/home/user/workspace/site')
+                                    - generic [ref=f8e1487]: idx=(S/'index.html').read_text()
+                                    - generic [ref=f8e1488]: "def between(a,b): i=idx.index(a); j=idx.index(b)+len(b); return idx[i:j]"
+                                    - generic [ref=f8e1489]: shared=between('<!-- shared-head:start -->','<!-- shared-head:end -->')
+                                    - generic [ref=f8e1490]: widget=between('<!-- cato-widget:start -->','<!-- cato-widget:end -->')
+                                    - generic [ref=f8e1491]: header=idx[idx.index('<header class="site-head">'):idx.index('</header>')+len('</header>')]
+                                    - generic [ref=f8e1492]: footer=idx[idx.index('<footer class="site-foot">'):idx.index('</footer>')+len('</footer>')]
+                                    - generic [ref=f8e1493]: "def hdr(page):"
+                                    - generic [ref=f8e1494]: h=header.replace(' aria-current="page"','')
+                                    - generic [ref=f8e1495]: "t={'studio':'<a href=\"studio.html\">Studio</a>','contact':'<a href=\"contact.html\">Contact</a>'}[page]"
+                                    - generic [ref=f8e1496]: h=h.replace(t,t.replace('<a ','<a aria-current="page" '))
+                                    - generic [ref=f8e1497]: "if page=='contact': h=h.replace('<a class=\"nav-cta\" href=\"contact.html\">Start a project</a>','<a class=\"nav-cta\" href=\"#brief\">Write a brief</a>')"
+                                    - generic [ref=f8e1498]: return h
+                                    - generic [ref=f8e1499]: "for page in ['studio','contact']:"
+                                    - generic [ref=f8e1500]: "out=(B/f'{page}.tpl.html').read_text().replace('{{SHARED_HEAD}}',shared).replace('{{WIDGET}}',widget).replace('{{HEADER}}',hdr(page)).replace('{{FOOTER}}',footer)"
+                                    - generic [ref=f8e1501]: "assert '{{' not in out; (S/f'{page}.html').write_text(out); print(page,len(out))"
+                                    - generic [ref=f8e1502]: EOF
+                                    - generic [ref=f8e1503]: python3 /home/user/workspace/build/build.py
+                                    - generic [ref=f8e1504]: cd /tmp/jt; for p in index studio contact; do echo "== $p $(node widget.test.js /home/user/workspace/site/$p.html 2>&1 | grep -E 'passed|FAIL' | tr '\n' ' ')"; done; node extra.test.js 2>&1 | grep -E 'passed|FAIL'
+                                    - generic [ref=f8e1505]: cd /home/user/workspace/site && (python3 -m http.server 8765 >/tmp/srv.log 2>&1 &) && sleep 1 && cd /tmp/jt && timeout 280 node shots.js | python3 -c "
+                                    - generic [ref=f8e1506]: import json,sys; d=json.load(sys.stdin)
+                                    - generic [ref=f8e1507]: "for k,v in d['results'].items(): print(k, v['scene'], 'gsap',v['gsap'],'font',v['font'], 'errs', [e for e in v['errs'] if '501' not in e])"
+                                    - generic [ref=f8e1508]: print('nav', d['nav']); print('chat', d['chat']); print('ctl', d['ctl'])"
+                          - generic [ref=f8e1515]:
+                            - generic [ref=f8e1516]: Sandbox · Completed
+                            - generic [ref=f8e1517]:
+                              - button "Sandbox · python Completed" [expanded] [ref=f8e1518] [cursor=pointer]:
+                                - generic [ref=f8e1519]:
+                                  - generic [ref=f8e1523]: Sandbox · python
+                                  - generic [ref=f8e1524]: Completed
+                              - generic [ref=f8e1528]:
+                                - tablist [ref=f8e1530]:
+                                  - tab "Code" [selected] [ref=f8e1531] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1532] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1533]:
+                                  - code [ref=f8e1537]:
+                                    - generic [ref=f8e1539]: p='/home/user/workspace/site/index.html'; s=open(p).read()
+                                    - generic [ref=f8e1540]: "a=\".hero-ui { position: absolute; z-index: 3; inset: auto 0 0 0; pointer-events: none; padding-bottom: clamp(1.5rem, 4vh, 3rem); }\""
+                                    - generic [ref=f8e1541]: "b=\".hero-ui { position: absolute; z-index: 3; inset: auto 0 0 0; pointer-events: none; padding-bottom: calc(clamp(1.5rem, 4vh, 3rem) + 4.25rem); }\""
+                                    - generic [ref=f8e1542]: assert s.count(a)==1; s=s.replace(a,b)
+                                    - generic [ref=f8e1543]: "a2=\" .fallback-note { position: absolute; right: var(--gutter); bottom: 9.5rem;\""
+                                    - generic [ref=f8e1544]: "b2=\" .fallback-note { position: absolute; right: var(--gutter); bottom: 22rem;\""
+                                    - generic [ref=f8e1545]: assert s.count(a2)==1; s=s.replace(a2,b2)
+                                    - generic [ref=f8e1546]: open(p,'w').write(s)
+                                    - generic [ref=f8e1547]: c='/home/user/workspace/build/contact.tpl.html'; t=open(c).read()
+                                    - generic [ref=f8e1548]: "a3=\" .signal-status { position: absolute; z-index: 2; right: var(--gutter); bottom: clamp(1.25rem, 4vh, 2.5rem);\""
+                                    - generic [ref=f8e1549]: "b3=\" .signal-status { position: absolute; z-index: 2; left: var(--gutter); bottom: clamp(1.25rem, 4vh, 2.5rem);\""
+                                    - generic [ref=f8e1550]: assert t.count(a3)==1; t=t.replace(a3,b3); open(c,'w').write(t)
+                                    - generic [ref=f8e1551]: st='/home/user/workspace/build/studio.tpl.html'; u=open(st).read()
+                                    - generic [ref=f8e1552]: "a4=\" .lattice-ui { position: absolute; left: 0; right: 0; bottom: clamp(1rem, 3vh, 2rem); z-index: 3; pointer-events: none; }\""
+                                    - generic [ref=f8e1553]: "b4=\" .lattice-ui { position: absolute; left: 0; right: 0; bottom: clamp(1rem, 3vh, 2rem); z-index: 3; pointer-events: none; }\\n @media (min-width: 761px) { .lattice-caption { margin-right: 12rem; } }\""
+                                    - generic [ref=f8e1554]: assert u.count(a4)==1; u=u.replace(a4,b4); open(st,'w').write(u)
+                                    - generic [ref=f8e1555]: print('ok')
+                          - generic [ref=f8e1563]:
+                            - generic [ref=f8e1564]: Sandbox · Running
+                            - generic [ref=f8e1565]:
+                              - button "Sandbox · Running" [expanded] [ref=f8e1566] [cursor=pointer]:
+                                - generic [ref=f8e1567]:
+                                  - generic [ref=f8e1571]: Sandbox ·
+                                  - generic [ref=f8e1572]: Running
+                              - generic [ref=f8e1576]:
+                                - tablist [ref=f8e1578]:
+                                  - tab "Code" [selected] [ref=f8e1579] [cursor=pointer]
+                                  - tab "Output" [ref=f8e1580] [cursor=pointer]
+                                - tabpanel "Code" [ref=f8e1581]:
+                                  - code [ref=f8e1585]
+                  - generic [ref=f8e1587]:
+                    - paragraph [ref=f8e1588]: I'll start by loading the required skills, then do focused research.
+                    - paragraph [ref=f8e1589]: Three.js r186 (npm 0.186.x) is the current release. The jsDelivr API fetch was blocked by robots, so I'll retry with first-party docs to confirm the import-map pattern and pinned package versions.
+                    - paragraph [ref=f8e1590]: "Pinned versions now resolve from jsDelivr: three@0.186.1 (current latest), @tailwindcss/browser@4.3.3, and gsap@3.15.0. I'll check tooling for script verification before writing the site."
+                    - paragraph [ref=f8e1591]: Both fixes are applied. Next I'm building studio.html from a template. The builder will pull the shared head, header, footer, and the exact chat widget from index.html.
+                    - paragraph [ref=f8e1592]: "Pages are assembled. Next, verification: syntax-check every inline script, check HTML structure, IDs, and links, and confirm every CDN URL resolves."
+                    - paragraph [ref=f8e1593]:
+                      - text: All 40 widget tests pass on index.html. I'll rerun the same suite against studio.html and contact.html, then test the contact brief composer and the
+                      - code [ref=f8e1594]: window.name
+                      - text: storage fallback.
+                    - paragraph [ref=f8e1595]: The local server stopped when the earlier shell call exited, so I'll start it in the same call as the screenshot run.
+                    - paragraph [ref=f8e1596]: Next I'll rebuild studio and contact from the fixed index blocks, then rerun the jsdom suites and the browser pass.
+                - generic [ref=f8e1597]:
+                  - button "Reconnect Builder 1" [ref=f8e1598] [cursor=pointer]
+                  - button "Stop Builder 1" [ref=f8e1599] [cursor=pointer]
+            - generic [ref=f8e1600]:
+              - generic [ref=f8e1601]: Describe what you’re building
+              - group [ref=f8e1603]:
+                - textbox "Describe what you’re building" [ref=f8e1605]:
+                  - /placeholder: A desert-modernist boutique hotel in Palm Springs…
+                - group [ref=f8e1606]:
+                  - generic [ref=f8e1607]:
+                    - generic [ref=f8e1608] [cursor=pointer]:
+                      - text: Attach documents
+                      - button "Attach documents" [ref=f8e1609]
+                    - generic [ref=f8e1610]: 0/2000
+                  - button "Brief the studio" [disabled]
+            - group [ref=f8e1611]:
+              - generic "Run details" [ref=f8e1612] [cursor=pointer]
+    - region "Built to perform, measured like a product." [ref=f8e1613]:
+      - generic [ref=f8e1614]:
+        - generic [ref=f8e1615]:
+          - generic [ref=f8e1616]: The work
+          - heading "Built to perform, measured like a product." [level=2] [ref=f8e1617]
+          - paragraph [ref=f8e1618]: A Cato build ships with conversion architecture and Core Web Vitals in the definition of done — not as a later audit. The stack is headless where headless earns its complexity, and every surface is instrumented so the experience can be argued with evidence after launch.
+        - list "Deliverables" [ref=f8e1620]:
+          - listitem [ref=f8e1621]: Information architecture & UX
+          - listitem [ref=f8e1622]: Interface & experience design
+          - listitem [ref=f8e1623]: Next.js / React engineering
+          - listitem [ref=f8e1624]: Headless commerce & CMS
+          - listitem [ref=f8e1625]: Conversion architecture
+          - listitem [ref=f8e1626]: Performance & Core Web Vitals
+    - region "Frequently asked questions" [ref=f8e1627]:
+      - generic [ref=f8e1628]: Questions
+      - heading "Asked, answered." [level=2] [ref=f8e1629]
+      - generic [ref=f8e1630]:
+        - generic [ref=f8e1631]:
+          - generic [ref=f8e1632]:
+            - text: What stack do you build on?
+            - generic [ref=f8e1633]: "01"
+          - paragraph [ref=f8e1634]: React and Next.js by default, headless commerce and CMS where the business case supports it. The stack follows the experience — never the other way around.
+        - generic [ref=f8e1635]:
+          - generic [ref=f8e1636]:
+            - text: Can you rebuild on top of our existing systems?
+            - generic [ref=f8e1637]: "02"
+          - paragraph [ref=f8e1638]: Yes. Most flagships sit on existing commerce, booking or CRM infrastructure. We architect the experience layer around what already works.
+        - generic [ref=f8e1639]:
+          - generic [ref=f8e1640]:
+            - text: How do you measure success after launch?
+            - generic [ref=f8e1641]: "03"
+          - paragraph [ref=f8e1642]: Conversion, speed and the Core Web Vitals Google actually ranks on. Every build ships instrumented, so performance is a report, not an opinion.
+        - generic [ref=f8e1643]:
+          - generic [ref=f8e1644]:
+            - text: Do you handle content as well as code?
+            - generic [ref=f8e1645]: "04"
+          - paragraph [ref=f8e1646]: Yes. Copy, imagery and art direction are part of the build, working alongside Brand & Creative Systems. A flagship with placeholder words is not a flagship.
+    - region "Get started" [ref=f8e1647]:
+      - generic [ref=f8e1648]: Begin
+      - heading "Build the flagship." [level=2] [ref=f8e1649]
+      - generic [ref=f8e1650]: Show us the current site and the number it is failing to move. We will show you what a flagship does differently.
+      - link "Start a build" [ref=f8e1653] [cursor=pointer]:
+        - /url: /contact
+        - text: Start a build
+        - generic [aria-hidden] [ref=f8e1654]: →
+  - contentinfo [ref=f8e1655]:
+    - generic [ref=f8e1656]:
+      - generic [ref=f8e1657]:
+        - generic [aria-hidden] [ref=f8e1658]: CATO LABS
+        - paragraph [ref=f8e1659]: AI-native strategy & implementation.
+      - separator [ref=f8e1660]
+      - generic [ref=f8e1661]:
+        - generic [ref=f8e1662]:
+          - heading "Practice" [level=4] [ref=f8e1663]
+          - list [ref=f8e1664]:
+            - listitem [ref=f8e1665]:
+              - link "Capabilities" [ref=f8e1666] [cursor=pointer]:
+                - /url: /capabilities
+            - listitem [ref=f8e1667]:
+              - link "Work" [ref=f8e1668] [cursor=pointer]:
+                - /url: /work
+            - listitem [ref=f8e1669]:
+              - link "Approach" [ref=f8e1670] [cursor=pointer]:
+                - /url: /approach
+            - listitem [ref=f8e1671]:
+              - link "Blog" [ref=f8e1672] [cursor=pointer]:
+                - /url: /blog
+            - listitem [ref=f8e1673]:
+              - link "Contact" [ref=f8e1674] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=f8e1675]:
+          - heading "Capabilities" [level=4] [ref=f8e1676]
+          - list [ref=f8e1677]:
+            - listitem [ref=f8e1678]:
+              - link "Strategy & Transformation" [ref=f8e1679] [cursor=pointer]:
+                - /url: /capabilities/strategy-transformation
+            - listitem [ref=f8e1680]:
+              - link "AI & Agent Systems" [ref=f8e1681] [cursor=pointer]:
+                - /url: /capabilities/ai-agent-systems
+            - listitem [ref=f8e1682]:
+              - link "Digital Products & Experiences" [ref=f8e1683] [cursor=pointer]:
+                - /url: /capabilities/digital-products
+            - listitem [ref=f8e1684]:
+              - link "Brand & Creative Systems" [ref=f8e1685] [cursor=pointer]:
+                - /url: /capabilities/brand-creative
+            - listitem [ref=f8e1686]:
+              - link "Growth & Distribution" [ref=f8e1687] [cursor=pointer]:
+                - /url: /capabilities/growth-distribution
+            - listitem [ref=f8e1688]:
+              - link "Operations & Automation" [ref=f8e1689] [cursor=pointer]:
+                - /url: /capabilities/operations-automation
+        - generic [ref=f8e1690]:
+          - heading "Industries" [level=4] [ref=f8e1691]
+          - list [ref=f8e1692]:
+            - listitem [ref=f8e1693]:
+              - link "E-commerce & Retail" [ref=f8e1694] [cursor=pointer]:
+                - /url: /industries/ecommerce-retail
+            - listitem [ref=f8e1695]:
+              - link "Professional Services" [ref=f8e1696] [cursor=pointer]:
+                - /url: /industries/professional-services
+            - listitem [ref=f8e1697]:
+              - link "Hospitality" [ref=f8e1698] [cursor=pointer]:
+                - /url: /industries/hospitality
+            - listitem [ref=f8e1699]:
+              - link "Real Estate" [ref=f8e1700] [cursor=pointer]:
+                - /url: /industries/real-estate
+            - listitem [ref=f8e1701]:
+              - link "Health & Wellness" [ref=f8e1702] [cursor=pointer]:
+                - /url: /industries/health-wellness
+            - listitem [ref=f8e1703]:
+              - link "Home Services" [ref=f8e1704] [cursor=pointer]:
+                - /url: /industries/home-services
+            - listitem [ref=f8e1705]:
+              - link "All industries" [ref=f8e1706] [cursor=pointer]:
+                - /url: /industries
+        - generic [ref=f8e1707]:
+          - heading "Regions" [level=4] [ref=f8e1708]
+          - list [ref=f8e1709]:
+            - listitem [ref=f8e1710]:
+              - link "Palm Springs" [ref=f8e1711] [cursor=pointer]:
+                - /url: /regions/palm-springs
+            - listitem [ref=f8e1712]:
+              - link "Palm Desert" [ref=f8e1713] [cursor=pointer]:
+                - /url: /regions/palm-desert
+            - listitem [ref=f8e1714]:
+              - link "Indio" [ref=f8e1715] [cursor=pointer]:
+                - /url: /regions/indio
+            - listitem [ref=f8e1716]:
+              - link "San Bernardino" [ref=f8e1717] [cursor=pointer]:
+                - /url: /regions/san-bernardino
+            - listitem [ref=f8e1718]:
+              - link "Big Bear" [ref=f8e1719] [cursor=pointer]:
+                - /url: /regions/big-bear
+            - listitem [ref=f8e1720]:
+              - link "Los Angeles" [ref=f8e1721] [cursor=pointer]:
+                - /url: /regions/los-angeles
+            - listitem [ref=f8e1722]:
+              - link "All regions" [ref=f8e1723] [cursor=pointer]:
+                - /url: /regions
+        - generic [ref=f8e1724]:
+          - heading "Signal" [level=4] [ref=f8e1725]
+          - list [ref=f8e1726]:
+            - listitem [ref=f8e1727]:
+              - link "hello@catolabs.com" [ref=f8e1728] [cursor=pointer]:
+                - /url: mailto:hello@catolabs.com
+            - listitem [ref=f8e1729]:
+              - link "llms.txt" [ref=f8e1730] [cursor=pointer]:
+                - /url: /llms.txt
+      - separator [ref=f8e1731]
+      - generic [ref=f8e1732]:
+        - paragraph [ref=f8e1733]: © 2026 Cato Labs. Build beyond ordinary.
+        - button "Back to the light ↑" [ref=f8e1734] [cursor=pointer]
+  - alert [ref=f8e1735]
+```

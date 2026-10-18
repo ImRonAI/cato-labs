@@ -1,0 +1,562 @@
+/* ============================================================
+   KIT B — Interaction "Delight Kit"
+   Shared styles for StreamSimulator / ChartDraw / SignalPanel /
+   ProactiveBubble. Blue spectrum only, luminous minimalism.
+   Imported by each kit component.
+   ============================================================ */
+
+.kit-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* typing caret (shared) */
+.kit-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--blue-600);
+  animation: kit-caret-blink 0.9s steps(1) infinite;
+}
+@keyframes kit-caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* quiet mini pill button (shared) */
+.kit-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: color 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out),
+    background 0.35s var(--ease-out);
+}
+.kit-mini-btn:hover {
+  color: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue);
+  background: rgba(46, 75, 255, 0.05);
+}
+.kit-mini-btn[aria-pressed="true"] {
+  color: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+.kit-mini-btn:focus-visible,
+.kit-bubble-close:focus-visible {
+  outline: 2px solid var(--blue-400);
+  outline-offset: 2px;
+}
+
+/* ---------------- StreamSimulator ---------------- */
+.kit-sim {
+  position: relative;
+  border: 1px solid var(--line-soft);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  box-shadow: 0 40px 90px -50px rgba(18, 38, 200, 0.28);
+}
+.kit-sim-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.kit-sim-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+.kit-sim-dot:nth-child(1) { background: var(--blue-200); }
+.kit-sim-dot:nth-child(2) { background: var(--blue-400); }
+.kit-sim-dot:nth-child(3) { background: var(--blue-600); }
+.kit-sim-pill {
+  flex: 1;
+  max-width: 320px;
+  margin-inline: auto;
+  text-align: center;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--blue-050);
+  border: 1px solid var(--blue-100);
+  color: var(--ink-3);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kit-sim-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  container-type: size;
+  background: linear-gradient(
+    160deg,
+    var(--paper) 0%,
+    var(--blue-050) 58%,
+    var(--blue-100) 100%
+  );
+}
+.kit-sim-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.kit-sim-rect--wire {
+  fill: none;
+  stroke: var(--blue-600);
+  stroke-width: 1;
+}
+.kit-sim-rect--fill {
+  fill: var(--blue-100);
+  stroke: var(--blue-300);
+  stroke-width: 1;
+}
+.kit-sim-rect--glass {
+  fill: rgba(244, 247, 255, 0.62);
+  stroke: var(--blue-200);
+  stroke-width: 1;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.kit-sim-stroke {
+  stroke: var(--blue-600);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.kit-sim-rect-label {
+  position: absolute;
+  padding-top: 4px;
+  font-size: 10px;
+  font-size: clamp(7px, 1.35cqw, 14px);
+  font-weight: 550;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--blue-700);
+  white-space: nowrap;
+}
+.kit-sim-text {
+  position: absolute;
+  color: var(--ink);
+  line-height: 1.25;
+  max-width: 62%;
+}
+.kit-sim-text--h1 {
+  font-size: 28px;
+  font-size: clamp(13px, 5.6cqw, 68px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  max-width: 78%;
+}
+.kit-sim-text--h2 {
+  font-size: 20px;
+  font-size: clamp(11px, 3.7cqw, 44px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  max-width: 70%;
+}
+.kit-sim-text--body {
+  font-size: 13px;
+  font-size: clamp(9px, 2cqw, 20px);
+  color: var(--ink-2);
+  line-height: 1.5;
+  max-width: 46%;
+}
+.kit-sim-text--label {
+  font-size: 10px;
+  font-size: clamp(8px, 1.5cqw, 15px);
+  font-weight: 550;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--blue-600);
+}
+.kit-sim-text--button {
+  font-size: 12px;
+  font-size: clamp(9px, 1.9cqw, 20px);
+  font-weight: 550;
+  color: #fff;
+  background: var(--ink);
+  border-radius: 999px;
+  padding: 0.55em 1.35em;
+  max-width: none;
+  white-space: nowrap;
+}
+.kit-sim-text--button .kit-caret { background: var(--blue-300); }
+.kit-sim-img {
+  position: absolute;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px -18px rgba(18, 38, 200, 0.35);
+}
+.kit-sim-cursor {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 5;
+  pointer-events: none;
+  will-change: left, top;
+}
+.kit-sim-cursor svg {
+  filter: drop-shadow(0 2px 5px rgba(10, 12, 18, 0.25));
+}
+.kit-sim-chip {
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.kit-sim-bar {
+  height: 2px;
+  background: var(--blue-100);
+}
+.kit-sim-bar > div {
+  height: 100%;
+  background: var(--blue-600);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.kit-sim-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  flex-wrap: wrap;
+}
+.kit-sim-legend {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.kit-sim-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.kit-sim-agent i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.kit-sim-agent span { color: var(--ink-3); }
+.kit-sim-btns {
+  display: flex;
+  gap: 10px;
+}
+.kit-sim-note {
+  font-size: 12px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+
+/* ---------------- ChartDraw ---------------- */
+.kit-chart {
+  position: relative;
+}
+.kit-chart-stage {
+  position: relative;
+  width: 100%;
+}
+.kit-chart-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.kit-chart-ylab {
+  position: absolute;
+  left: 0;
+  transform: translateY(-115%);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.kit-chart-ms {
+  position: absolute;
+  margin: -6px 0 0 -6px;
+  z-index: 2;
+}
+.kit-chart-ms i {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--blue-600);
+  box-shadow: 0 0 0 3px #fff, 0 0 0 4px var(--blue-200);
+}
+.kit-chart-ms span {
+  position: absolute;
+  left: 50%;
+  bottom: 17px;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--blue-100);
+  color: var(--blue-700);
+  font-size: 10px;
+  font-weight: 550;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px -12px rgba(18, 38, 200, 0.35);
+}
+.kit-chart-hover {
+  position: absolute;
+  margin: -5px 0 0 -5px;
+  z-index: 3;
+  pointer-events: none;
+}
+.kit-chart-hover i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--blue-600);
+}
+.kit-chart-tip {
+  position: absolute;
+  z-index: 4;
+  transform: translate(-50%, -135%);
+  pointer-events: none;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--blue-100);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 16px 40px -18px rgba(18, 38, 200, 0.35);
+  text-align: center;
+  white-space: nowrap;
+}
+.kit-chart-tip b {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.kit-chart-tip span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 550;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blue-600);
+}
+.kit-chart-expand {
+  display: flex;
+  justify-content: center;
+  margin-top: 34px;
+}
+.kit-chart-empty {
+  font-size: 13px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+
+/* ---------------- SignalPanel ---------------- */
+.kit-signals {
+  padding: clamp(24px, 3.4vw, 40px);
+}
+.kit-sig-rows {
+  margin-top: 20px;
+}
+.kit-sig-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 11px;
+  border-top: 1px solid var(--line-soft);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: kit-sig-in 0.7s var(--ease-out) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes kit-sig-in {
+  to { opacity: 1; transform: none; }
+}
+.kit-sig-label {
+  flex: none;
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.kit-sig-value {
+  font-size: 14px;
+  color: var(--ink);
+  text-align: right;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+.kit-sig-foot {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 20px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.kit-sig-skel {
+  height: 12px;
+  margin-block: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--blue-050), var(--blue-100), var(--blue-050));
+}
+
+/* ---------------- ProactiveBubble ---------------- */
+.kit-bubble {
+  position: fixed;
+  right: clamp(14px, 3.5vw, 30px);
+  bottom: clamp(14px, 3.5vw, 30px);
+  z-index: 55; /* below the nav overlay (59) */
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: min(348px, calc(100vw - 28px));
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid var(--blue-100);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 34px 80px -32px rgba(18, 38, 200, 0.4);
+  opacity: 0;
+  visibility: hidden;
+}
+.kit-bubble::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 22px;
+  border: 1.5px solid rgba(46, 75, 255, 0.45);
+  pointer-events: none;
+  animation: kit-bubble-ring 1.7s var(--ease-out) 0.25s 1 forwards;
+}
+@keyframes kit-bubble-ring {
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.07); }
+}
+.kit-bubble-avatar {
+  flex: none;
+  margin-top: 2px;
+}
+.kit-bubble-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kit-blink 4.6s ease-in-out infinite;
+}
+@keyframes kit-blink {
+  0%, 91%, 98%, 100% { transform: scaleY(1); }
+  94.5% { transform: scaleY(0.08); }
+}
+.kit-bubble-body {
+  flex: 1;
+  min-width: 0;
+}
+.kit-bubble-name {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--blue-600);
+}
+.kit-bubble-msg {
+  margin-top: 7px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  min-height: 3.1em;
+}
+.kit-bubble-msg .kit-caret { background: var(--blue-500); }
+.kit-bubble-actions {
+  margin-top: 13px;
+}
+.btn.kit-bubble-btn {
+  padding: 11px 20px;
+  font-size: 13px;
+  gap: 8px;
+}
+.kit-bubble-close {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink-3);
+  transition: color 0.3s, background 0.3s;
+}
+.kit-bubble-close:hover {
+  color: var(--blue);
+  background: var(--blue-050);
+}
+.kit-bubble-close svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* ---------------- reduced motion ---------------- */
+@media (prefers-reduced-motion: reduce) {
+  .kit-caret,
+  .kit-bubble-eyes {
+    animation: none;
+  }
+  .kit-bubble {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  .kit-bubble::after {
+    display: none;
+  }
+  .kit-sig-row {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

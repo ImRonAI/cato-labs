@@ -1,0 +1,8 @@
+{
+  "source": "https://raw.githubusercontent.com/vercel/ai-elements/main/packages/elements/src/agent.tsx",
+  "upstream_sha256": "7d96005ace889eaa790b293ae75883d62546b6c7983aec3e7e6784c0392e30c7",
+  "installed_sha256": "181270eeaeb7235aeb685e772c8545a74d058914aacfc4bcc6fa612304f9675a",
+  "matches_upstream_after_import_aliases_and_type_only_narrowing": true,
+  "runtime_changes": false,
+  "accordion_sha256": "99de242681eb43121969db02bbb102aeeb1865ef52c7635672508a58c5429085"
+}

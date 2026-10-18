@@ -1,0 +1,139 @@
+/* ============================================================
+   SAAS & STARTUPS — scoped styles (ss-* prefix only)
+   Loaded exclusively by app/industries/saas-startups/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- market-truth — the monumental statement ---------- */
+.ss-truth {
+  padding-block: calc(var(--section-y) * 0.4) calc(var(--section-y) * 0.3);
+}
+.ss-truth .micro-label {
+  margin-bottom: 30px;
+}
+.ss-truth__statement {
+  margin: 0;
+  max-width: 21ch;
+}
+
+/* ---------- feature — the three systems ---------- */
+.ss-feature {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.ss-feature > .micro-label {
+  margin-bottom: clamp(56px, 8vw, 104px);
+}
+.ss-feature__grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.ss-feature__block {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.ss-feature__block:nth-child(even) {
+  align-self: flex-end;
+}
+.ss-feature__block .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.ss-feature__block-title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.ss-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- plays — mapped to Cato practices ---------- */
+.ss-plays {
+  margin-top: clamp(88px, 12vw, 160px);
+}
+.ss-plays__grid {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(28px, 4vw, 60px);
+}
+.ss-play {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.ss-play .index-no {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--blue);
+}
+.ss-play__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.ss-play__body {
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.ss-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.ss-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.ss-detail__body {
+  max-width: 44rem;
+}
+.ss-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.ss-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.ss-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .ss-feature__block,
+  .ss-feature__block:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .ss-plays__grid {
+    grid-template-columns: 1fr;
+    row-gap: 40px;
+  }
+  .ss-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

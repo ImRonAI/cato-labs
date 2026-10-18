@@ -1,0 +1,126 @@
+{
+  "initialization": {
+    "name": "telnyx_api",
+    "version": "3.0.0"
+  },
+  "tools": [
+    {
+      "name": "get_api_endpoint_schema",
+      "description": "Get the schema for an endpoint in the Telnyx TypeScript API. You can use the schema returned by this tool to invoke an endpoint with the `invoke_api_endpoint` tool.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "description": "The name of the endpoint to get the schema for."
+          }
+        },
+        "required": [
+          "endpoint"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "list_api_endpoints",
+      "description": "List or search for all endpoints in the Telnyx TypeScript API",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search_query": {
+            "type": "string",
+            "description": "An optional search query to filter the endpoints by. Provide a partial name, resource, operation, or tag to filter the endpoints returned."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": []
+      }
+    },
+    {
+      "name": "invoke_api_endpoint",
+      "description": "Invoke an endpoint in the Telnyx TypeScript API. Note: use the `list_api_endpoints` tool to get the list of endpoints and `get_api_endpoint_schema` tool to get the schema for an endpoint.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "endpoint_name": {
+            "type": "string",
+            "description": "The name of the endpoint to invoke."
+          },
+          "args": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "The arguments to pass to the endpoint. This must match the schema returned by the `get_api_endpoint_schema` tool."
+          }
+        },
+        "required": [
+          "endpoint_name",
+          "args"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "open_number_intelligence",
+      "description": "Open the Telnyx Number Intelligence MCP App for phone number lookup, validation, and enrichment workflows.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Optional no-op app opener action; omit to open the app.",
+            "enum": [
+              "open"
+            ],
+            "default": "open"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "open_usage_cost_explorer",
+      "description": "Open the Telnyx Usage & Cost Explorer MCP App for usage and cost analysis.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Optional no-op app opener action; omit to open the app.",
+            "enum": [
+              "open"
+            ],
+            "default": "open"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "open_voice_monitor",
+      "description": "Open the Telnyx Voice Monitor MCP App for observing and troubleshooting voice traffic.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Optional no-op app opener action; omit to open the app.",
+            "enum": [
+              "open"
+            ],
+            "default": "open"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

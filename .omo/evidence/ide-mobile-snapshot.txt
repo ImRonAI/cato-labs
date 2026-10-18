@@ -1,0 +1,387 @@
+### Page
+- Page URL: http://127.0.0.1:3217/capabilities/digital-products#vibe
+- Page Title: Digital Products & Experiences — Cato Labs
+- Console: 0 errors, 80 warnings
+### Snapshot
+```yaml
+- generic [active] [ref=f2e1]:
+  - link "Skip to content" [ref=f2e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f2e5]:
+    - generic [ref=f2e6]:
+      - link "Cato Labs — home" [ref=f2e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f2e15]: Cato .Labs
+      - navigation "Primary"
+      - button "Open menu" [ref=f2e1315] [cursor=pointer]
+  - main [ref=f2e31]:
+    - region "The website is the flagship." [ref=f2e32]:
+      - navigation "Breadcrumb" [ref=f2e33]:
+        - link "Capabilities" [ref=f2e34] [cursor=pointer]:
+          - /url: /capabilities
+        - generic [ref=f2e35]: /
+        - generic [ref=f2e36]: Digital Products & Experiences
+      - generic [ref=f2e37]: Capabilities — 03
+      - heading "The website is the flagship." [level=1] [ref=f2e38]:
+        - generic [ref=f2e39]: The website is
+        - generic [ref=f2e41]: the flagship.
+      - generic [ref=f2e43]: Websites and applications treated as products — architected, designed and engineered on modern stacks to be editorial-grade, fast and built to convert.
+    - region "What the practice covers" [ref=f2e44]:
+      - generic [ref=f2e45]: The disciplines
+      - generic [ref=f2e46]:
+        - generic [ref=f2e47]:
+          - generic [aria-hidden] [ref=f2e48]: "01"
+          - heading "Information architecture & UX" [level=3] [ref=f2e49]
+          - paragraph [ref=f2e50]: The structure comes first. Every page has a job, every journey a destination, and the architecture is argued before a single pixel is placed.
+        - generic [ref=f2e51]:
+          - generic [aria-hidden] [ref=f2e52]: "02"
+          - heading "Interface & experience design" [level=3] [ref=f2e53]
+          - paragraph [ref=f2e54]: High-fidelity, system-driven design — typography, motion and interaction held to an editorial standard, because polish is how quality is judged.
+        - generic [ref=f2e55]:
+          - generic [aria-hidden] [ref=f2e56]: "03"
+          - heading "Next.js / React engineering" [level=3] [ref=f2e57]
+          - paragraph [ref=f2e58]: "Production engineering on modern stacks, chosen for the experience and the business case. Fast by default: performance is a feature, not a fix."
+    - region "The Studio — watch a site being born" [ref=f2e59]:
+      - generic [ref=f2e60]:
+        - generic [ref=f2e61]: The Studio
+        - heading [level=2] [ref=f2e62]:
+          - generic [ref=f2e63]:
+            - text: Watch a site being born.
+            - generic [aria-hidden]: Watch a site being born.
+        - generic [ref=f2e64]: "This is how a Cato flagship is built: strategy, design, engineering and discoverability working the same canvas at the same time. Watch four agents assemble AURELLE — an alpine fragrance house — from wireframe to launch."
+      - group "AURELLE site build simulation" [ref=f2e66]:
+        - generic [ref=f2e71]: aurelle.co
+        - generic [aria-hidden] [ref=f2e72]:
+          - generic [ref=f2e1186]: wireframe · nav
+          - generic [ref=f2e1187]: AURELLE
+          - generic [ref=f2e1188]: Collection · Journal
+          - generic [ref=f2e1189]: Alpine fragrance house — Chamonix
+          - generic [ref=f2e1190]: Altitude,
+          - generic [ref=f2e1191]: bottled.
+          - generic [ref=f2e1192]: Rare air, distilled. Scents composed at 2,000 metres — mineral, cold, exact.
+          - generic [ref=f2e1193]: Copy · tone — cold, exact
+          - generic [ref=f2e1194]: Discover the collection
+          - generic [ref=f2e1215]: media · generative
+          - generic [ref=f2e1216]: schema · product
+          - generic [ref=f2e1217]: Meta · OG · sitemap
+          - generic [ref=f2e1218]: Product grid
+          - generic [ref=f2e1328]: tokens · glass
+          - generic [ref=f2e1329]: Sommet N°1
+          - generic [ref=f2e1330]: Crevasse N°2
+          - generic [ref=f2e1331]: Treeline N°3
+          - generic [ref=f2e1332]: Eau de parfum · 50ml
+          - generic [ref=f2e1333]: Eau de parfum · 50ml
+          - generic [ref=f2e1334]: Eau de parfum · 50ml
+          - generic [ref=f2e1335]: €180
+          - generic [ref=f2e1336]: €210
+          - generic [ref=f2e1337]: €165
+          - generic [ref=f2e1338]: social proof
+          - generic [ref=f2e1339]: ★★★★★
+          - generic [ref=f2e1340]: “Like standing above the weather.”
+          - generic [ref=f2e1341]: — Monocle, retail awards
+          - generic [ref=f2e1342]: footer
+          - generic [ref=f2e1343]: AURELLE
+          - generic [ref=f2e1344]: Est. 2026
+          - generic: Sapphire
+          - generic: Azure
+          - generic: Ice
+          - generic: Indigo
+        - paragraph [ref=f2e74]: "Animated simulation: Sapphire, Azure, Ice, Indigo assemble a AURELLE landing page block by block inside a browser frame."
+        - generic [ref=f2e76]:
+          - generic [ref=f2e77]:
+            - generic [ref=f2e78]:
+              - text: Sapphire
+              - generic [ref=f2e80]: · Strategy
+            - generic [ref=f2e81]:
+              - text: Azure
+              - generic [ref=f2e83]: · Design
+            - generic [ref=f2e84]:
+              - text: Ice
+              - generic [ref=f2e86]: · Engineering
+            - generic [ref=f2e87]:
+              - text: Indigo
+              - generic [ref=f2e89]: · Discoverability
+          - generic [ref=f2e90]:
+            - button "Play simulation" [ref=f2e1345] [cursor=pointer]: Play
+            - button "Replay simulation" [ref=f2e92] [cursor=pointer]: Replay
+    - region "Vibe-code yours" [ref=f2e93]:
+      - generic [ref=f2e94]:
+        - generic [ref=f2e95]: The Sketch Engine
+        - heading [level=2] [ref=f2e96]:
+          - generic [ref=f2e97]:
+            - text: Vibe-code yours.
+            - generic [aria-hidden]: Vibe-code yours.
+        - generic [ref=f2e98]: Describe what you’re building. Your agent researches, designs and writes the website on a live canvas. Follow each element as it takes shape, then download the files or start another build.
+      - generic [ref=f2e99]:
+        - generic [ref=f2e100]:
+          - generic [ref=f2e101]:
+            - generic [aria-hidden] [ref=f2e102]: ✳
+            - strong [ref=f2e103]: cato studio
+          - generic [ref=f2e105]:
+            - generic [ref=f2e106]: Selected build
+            - combobox "Selected build" [ref=f2e107]:
+              - option "New website"
+              - option "Builder 1 · completed" [selected]
+            - button "New build +" [ref=f2e108] [cursor=pointer]
+        - navigation "Workspace panels" [ref=f2e1346]:
+          - button "Files" [ref=f2e1347] [cursor=pointer]
+          - button "Preview & code" [pressed] [ref=f2e1348] [cursor=pointer]
+          - button "Agent & brief" [ref=f2e1349] [cursor=pointer]
+        - region "Website preview and source" [ref=f2e128]:
+          - generic [ref=f2e129]:
+            - tablist "Website view" [ref=f2e130]:
+              - tab "Preview" [ref=f2e131] [cursor=pointer]
+              - tab "Code" [selected] [ref=f2e132] [cursor=pointer]
+            - status [ref=f2e133]: completed
+          - tabpanel "Code" [ref=f2e1219]:
+            - generic [ref=f2e1220]:
+              - generic [ref=f2e1221]:
+                - generic [ref=f2e1222]: index.html · read only
+                - button [ref=f2e1223] [cursor=pointer]
+              - code [ref=f2e1226]:
+                - generic [ref=f2e1227]: <!doctype html>
+                - generic [ref=f2e1228]: <html lang="en" data-theme="light">
+                - generic [ref=f2e1229]: <head>
+                - generic [ref=f2e1230]: <meta charset="utf-8">
+                - generic [ref=f2e1231]: <meta name="viewport" content="width=device-width,initial-scale=1">
+                - generic [ref=f2e1232]: <title>Apple Design Notebook</title>
+                - generic [ref=f2e1233]: <style>
+                - generic [ref=f2e1234]: ":root{--bg:#eef1f0;--ink:#1d2427;--soft:#526066;--rule:#c5cdcf;--acc:#2f6a47;--card:#f8faf9}"
+                - generic [ref=f2e1235]: "[data-theme=dark]{--bg:#151b1d;--ink:#e3e9e8;--soft:#a3b1b4;--rule:#34413f;--acc:#8fc6a2;--card:#1d2528}"
+                - generic [ref=f2e1236]: "*{box-sizing:border-box}"
+                - generic [ref=f2e1237]: "body{margin:0;background:var(--bg);color:var(--ink);font:1.0625rem/1.65 Charter,\"Iowan Old Style\",Georgia,serif;transition:background .3s,color .3s}"
+                - generic [ref=f2e1238]: "header,main,footer{max-width:46rem;margin:auto;padding:0 1.25rem}"
+                - generic [ref=f2e1239]: "header{display:flex;justify-content:space-between;align-items:center;gap:1rem;min-height:5rem}"
+                - generic [ref=f2e1240]: "header span{font-style:italic;color:var(--soft)}"
+                - generic [ref=f2e1241]: "h1{font-size:clamp(2.3rem,8vw,3.8rem);line-height:1.04;font-weight:400;letter-spacing:-.02em;margin:1.5rem 0 .75rem}"
+                - generic [ref=f2e1242]: "h2{font-size:1.3rem;font-weight:600;margin:0 0 .4rem}"
+                - generic [ref=f2e1243]: "p{margin:0 0 .9rem;max-width:62ch}"
+                - generic [ref=f2e1244]: ".lede{color:var(--soft);font-size:1.15rem}"
+                - generic [ref=f2e1245]: "a{color:var(--acc)}"
+                - generic [ref=f2e1246]: "button{font:inherit;font-size:.95rem;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:2rem;padding:.5rem 1.1rem;min-height:44px;cursor:pointer}"
+                - generic [ref=f2e1247]: ":focus-visible{outline:3px solid var(--acc);outline-offset:3px}"
+                - generic [ref=f2e1248]: "figure{margin:2rem 0;min-height:12rem}"
+                - generic [ref=f2e1249]: "figure img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:1rem;background:var(--rule)}"
+                - generic [ref=f2e1250]: "figcaption{font-size:.85rem;color:var(--soft);margin-top:.6rem}"
+                - generic [ref=f2e1251]: ".note{border-top:1px solid var(--rule);padding:1.5rem 0;min-height:8rem}"
+                - generic [ref=f2e1252]: "dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1rem;margin:1rem 0}"
+                - generic [ref=f2e1253]: "dt{font-size:.85rem;color:var(--soft)}"
+                - generic [ref=f2e1254]: "dd{margin:0;font-size:1.35rem}"
+                - generic [ref=f2e1255]: "small,ol{font-size:.88rem;color:var(--soft)}"
+                - generic [ref=f2e1256]: "ol{padding-left:1.2rem}"
+                - generic [ref=f2e1257]: "li{margin-bottom:.4rem;overflow-wrap:anywhere}"
+                - generic [ref=f2e1258]: "footer{padding-block:2rem 3rem;border-top:1px solid var(--rule)}"
+                - generic [ref=f2e1259]: "@media (prefers-reduced-motion:reduce){*{transition:none!important}}"
+                - generic [ref=f2e1260]: </style>
+                - generic [ref=f2e1261]: </head>
+                - generic [ref=f2e1262]: <body>
+                - generic [ref=f2e1263]: <header>
+                - generic [ref=f2e1264]: <span>Research notes, 16 Oct 2026</span>
+                - generic [ref=f2e1265]: <button id="theme" type="button" aria-pressed="false">Dark mode</button>
+                - generic [ref=f2e1266]: </header>
+                - generic [ref=f2e1267]: <main>
+                - generic [ref=f2e1268]: <h1>Apple Design Notebook</h1>
+                - generic [ref=f2e1269]: <p class="lede">A short field record of a ring of glass in Cupertino, the person who led Apple while it was built, and one dated look at the market.</p>
+                - generic [ref=f2e1270]: <figure>
+                - generic [ref=f2e1271]: <img id="park" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Aerial_view_of_Apple_Park_dllu.jpg/1280px-Aerial_view_of_Apple_Park_dllu.jpg" alt="Aerial view of Apple Park's ring-shaped main building surrounded by trees" width="1280" height="855">
+                - generic [ref=f2e1272]: <figcaption>Aerial view of Apple Park, 15 April 2018. Photo by Daniel L. Lu, <a href="https://commons.wikimedia.org/wiki/File:Aerial_view_of_Apple_Park_dllu.jpg">CC BY-SA 4.0 via Wikimedia Commons</a>.</figcaption>
+                - generic [ref=f2e1273]: </figure>
+                - generic [ref=f2e1274]: <section class="note" aria-labelledby="fact">
+                - generic [ref=f2e1275]: "<h2 id=\"fact\">Verified fact: the ring</h2>"
+                - generic [ref=f2e1276]: <p>Apple Park is a 175-acre campus whose ring-shaped, 2.8 million-square-foot main building is clad entirely in the world's largest panels of curved glass. Apple announced employees would begin moving in during April 2017. <a href="#s1">[1]</a></p>
+                - generic [ref=f2e1277]: </section>
+                - generic [ref=f2e1278]: <section class="note" aria-labelledby="people">
+                - generic [ref=f2e1279]: "<h2 id=\"people\">Profile: Tim Cook</h2>"
+                - generic [ref=f2e1280]: <p>Tim Cook joined Apple in 1998, served as CEO from 2011 to 2026, and is now executive chair of the board. <a href="#s2">[2]</a></p>
+                - generic [ref=f2e1281]: </section>
+                - generic [ref=f2e1282]: <section class="note" aria-labelledby="market">
+                - generic [ref=f2e1283]: <h2 id="market">Market observation, 15 Oct 2026</h2>
+                - generic [ref=f2e1284]: <p>AAPL's latest quote, timestamped 15 Oct 2026 20:00 UTC, was below the prior session close. <a href="#s3">[3]</a></p>
+                - generic [ref=f2e1285]: <dl>
+                - generic [ref=f2e1286]: <div><dt>Last price</dt><dd>$342.00</dd></div>
+                - generic [ref=f2e1287]: <div><dt>Change</dt><dd>−$0.96 (−0.28%)</dd></div>
+                - generic [ref=f2e1288]: <div><dt>52-week range</dt><dd>$243.42–$348.15</dd></div>
+                - generic [ref=f2e1289]: </dl>
+                - generic [ref=f2e1290]: <small>Recorded for context only. This is not investment advice.</small>
+                - generic [ref=f2e1291]: </section>
+                - generic [ref=f2e1292]: <section class="note" aria-labelledby="src">
+                - generic [ref=f2e1293]: <h2 id="src">Sources</h2>
+                - generic [ref=f2e1294]: <ol>
+                - generic [ref=f2e1295]: <li id="s1"><a href="https://www.apple.com/newsroom/2017/02/apple-park-opens-to-employees-in-april/">Apple Newsroom, "Apple Park opens to employees in April," 22 Feb 2017</a></li>
+                - generic [ref=f2e1296]: <li id="s2"><a href="https://www.apple.com/leadership/tim-cook/">Apple Leadership, Tim Cook</a>, read 16 Oct 2026</li>
+                - generic [ref=f2e1297]: <li id="s3"><a href="https://www.perplexity.ai/finance/AAPL">Perplexity Finance, AAPL quote</a>, fetched 16 Oct 2026 11:19 UTC</li>
+                - generic [ref=f2e1298]: </ol>
+                - generic [ref=f2e1299]: </section>
+                - generic [ref=f2e1300]: </main>
+                - generic [ref=f2e1301]: <footer><small>Independent research page. Not affiliated with or endorsed by Apple Inc.</small></footer>
+                - generic [ref=f2e1302]: <script>
+                - generic [ref=f2e1303]: const r=document.documentElement,b=document.getElementById('theme'),img=document.getElementById('park');
+                - generic [ref=f2e1304]: "function set(t){r.dataset.theme=t;b.setAttribute('aria-pressed',t==='dark');try{localStorage.setItem('adn-theme',t)}catch(e){}}"
+                - generic [ref=f2e1305]: "let s;try{s=localStorage.getItem('adn-theme')}catch(e){}"
+                - generic [ref=f2e1306]: "set(s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));"
+                - generic [ref=f2e1307]: b.addEventListener('click',()=>set(r.dataset.theme==='dark'?'light':'dark'));
+                - generic [ref=f2e1308]: "function miss(){img.remove()}"
+                - generic [ref=f2e1309]: img.addEventListener('error',miss);
+                - generic [ref=f2e1310]: if(img.complete&&!img.naturalWidth)miss();
+                - generic [ref=f2e1311]: </script>
+                - generic [ref=f2e1312]: </body>
+                - generic [ref=f2e1313]: </html>
+          - generic [ref=f2e137]:
+            - generic [ref=f2e138]:
+              - generic [ref=f2e139]: Sandbox terminal
+              - button [ref=f2e142] [cursor=pointer]
+            - code [ref=f2e145]: "sed -n 1,80p /home/user/workspace/skills/search/recipes/people-research.md # People research End-to-end recipe for finding people meeting a set of criteria — hiring sourcing, alumni discovery, expert finding, investor / partner mapping, named-person verification. Composes `pplx_sdk.search.people` with the auxiliary content methods to get from a broad query to a precise, enriched list. ## Named person lookup (no pipeline) When the task names a specific person — their profile, accounts, contact info, or employment/education facts (\"what is the Twitter/Facebook/GitHub account of X?\", \"where does/did X work?\") — skip the multi-variant pipeline: 1. Run `pplx_sdk.search.people(\"Jane Doe Acme Corp\", limit=10)` and a concise `pplx_sdk.search.web(...)` query in parallel. When the task *supplies* an identifier (an email address or a GitHub/Twitter/Facebook handle), lead with `pplx_sdk.search.people(\"Jane Doe\", external_id=\"github:janedoe\")` — it exact-matches the one right profile with no disambiguation step. The identifier alone determines the match (the query string only affects ranking and cannot suppress the hit); the type prefix is case-insensitive and a leading `@` on a handle is stripped. If it returns 0 hits the identifier just isn't indexed (coverage is partial); continue with the name query, don't conclude the person doesn't exist. 2. Pick the hits that match the person — check name, company, and location; common names collide. If multiple plausible profiles return, disambiguate with `company` / `location` / `education` / `skills` filters, or web-search a canonical profile URL first. 3. Always run `pplx_sdk.content.fetch_people([...])` on the matching profile URL(s); see `reference/content.md` for the result shape. 4. Weigh all sources when answering — the structured fields (companies, education, `emails`, `github`, `twitter`, `facebook`), hit summaries, and web results. For account handles and emails the structured linkage fields are usually more reliable than inferring from the person's name. If the deliverable needs more than these facts, skip straight to dossier. ## Tool selection The People index (`pplx_sdk.search.people`, see `reference/search.md`) is strongest on intersection queries (`company × role`, `role × company × location`). Supplement with `pplx_sdk.search.web` when: - The query targets a specific org's team / about / partners page (VC partner lists, lab group pages, C-suite rosters). - Criteria need temporal awareness (\"currently at X\", \"left Y in 2024\"). - The domain is niche academic (specific lab, conference community, thesis topic). - `search.people` returns many results but few true matches after filtering. For comprehensive searches, run both in parallel and merge. ## Variation axes A single `search.people` query misses relevant people; run 3+ parallel variants (fan out via `patterns/fanout.md`) across: - **Role titles + acronyms** — `PM` / `product manager` / `product lead`. - **Company name forms** — acronym / full name / common abbreviations. - **Industry terms** — acronym / expansion. - **Scope slicing** — team, geography, seniority. Skip the acronym/expansion pairing only when the company is best known by its acronym. **Vary the role axis, not just company and location.** Fanning out only over place names (`\"Acme London\"`, `\"Acme Manchester\"`, …) with a fixed role searches one slice many times and misses differently-titled people. Move role/seniority terms across variants too. Worked example — engineers at Acme in Serbia: ```python # Lead with plain-text variants that vary ROLE; add filtered variants as supplements. variants = [ {\"query\": \"Acme software engineer Serbia\"}, # role + company + location {\"query\": \"Acme backend developer Belgrade\"}, # role synonym + city {\"query\": \"Acme infrastructure engineer Beograd\"}, # role variant + local spelling {\"query\": \"Acme engineering manager Serbia\"}, # seniority slice {\"query\": \"software engineer\", \"company\": \"Acme\", \"location\": \"Serbia\"}, # filtered supplement {\"query\": \"backend engineer\", \"company\": \"Acme\", \"location\": \"Belgrade\"}, ] hits = pplx_sdk.search.people_many(variants, limit_per_query=50) ``` - Role terms move across variants (`software engineer` → `backend developer` → `infrastructure engineer` → `engineering manager`). - Local spellings appear (`Belgrade` / `Beograd`). - Filters (`company`, `location`) supplement plain-text queries — never replace them. - Geography goes through `location`; there is no `country` filter. - Keep each query to ~5–7 meaningful tokens. At 8+ the index can't match all terms — split into shorter queries. ## Field filters: supplement, not replacement Filter kwargs scope results to people whose profile fields contain all provided tokens. Each filter is whitespace-tokenized and ANDed as `contains` clauses — `company=\"Google Maps\"` requires both `\"Google\"` and `\"Maps\"`, not the literal phrase. | Kwarg | Matches against | |---|---| | `name` | full name | | `company` | current **OR** previous companies | | `skills` | skills | | `location` | profile location field — use for all geography (city, region, **or** country); there is no separate `country` filter | | `education` | finished **OR** ongoing education institutions | | `external_id` | linked identifiers — **exact match**, not tokenized: `<type>:<value>`, type ∈ `email`/`github`/`twitter`/`facebook` | - `company` and `education` span current/previous and finished/ongoing, so a match does **not** imply a *current* job or *completed* degree — confirm current-vs-former / completion at the filter step against the enriched fields, not the filter alone. - **Filters scope; the ranker handles fuzzy match.** Use them as extra fan-out variants *alongside* plain-text queries, not instead — filters hit a narrower slice and miss profiles plain-text finds. - **Add a filter** for structural criteria (company, location, alumni status) when the plain-text query alone is too noisy. - **Keep it in the query** for semantic criteria (\"senior\", \"fintech\", \"AI safety\") — the ranker matches what the filter index can't. - Fan filtered variants alongside the plain-text query; dedup by URL after merge. - **`external_id` is the exception to all of the above**: it's a deterministic single-person lookup (see Named person lookup), not a fan-out scoping filter. Use it when the task hands you an identifier; don't guess identifiers to fan out over. ## Pipeline **Mandatory multi-step pipeline, not a single `search.people` call.** Always run search → dedup → **enrich → filter** before any deliverable; never present raw `search.people` hits (or an un-enriched, un-filtered list) — they are keyword matches, not vetted candidates. Only step 4 (dossier) is conditional. grep -n -i \"image\\|^## \\|^### \" /home/user/workspace/skills/search/reference/search.md | head -40; grep -n -i \"fetch_people\" -A8 /home/user/workspace/skills/search/reference/content.md | head -20 7:## Common Indexes 9:### Web - `pplx_sdk.search.web` 35:### People - `pplx_sdk.search.people` 61:### Companies - `pplx_sdk.search.companies` 86:## Many Queries 36:## Structured Profile Fetch - `content.fetch_people` 37- 38:Fetch fielded people/profile data from profile URLs. Use this before LLM filtering when criteria can be expressed against company history, education, skills, location, current role, or linked profiles. Prefer `fetch_people` over full-page `content.fetch` when these fixed fields answer the question. 39- 40-Simple: 41- 42-```python 43:save_and_print(pplx_sdk.content.fetch_people([\"https://example.com/profile\"])) 44-``` 45- 46-From search hits: 47- 48-```python 49:save_and_print(pplx_sdk.content.fetch_people([hit.url for hit in deduped[:50]])) 50-``` 51- 52-`PeopleFetchResult` fields: `url`, `full_name`, `people_headline`, `location`, `country`, `current_companies`, `previous_companies`, `education_ongoing`, `education_finished`, `skills`, `emails`, `github`, `facebook`, `twitter`, `update_times`, `error`. 53- 54-Nested fields: `emails` → `[{email, order_of_priority}]`; `github` → `{url, username, contributions_count}`; `facebook` → `{url}`; `twitter` → `{url}`; `update_times` → `{category_name: unix_seconds}`. 55- import pplx_sdk, json out={} w=pplx_sdk.search.web(\"Apple Park Cupertino headquarters opened 2017 Foster + Partners\", limit=6) out['web']=[dict(h) for h in w] p=pplx_sdk.search.people(\"Tim Cook Apple CEO\", limit=5) out['people']=[dict(h) for h in p] img=pplx_sdk.search.web(\"Apple Park aerial photo Wikimedia Commons file\", domains=[\"commons.wikimedia.org\"], limit=6) out['img']=[dict(h) for h in img] f=pplx_sdk.content.fetch([\"https://www.apple.com/leadership/tim-cook/\",\"https://www.apple.com/newsroom/2017/02/apple-park-opens-to-employees-in-april/\"]) out['fetch']=[{'url':r.url,'title':r.title,'err':r.error,'content':(r.content or '')[:1500]} for r in f] json.dump(out,open('/home/user/workspace/research.json','w'),default=str,indent=1) for k in ['web','people','img']: print('==',k) for h in out[k]: print(h.get('url'),'|',h.get('title'),'|',str(h.get('snippet') or h.get('summary'))[:200]) for r in out['fetch']: print('== fetch',r['url'],r['err']); print(r['content']) == web https://en.wikipedia.org/wiki/Apple_Park | Apple Park - Wikipedia | **Apple** **Park**, also known as **Apple Campus 2**, is the corporate headquarters of Apple Inc., located in Cupertino, California, United States. The campus accommodates more than 12,000 employees, https://www.apple.com.cn/newsroom/2017/02/apple-park-opens-to-employees-in-april/ | Apple Park 4 月对员工开放 | 新闻稿 2017 年 2 月 22 日 # Apple Park 4 月对员工开放 ... ## Press Contacts （2017 年 2 月 22 日，加利福尼亚州，CUPERTINO） —— Apple® 今日宣布，公司 175 英亩的新总部 Apple Park 将于 4 月开始有员工入驻。公司超过 12,000 名员工将历时超过 6 个月时间搬入，公司大楼和公园的建设将一直持续到夏 https://www.dezeen.com/2017/11/21/foster-partners-apple-park-visitor-center-opens-to-the-public/ | Foster + Partners' Apple Park Visitor Center opens to the ... | # Foster + Partners' Apple Park Visitor Center opens to the public The visitor centre designed by Foster + Partners as part of Apple's new California headquarters has welcomed its first guests. The ce https://www.thestreet.com/investing/stocks/where-is-apple-headquarters | Where is Apple’s headquarters? Apple Park explained - TheStreet | ## Key Points - Apple Park opened in Cupertino, California, in 2017. ... - Apple Park was designed by Foster + Partners. ... Jobs wouldn’t be around to see his vision come to life when the new headqua https://www.re-thinkingthefuture.com/case-studies/a10449-apple-park-by-foster-partners/ | Apple park by Foster + Partners - RTF | Rethinking The Future | Apple Park in Cupertino, California is Apple Inc.’s corporate headquarters. It opened in April 2017, replacing Apple Infinite Loop. The campus spans 175 acres and was created by acquiring nine propert http://www.apple.com/newsroom/2017/02/apple-park-opens-to-employees-in-april.html | Apple Park opens to employees in April | Apple Park opens to employees in April - Apple PRESS RELEASE February 22, 2017 # Apple Park opens to employees in April ... The new Apple Park in Cupertino, 175 acres of rolling parkland and one of th == people https://www.apple.com/leadership/tim-cook/ | Apple Leadership - Tim Cook | # Tim Cook ## Executive Chair Tim Cook has been a director since 2011 and serves as the executive chair of the board. He joined Apple in 1998 and served as the company’s CEO from 2011 to 2026. ... As https://en.wikipedia.org/wiki/Tim_Cook | Tim Cook - Wikipedia | # Tim Cook **Timothy Donald Cook** (born November 1, 1960) is an American business executive who served as the chief executive officer (CEO) of Apple Inc. from August 24, 2011 to August 31, 2026, and https://www.apple.com/hk/en/newsroom/2026/04/tim-cook-to-become-apple-executive-chairman-john-ternus-to-become-apple-ceo/ | Tim Cook to become Apple Executive Chairman John Ternus to ... | CUPERTINO, CALIFORNIA Apple announced that Tim Cook will become executive chairman of Apple’s board of directors and John Ternus, senior vice president of Hardware Engineering, will become Apple’s nex https://apnews.com/article/apple-tim-cook-ceo-chage-john-tenus-3e179f3ba156f37ebdc4da5c137a8263 | Apple CEO Tim Cook to step down as hardware leader ... | Apple CEO Tim Cook to step down as hardware leader John Ternus takes over | AP News ... # Tim Cook will step down as Apple CEO and hand reins over to the iPhone maker’s hardware leader ... ## Tim Cook https://www.cnn.com/2026/08/31/tech/tim-cook-apple-legacy | How Tim Cook made Apple one of the world’s most valuable ... | # How Tim Cook made Apple one of the world’s most valuable companies Apple CEO Tim Cook takes the stage during Apple's iPhone media event in San Francisco, California, on September 12, 2012. ... When == img https://commons.wikimedia.org/wiki/Category:Apple_Park | Category:Apple Park | **Apple Park** |headquarters of Apple Inc. in Cupertino, California Dokončený areál Apple Park, 2018|headquarters of Apple Inc. ... **English: ** Apple Park, or Apple Campus 2, the new headquarters of https://commons.wikimedia.org/wiki/Category:Silicon_Valley?uselang=be-tarask | Category:Silicon Valley — Wikimedia Commons | **Крамянёвая даліна** |region of Northern California in the United States Photo aérienne de l'Apple Park|region of Northern California in the United States Photo aérienne de l'Apple Park| ... ## Файлы https://commons.wikimedia.org/wiki/File:Nvidia_campus_aerial.jpg | File:Nvidia campus aerial.jpg - Wikimedia Commons | Size of this preview: 482 × 599 pixels. Other resolutions: 193 × 240 pixels | 386 × 480 pixels | 825 × 1,025 pixels. Original file (825 × 1,025 pixels, file size: 763 KB, MIME type: image/jpeg)File in https://commons.wikimedia.org/wiki/Category:Featured_pictures_of_California | Category:Featured pictures of California - Wikimedia Commons | ## Media in category \"Featured pictures of California\" Aerial view of Apple Park dllu.jpg 7,729 × 5,160; 50.99 MB https://commons.wikimedia.org/wiki/Category:2018_successful_candidates_for_featured_picture_status | Category:2018 successful candidates for featured picture status - Wikimedia Commons | ## Pages in category \"2018 successful candidates for featured picture status\" ### A - Commons:Featured picture candidates/File:Aerial view of Apple Park dllu.jpg https://commons.wikimedia.org/wiki/Apple_Park | Apple Park - Wikimedia Commons | in Cupertino, California Dokončený areál Apple Park, 2018|headquarters of Apple Inc. ... | | | - Aerial view == fetch https://www.apple.com/leadership/tim-cook/ None Apple Leadership - Tim Cook - Apple # Tim Cook ## Executive Chair Tim Cook has been a director since 2011 and serves as the executive chair of the board. He joined Apple in 1998 and served as the company’s CEO from 2011 to 2026. Apple was named the World’s Most Admired Company by Fortune during every year of Tim’s CEO tenure. As CEO, Tim oversaw the introduction of numerous products and services, including new categories like Apple Watch, AirPods, and Apple Vision Pro, and services ranging from iCloud and Apple Pay to Apple TV and Apple Music. He was also instrumental in expanding existing product lines. Under Tim’s leadership, Apple expanded its global footprint substantially, particularly in emerging markets, growing to more than 200 countries and territories with an active installed base of more than 2.5 billion devices. Apple Services was a major focus area of Tim’s, and during his tenure, the category grew to become a more than $100 billion business, the equivalent of a Fortune 40 company. Tim was also instrumental in creating the wearables category at Apple, which includes the world’s most popular watch and headphones, and which has served as the foundation for Apple’s remarkable impact on the health and safety of its users. Under his leadership, Apple transitioned to Apple-designed silicon, enabling the company to own more of its primary technology and deliver industry-leading gains in power efficiency and performance that directly benefit users across its product == fetch https://www.apple.com/newsroom/2017/02/apple-park-opens-to-employees-in-april/ None Apple Park opens to employees in April - Apple PRESS RELEASE February 22, 2017 # Apple Park opens to employees in April Theater to Be Named for Steve Jobs The new Apple Park in Cupertino, 175 acres of rolling parkland and one of the most energy-efficient buildings in the world. Cupertino, California — Apple today announced that Apple Park, the company’s new 175-acre campus, will be ready for employees to begin occupying in April. The process of moving more than 12,000 people will take over six months, and construction of the buildings and parklands is scheduled to continue through the summer. Envisioned by Steve Jobs as a center for creativity and collaboration, Apple Park is transforming miles of asphalt sprawl into a haven of green space in the heart of the Santa Clara Valley. The campus’ ring-shaped, 2.8 million-square-foot main building is clad entirely in the world’s largest panels of curved glass. Steve would have turned 62 this Friday, February 24. To honor his memory and his enduring influence on Apple and the world, the theater at Apple Park will be named the Steve Jobs Theater. Opening later this year, the entrance to the 1,000-seat auditorium is a 20-foot-tall glass cylinder, 165 feet in diameter, supporting a metallic carbon-fiber roof. The Steve Jobs Theater is situated atop a hill — one of the highest points within Apple Park — overlooking meadows and the main building. “Steve’s vision for Apple stretched far beyond his time with us. He intended Apple Pa import pplx_sdk r=pplx_sdk.content.fetch([\"https://commons.wikimedia.org/wiki/File:Aerial_view_of_Apple_Park_dllu.jpg\"], prompt=\"Give the author, license, date, and the exact upload.wikimedia.org URL of a ~960px or 1280px wide thumbnail and original file URL.\") for x in r: print(x.error); print(x.content) r2=pplx_sdk.content.fetch([\"https://commons.wikimedia.org/wiki/File:Aerial_view_of_Apple_Park_dllu.jpg\"], return_html=True) import re h=r2[0].raw_html or '' print(sorted(set(re.findall(r'https://upload\\.wikimedia\\.org/[^\"\\s]+Apple_Park_dllu\\.jpg[^\"\\s]*',h)))[:12]) print(re.findall(r'(CC[ -]BY[^<\"]{0,20})',h)[:5]) None | Requested detail | Information | |---|---| | Author | Daniel L. Lu (Daniel Lawrence Lu) | | License | CC BY-SA 4.0 | | Date | 15 April 2018, 00:05:32 UTC | | 1,280-pixel-wide thumbnail URL | https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Aerial_view_of_Apple_Park_dllu.jpg/1280px-Aerial_view_of_Apple_Park_dllu.jpg | | Original file URL | https://upload.wikimedia.org/wikipedia/commons/d/d0/Aerial_view_of_Apple_Park_dllu.jpg | ['https://upload.wikimedia.org/wikipedia/commons/5/5a/Aerial_view_of_Apple_Park_dllu.jpg?utm_source=commons.wikimedia.org&amp;utm_campaign=index&amp;utm_content=original'] ['CC-BY-SA-4.0', 'CC BY-SA 4.0 ', 'CC-BY-SA-4.0', 'CC-BY-SA-4.0', 'CC-BY-SA-4.0'] python3 -c \"import hashlib;h=hashlib.md5(b'Aerial_view_of_Apple_Park_dllu.jpg').hexdigest();print(h[0],h[:2])\"; grep -o 'thumb/5/5a/Aerial_view_of_Apple_Park_dllu.jpg/[0-9]*px[^\"& ]*' <(python3 -c \" import pplx_sdk;print(pplx_sdk.content.fetch(['https://commons.wikimedia.org/wiki/File:Aerial_view_of_Apple_Park_dllu.jpg'],return_html=True)[0].raw_html)\") | sort -u | head 5 5a thumb/5/5a/Aerial_view_of_Apple_Park_dllu.jpg/120px-Aerial_view_of_Apple_Park_dllu.jpg?utm_source=commons.wikimedia.org thumb/5/5a/Aerial_view_of_Apple_Park_dllu.jpg/1280px-Aerial_view_of_Apple_Park_dllu.jpg?utm_source=commons.wikimedia.org thumb/5/5a/Aerial_view_of_Apple_Park_dllu.jpg/1920px-Aerial_view_of_Apple_Park_dllu.jpg?utm_source=commons.wikimedia.org thumb/5/5a/Aerial_view_of_Apple_Park_dllu.jpg/330px-Aerial_view_of_Apple_Park_dllu.jpg?utm_source=commons.wikimedia.org thumb/5/5a/Aerial_view_of_Apple_Park_dllu.jpg/3840px-Aerial_view_of_Apple_Park_dllu.jpg?utm_source=commons.wikimedia.org thumb/5/5a/Aerial_view_of_Apple_Park_dllu.jpg/960px-Aerial_view_of_Apple_Park_dllu.jpg?utm_source=commons.wikimedia.org cd /home/user/workspace && python3 -c \" s=open('index.html',encoding='utf-8').read();print('chars',len(s),s.startswith('<!doctype html>'),s.rstrip().endswith('</html>')) from html.parser import HTMLParser import re ids=set(re.findall(r'id=\\\"([^\\\"]+)\\\"',s));print('broken anchors',[h for h in re.findall(r'href=\\\"#([^\\\"]+)\\\"',s) if h not in ids]) \" ; python3 -c \"import playwright;print('pw ok')\" chars 5117 True True broken anchors [] Traceback (most recent call last): File \"<string>\", line 1, in <module> import playwright;print('pw ok') ^^^^^^^^^^^^^^^^^ ModuleNotFoundError: No module named 'playwright' which chromium chromium-browser google-chrome node 2>&1 | head; pip install -q playwright 2>&1 | tail -1; python3 -m playwright install chromium 2>&1 | tail -2 /usr/local/bin/node Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location. |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 120 MiB Chrome Headless Shell 156.0.8078.4 (playwright chromium-headless-shell v1248) downloaded to /home/user/.cache/ms-playwright/chromium_headless_shell-1248 from playwright.sync_api import sync_playwright with sync_playwright() as p: b=p.chromium.launch() pg=b.new_page(viewport={'width':1280,'height':900}) errs=[];pg.on('pageerror',lambda e:errs.append(str(e))) pg.goto('file:///home/user/workspace/index.html');pg.wait_for_timeout(2500) print('start',pg.evaluate(\"document.documentElement.dataset.theme\"),pg.get_attribute('#theme','aria-pressed')) print('img present',pg.evaluate(\"!!document.getElementById('park') && document.getElementById('park').naturalWidth\")) pg.screenshot(path='/home/user/workspace/light.png',full_page=True) pg.keyboard.press('Tab');pg.keyboard.press('Enter') print('after key',pg.evaluate(\"document.documentElement.dataset.theme\"),pg.get_attribute('#theme','aria-pressed'),pg.evaluate(\"localStorage.getItem('adn-theme')\")) pg.screenshot(path='/home/user/workspace/dark.png',full_page=True) pg.reload();pg.wait_for_timeout(800);print('persist',pg.evaluate(\"document.documentElement.dataset.theme\")) m=b.new_page(viewport={'width':375,'height':800});m.goto('file:///home/user/workspace/index.html');m.wait_for_timeout(2000) print('mobile overflow',m.evaluate(\"document.documentElement.scrollWidth>innerWidth\")) m.screenshot(path='/home/user/workspace/mobile.png',full_page=True) print('errors',errs);b.close() start light false img present 1280 after key dark true dark persist dark mobile overflow False errors [] from playwright.sync_api import sync_playwright with sync_playwright() as p: b=p.chromium.launch();pg=b.new_page(viewport={'width':1280,'height':900}) pg.goto('file:///home/user/workspace/index.html');pg.click('#theme');pg.wait_for_timeout(1200) print(pg.evaluate(\"[getComputedStyle(document.body).backgroundColor,getComputedStyle(document.body).color,getComputedStyle(document.querySelector('a')).color]\")) pg.screenshot(path='/home/user/workspace/dark2.png',full_page=True);b.close() def L(h): c=[int(h[i:i+2],16)/255 for i in (0,2,4)];c=[x/12.92 if x<=.03928 else ((x+.055)/1.055)**2.4 for x in c];return .2126*c[0]+.7152*c[1]+.0722*c[2] cr=lambda a,b:(max(L(a),L(b))+.05)/(min(L(a),L(b))+.05) for a,bg in [('e3e9e8','151b1d'),('a3b1b4','151b1d'),('8fc6a2','151b1d'),('1d2427','eef1f0'),('526066','eef1f0'),('2f6a47','eef1f0')]:print(a,bg,round(cr(a,bg),2)) ['rgb(21, 27, 29)', 'rgb(227, 233, 232)', 'rgb(143, 198, 162)'] e3e9e8 151b1d 14.16 a3b1b4 151b1d 7.88 8fc6a2 151b1d 8.93 1d2427 eef1f0 13.85 526066 eef1f0 5.73 2f6a47 eef1f0 5.64"
+    - region "Built to perform, measured like a product." [ref=f2e1059]:
+      - generic [ref=f2e1060]:
+        - generic [ref=f2e1061]:
+          - generic [ref=f2e1062]: The work
+          - heading "Built to perform, measured like a product." [level=2] [ref=f2e1063]
+          - paragraph [ref=f2e1064]: A Cato build ships with conversion architecture and Core Web Vitals in the definition of done — not as a later audit. The stack is headless where headless earns its complexity, and every surface is instrumented so the experience can be argued with evidence after launch.
+        - list "Deliverables" [ref=f2e1066]:
+          - listitem [ref=f2e1067]: Information architecture & UX
+          - listitem [ref=f2e1068]: Interface & experience design
+          - listitem [ref=f2e1069]: Next.js / React engineering
+          - listitem [ref=f2e1070]: Headless commerce & CMS
+          - listitem [ref=f2e1071]: Conversion architecture
+          - listitem [ref=f2e1072]: Performance & Core Web Vitals
+    - region "Frequently asked questions" [ref=f2e1073]:
+      - generic [ref=f2e1074]: Questions
+      - heading "Asked, answered." [level=2] [ref=f2e1075]
+      - generic [ref=f2e1076]:
+        - generic [ref=f2e1077]:
+          - generic [ref=f2e1078]:
+            - text: What stack do you build on?
+            - generic [ref=f2e1079]: "01"
+          - paragraph [ref=f2e1080]: React and Next.js by default, headless commerce and CMS where the business case supports it. The stack follows the experience — never the other way around.
+        - generic [ref=f2e1081]:
+          - generic [ref=f2e1082]:
+            - text: Can you rebuild on top of our existing systems?
+            - generic [ref=f2e1083]: "02"
+          - paragraph [ref=f2e1084]: Yes. Most flagships sit on existing commerce, booking or CRM infrastructure. We architect the experience layer around what already works.
+        - generic [ref=f2e1085]:
+          - generic [ref=f2e1086]:
+            - text: How do you measure success after launch?
+            - generic [ref=f2e1087]: "03"
+          - paragraph [ref=f2e1088]: Conversion, speed and the Core Web Vitals Google actually ranks on. Every build ships instrumented, so performance is a report, not an opinion.
+        - generic [ref=f2e1089]:
+          - generic [ref=f2e1090]:
+            - text: Do you handle content as well as code?
+            - generic [ref=f2e1091]: "04"
+          - paragraph [ref=f2e1092]: Yes. Copy, imagery and art direction are part of the build, working alongside Brand & Creative Systems. A flagship with placeholder words is not a flagship.
+    - region "Get started" [ref=f2e1093]:
+      - generic [ref=f2e1094]: Begin
+      - heading "Build the flagship." [level=2] [ref=f2e1095]
+      - generic [ref=f2e1096]: Show us the current site and the number it is failing to move. We will show you what a flagship does differently.
+      - link "Start a build" [ref=f2e1099] [cursor=pointer]:
+        - /url: /contact
+        - text: Start a build
+        - generic [aria-hidden] [ref=f2e1100]: →
+  - contentinfo [ref=f2e1101]:
+    - generic [ref=f2e1102]:
+      - generic [ref=f2e1103]:
+        - generic [aria-hidden] [ref=f2e1104]: CATO LABS
+        - paragraph [ref=f2e1105]: AI-native strategy & implementation.
+      - separator [ref=f2e1106]
+      - generic [ref=f2e1107]:
+        - generic [ref=f2e1108]:
+          - heading "Practice" [level=4] [ref=f2e1109]
+          - list [ref=f2e1110]:
+            - listitem [ref=f2e1111]:
+              - link "Capabilities" [ref=f2e1112] [cursor=pointer]:
+                - /url: /capabilities
+            - listitem [ref=f2e1113]:
+              - link "Work" [ref=f2e1114] [cursor=pointer]:
+                - /url: /work
+            - listitem [ref=f2e1115]:
+              - link "Approach" [ref=f2e1116] [cursor=pointer]:
+                - /url: /approach
+            - listitem [ref=f2e1117]:
+              - link "Blog" [ref=f2e1118] [cursor=pointer]:
+                - /url: /blog
+            - listitem [ref=f2e1119]:
+              - link "Contact" [ref=f2e1120] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=f2e1121]:
+          - heading "Capabilities" [level=4] [ref=f2e1122]
+          - list [ref=f2e1123]:
+            - listitem [ref=f2e1124]:
+              - link "Strategy & Transformation" [ref=f2e1125] [cursor=pointer]:
+                - /url: /capabilities/strategy-transformation
+            - listitem [ref=f2e1126]:
+              - link "AI & Agent Systems" [ref=f2e1127] [cursor=pointer]:
+                - /url: /capabilities/ai-agent-systems
+            - listitem [ref=f2e1128]:
+              - link "Digital Products & Experiences" [ref=f2e1129] [cursor=pointer]:
+                - /url: /capabilities/digital-products
+            - listitem [ref=f2e1130]:
+              - link "Brand & Creative Systems" [ref=f2e1131] [cursor=pointer]:
+                - /url: /capabilities/brand-creative
+            - listitem [ref=f2e1132]:
+              - link "Growth & Distribution" [ref=f2e1133] [cursor=pointer]:
+                - /url: /capabilities/growth-distribution
+            - listitem [ref=f2e1134]:
+              - link "Operations & Automation" [ref=f2e1135] [cursor=pointer]:
+                - /url: /capabilities/operations-automation
+        - generic [ref=f2e1136]:
+          - heading "Industries" [level=4] [ref=f2e1137]
+          - list [ref=f2e1138]:
+            - listitem [ref=f2e1139]:
+              - link "E-commerce & Retail" [ref=f2e1140] [cursor=pointer]:
+                - /url: /industries/ecommerce-retail
+            - listitem [ref=f2e1141]:
+              - link "Professional Services" [ref=f2e1142] [cursor=pointer]:
+                - /url: /industries/professional-services
+            - listitem [ref=f2e1143]:
+              - link "Hospitality" [ref=f2e1144] [cursor=pointer]:
+                - /url: /industries/hospitality
+            - listitem [ref=f2e1145]:
+              - link "Real Estate" [ref=f2e1146] [cursor=pointer]:
+                - /url: /industries/real-estate
+            - listitem [ref=f2e1147]:
+              - link "Health & Wellness" [ref=f2e1148] [cursor=pointer]:
+                - /url: /industries/health-wellness
+            - listitem [ref=f2e1149]:
+              - link "Home Services" [ref=f2e1150] [cursor=pointer]:
+                - /url: /industries/home-services
+            - listitem [ref=f2e1151]:
+              - link "All industries" [ref=f2e1152] [cursor=pointer]:
+                - /url: /industries
+        - generic [ref=f2e1153]:
+          - heading "Regions" [level=4] [ref=f2e1154]
+          - list [ref=f2e1155]:
+            - listitem [ref=f2e1156]:
+              - link "Palm Springs" [ref=f2e1157] [cursor=pointer]:
+                - /url: /regions/palm-springs
+            - listitem [ref=f2e1158]:
+              - link "Palm Desert" [ref=f2e1159] [cursor=pointer]:
+                - /url: /regions/palm-desert
+            - listitem [ref=f2e1160]:
+              - link "Indio" [ref=f2e1161] [cursor=pointer]:
+                - /url: /regions/indio
+            - listitem [ref=f2e1162]:
+              - link "San Bernardino" [ref=f2e1163] [cursor=pointer]:
+                - /url: /regions/san-bernardino
+            - listitem [ref=f2e1164]:
+              - link "Big Bear" [ref=f2e1165] [cursor=pointer]:
+                - /url: /regions/big-bear
+            - listitem [ref=f2e1166]:
+              - link "Los Angeles" [ref=f2e1167] [cursor=pointer]:
+                - /url: /regions/los-angeles
+            - listitem [ref=f2e1168]:
+              - link "All regions" [ref=f2e1169] [cursor=pointer]:
+                - /url: /regions
+        - generic [ref=f2e1170]:
+          - heading "Signal" [level=4] [ref=f2e1171]
+          - list [ref=f2e1172]:
+            - listitem [ref=f2e1173]:
+              - link "hello@catolabs.com" [ref=f2e1174] [cursor=pointer]:
+                - /url: mailto:hello@catolabs.com
+            - listitem [ref=f2e1175]:
+              - link "llms.txt" [ref=f2e1176] [cursor=pointer]:
+                - /url: /llms.txt
+      - separator [ref=f2e1177]
+      - generic [ref=f2e1178]:
+        - paragraph [ref=f2e1179]: © 2026 Cato Labs. Build beyond ordinary.
+        - button "Back to the light ↑" [ref=f2e1180] [cursor=pointer]
+  - alert [ref=f2e1181]
+```

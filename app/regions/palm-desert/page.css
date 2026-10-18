@@ -1,0 +1,199 @@
+/* ============================================================
+   PALM DESERT — scoped styles (pd-* prefix only)
+   Loaded exclusively by app/regions/palm-desert/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- stats — the market in numbers, three sourced figures ---------- */
+.pd-stats {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.25);
+}
+.pd-stats__grid {
+  margin-top: clamp(40px, 6vw, 72px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(32px, 4.5vw, 64px);
+  border-bottom: 1px solid var(--line);
+}
+.pd-stat {
+  border-top: 1px solid var(--line);
+  padding: 26px 0 30px;
+}
+.pd-stat__value {
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--blue);
+  display: block;
+}
+.pd-stat__label {
+  margin-top: 14px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  max-width: 30ch;
+}
+
+/* ---------- angles — the local read, alternating editorial blocks ---------- */
+.pd-angles {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.3);
+}
+.pd-angles__stack {
+  margin-top: clamp(56px, 8vw, 100px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.pd-angle {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.pd-angle:nth-child(even) {
+  align-self: flex-end;
+}
+.pd-angle .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.pd-angle__title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.pd-angle__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- feature — the three engagements, hairline grid ---------- */
+.pd-features {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.pd-features__grid {
+  margin-top: clamp(48px, 7vw, 84px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(32px, 5vw, 72px);
+}
+.pd-feature {
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.pd-feature .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.pd-feature__title {
+  margin-bottom: 14px;
+  max-width: 20ch;
+}
+.pd-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.pd-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.pd-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.pd-detail__body {
+  max-width: 44rem;
+}
+.pd-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.pd-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.pd-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- build — the practices, hairline ledger ---------- */
+.pd-build {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.pd-build__title {
+  margin-block: 18px 0;
+  max-width: 22ch;
+}
+.pd-build__grid {
+  margin-top: clamp(48px, 7vw, 84px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.pd-build__row {
+  border-top: 1px solid var(--line);
+  padding: 24px 0 28px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 18px;
+  align-items: baseline;
+}
+.pd-build__row .index-no {
+  color: var(--blue);
+  grid-row: span 2;
+}
+.pd-build__practice {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-bottom: 10px;
+}
+.pd-build__example {
+  color: var(--ink-2);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .pd-stats__grid {
+    grid-template-columns: 1fr;
+    border-bottom: 0;
+  }
+  .pd-angle,
+  .pd-angle:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .pd-features__grid {
+    grid-template-columns: 1fr;
+    row-gap: 48px;
+  }
+  .pd-build__grid {
+    grid-template-columns: 1fr;
+  }
+  .pd-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

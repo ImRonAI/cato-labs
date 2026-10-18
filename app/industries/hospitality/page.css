@@ -1,0 +1,97 @@
+/* ============================================================
+   INDUSTRIES / HOSPITALITY — scoped styles (hsp-* prefix only)
+   Loaded exclusively by app/industries/hospitality/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- market-truth — the display-2 statement ---------- */
+.hsp-truth {
+  padding-block: calc(var(--section-y) * 0.42) calc(var(--section-y) * 0.3);
+  border-top: 1px solid var(--line);
+}
+.hsp-truth__statement {
+  max-width: 23ch;
+}
+
+/* ---------- feature — alternating editorial blocks ---------- */
+.hsp-feature {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.hsp-feature__grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.hsp-feature__block {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.hsp-feature__block:nth-child(even) {
+  align-self: flex-end;
+}
+.hsp-feature__block .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.hsp-feature__block-title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.hsp-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.hsp-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.hsp-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.hsp-detail__body {
+  max-width: 44rem;
+}
+.hsp-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.hsp-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.hsp-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .hsp-feature__block,
+  .hsp-feature__block:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .hsp-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

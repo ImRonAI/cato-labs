@@ -1,0 +1,333 @@
+--- before/VibeCoder.tsx
++++ app/capabilities/digital-products/VibeCoder.tsx
+@@ -1,9 +1,9 @@
+ 'use client';
+ 
+ import { useEffect, useRef, useState } from 'react';
+-import { CheckCircle2Icon, CircleDashedIcon, CircleStopIcon } from 'lucide-react';
++import { AsteriskIcon, CheckCircle2Icon, CircleDashedIcon, CircleStopIcon } from 'lucide-react';
+ import { NativeAgentTrace } from '@/components/vibe/NativeAgentTrace';
+-import { FileTree, FileTreeFile } from '@/components/ai-elements/file-tree';
++import { FileTree, FileTreeFile, FileTreeFolder } from '@/components/ai-elements/file-tree';
+ import { CodeBlock, CodeBlockHeader, CodeBlockFilename, CodeBlockCopyButton } from '@/components/ai-elements/code-block';
+ import { Terminal, TerminalHeader, TerminalTitle, TerminalContent, TerminalCopyButton } from '@/components/ai-elements/terminal';
+ import { Plan, PlanHeader, PlanTitle, PlanDescription, PlanAction, PlanContent, PlanTrigger } from '@/components/ai-elements/plan';
+@@ -12,6 +12,7 @@
+ import { Message, MessageContent, MessageResponse } from '@/components/ai-elements/message';
+ import { PromptInput, PromptInputBody, PromptInputTextarea, PromptInputFooter, PromptInputSubmit } from '@/components/ai-elements/prompt-input';
+ import { Checkpoint, CheckpointIcon, CheckpointTrigger } from '@/components/ai-elements/checkpoint';
++import { Task, TaskTrigger, TaskContent, TaskItem, TaskItemFile } from '@/components/ai-elements/task';
+ import LiveCanvas from '@/components/vibe/LiveCanvas';
+ import { fileHref } from '@/lib/agent-ui';
+ import { applyNativeTrace, hydrateNativeTrace, type NativeTraceEntry } from '@/lib/native-agent-trace';
+@@ -22,6 +23,41 @@
+ 
+ type Status = 'queued' | 'in_progress' | 'completed' | 'failed' | 'cancelled' | 'incomplete' | 'disconnected' | 'cancelling';
+ type SharedFile = { id: string; filename: string; bytes: number };
++type ProjectFileNode = { kind: 'file'; name: string; file: SharedFile } | { kind: 'folder'; name: string; path: string; children: ProjectFileNode[] };
++function projectFileTree(files: SharedFile[]): ProjectFileNode[] {
++  const roots: ProjectFileNode[] = [];
++  for (const file of files) {
++    const parts = file.filename.split(/[\\/]/).filter(Boolean);
++    const name = parts.pop() || file.filename;
++    let children = roots;
++    const ancestors: string[] = [];
++    for (const part of parts) {
++      ancestors.push(part);
++      const path = `folder:${ancestors.map(encodeURIComponent).join('/')}`;
++      let folder = children.find((node): node is Extract<ProjectFileNode, { kind: 'folder' }> => node.kind === 'folder' && node.path === path);
++      if (!folder) { folder = { kind: 'folder', name: part, path, children: [] }; children.push(folder); }
++      children = folder.children;
++    }
++    children.push({ kind: 'file', name, file });
++  }
++  return roots;
++}
++function ProjectFiles({ nodes }: { nodes: ProjectFileNode[] }) {
++  return nodes.map(node => node.kind === 'folder'
++    ? <FileTreeFolder key={node.path} path={node.path} name={node.name}><ProjectFiles nodes={node.children} /></FileTreeFolder>
++    : <FileTreeFile key={node.file.id} path={node.file.id} name={node.name} title={node.file.filename} />);
++}
++function workTitle(entry: NativeTraceEntry): string {
++  switch (entry.kind) {
++    case 'search': return `${entry.searchKind === 'web' ? 'Web' : entry.searchKind === 'people' ? 'People' : 'Financial'} search`;
++    case 'imageSearch': return 'Image search';
++    case 'sandbox': return 'Sandbox execution';
++    case 'directTool': case 'skill': case 'unknown': return entry.name;
++    case 'fileOperation': return `${entry.operation.replace(/^sandbox_/, '').replaceAll('_', ' ')}${entry.path ? ` · ${entry.path}` : ''}`;
++    case 'file': return entry.filename;
++    case 'reasoning': return 'Provider reasoning';
++  }
++}
+ type Attachment = { type: 'input_file'; filename: string; file_data: string } | { type: 'input_text'; filename: string; text: string };
+ interface Build {
+   localId: string;
+@@ -415,12 +451,13 @@
+   const filename = selectedSource?.filename ?? view?.previewFilename ?? 'Streamed HTML';
+   const language = /\.css$/i.test(filename) ? 'css' : /\.json$/i.test(filename) ? 'json' : /\.tsx?$/i.test(filename) ? 'typescript' : /\.[cm]?jsx?$/i.test(filename) ? 'javascript' : /\.py$/i.test(filename) ? 'python' : /\.md$/i.test(filename) ? 'markdown' : /\.html?$/i.test(filename) || !selectedSource ? 'html' : 'log';
+   const sandbox = view?.trace.filter(entry => entry.kind === 'sandbox') ?? [];
++  const providerWork = view?.trace.filter(entry => entry.kind !== 'reasoning' && entry.kind !== 'file') ?? [];
+   const output = sandbox.map(entry => [entry.code, entry.stdout, entry.stderr].filter(Boolean).join('\n')).filter(Boolean).join('\n\n');
+   const chooseBuild = (id: string | null) => { setSelectedBuild(id); if (id) setVisitedBuilds(previous => new Set([...previous, id])); setSource(null); ++fileRequest.current; setWorkspaceTab('preview'); };
+ 
+   return <div className="dp-vc native-studio" data-mobile-panel={mobilePanel}>
+     <header className="studio-toolbar">
+-      <div><span className="studio-mark" aria-hidden="true">✳</span><strong>cato studio</strong><span className="studio-caption">Website workspace</span></div>
++      <div><AsteriskIcon className="studio-mark" aria-hidden="true" /><strong>cato studio</strong><span className="studio-caption">Website workspace</span></div>
+       <div><label className="sr-only" htmlFor="studio-build">Selected build</label><select id="studio-build" value={selectedBuild ?? ''} onChange={event => chooseBuild(event.target.value || null)}>
+         <option value="">New website</option>{builds.map(entry => <option value={entry.localId} key={entry.localId}>{entry.name} · {entry.status.replace('_', ' ')}</option>)}
+       </select><button type="button" className="kit-mini-btn" onClick={() => { chooseBuild(null); setPreviousId(''); setPrompt(''); setMobilePanel('agent'); document.getElementById('vibe-prompt')?.focus(); }}>New build +</button></div>
+@@ -430,8 +467,8 @@
+     <div className="studio-panels" data-status={view?.status} data-response-id={view?.responseId} data-sequence={view?.sequence}>
+       <aside className="studio-files" aria-label="Project files">
+         <div className="studio-panel-heading"><span>Explorer</span><span>{view?.files.length ?? 0}</span></div>
+-        <FileTree selectedPath={selectedSource?.fileId} onSelect={id => { const file = view?.files.find(entry => entry.id === id); if (file && build) void openFile(build, file); }}>
+-          {view?.files.map(file => <FileTreeFile key={file.id} path={file.id} name={file.filename} />)}
++        <FileTree key={view?.localId ?? 'new'} selectedPath={selectedSource?.fileId} onSelect={id => { const file = view?.files.find(entry => entry.id === id); if (file && build) void openFile(build, file); }}>
++          <ProjectFiles nodes={projectFileTree(view?.files ?? [])} />
+         </FileTree>
+         {!view?.files.length && <p className="studio-empty-note">Shared project files appear here as the agent delivers them.</p>}
+         {html && <button type="button" className="studio-stream-file" onClick={() => { setSource(null); ++fileRequest.current; setWorkspaceTab('code'); setMobilePanel('workspace'); }}>View streamed HTML</button>}
+@@ -451,7 +488,7 @@
+               previousPendingChatResponseId={canvasView.chatPendingResponseId} onChatPendingResponseId={id => { canvasBuild.chatPendingResponseId = id; publish(); }}
+               onNavigate={href => void navigate(canvasBuild, href)} onRenderError={message => { canvasBuild.error = message; publish(); }} /></div>;
+           })}
+-          {!view && <div className="studio-welcome"><span className="studio-welcome-icon" aria-hidden="true">✳</span><p className="micro-label">From an idea to a live website</p><h3>Your next website<br />starts here.</h3><p>Give the studio a brief. Watch the site take shape, explore its source, and refine it together.</p><button type="button" className="kit-mini-btn" onClick={() => { setMobilePanel('agent'); document.getElementById('vibe-prompt')?.focus(); }}>Write your brief ↗</button></div>}
++          {!view && <div className="studio-welcome"><AsteriskIcon className="studio-welcome-icon" aria-hidden="true" /><p className="micro-label">From an idea to a live website</p><h3>Your next website<br />starts here.</h3><p>Give the studio a brief. Watch the site take shape, explore its source, and refine it together.</p><button type="button" className="kit-mini-btn" onClick={() => { setMobilePanel('agent'); document.getElementById('vibe-prompt')?.focus(); }}>Write your brief ↗</button></div>}
+         </div>
+         <div id="studio-code" role="tabpanel" aria-labelledby="studio-code-tab" hidden={workspaceTab !== 'code'} className="studio-code">
+           {selectedSource?.loading ? <p role="status" className="studio-empty-note">Loading {filename}…</p> : selectedSource?.error ? <p role="alert" className="native-build__error">{selectedSource.error}</p> : selectedSource?.binary ? <p className="studio-empty-note">This file is available as a download. <a href={fileHref(view!.responseId, selectedSource.fileId)} download={filename}>Download {filename}</a></p> : code ? <CodeBlock code={code} language={language} showLineNumbers><CodeBlockHeader><CodeBlockFilename>{filename} · read only</CodeBlockFilename><CodeBlockCopyButton /></CodeBlockHeader></CodeBlock> : <p className="studio-empty-note">Select a shared source file or wait for the first HTML from your build.</p>}
+@@ -460,7 +497,10 @@
+       </section>
+       <aside className="studio-agent" aria-label="AI build conversation">
+         <div className="studio-panel-heading"><span>Studio agent</span><span className="studio-agent-dot" aria-hidden="true" /></div>
+-        <div className="studio-planning"><Plan defaultOpen><PlanHeader><div><PlanTitle>{view ? 'Build objective' : 'Your brief'}</PlanTitle><PlanDescription>{view ? 'The brief guiding this build' : 'A starting point for your website'}</PlanDescription></div><PlanAction><PlanTrigger aria-label="Toggle build objective" /></PlanAction></PlanHeader><PlanContent><p>{view?.prompt || 'Describe your website, its audience, and what you want it to do.'}</p></PlanContent></Plan>
++        <div className="studio-planning"><Plan defaultOpen><PlanHeader><div><PlanTitle>{view ? 'Build objective' : 'Your brief'}</PlanTitle><PlanDescription>{view ? 'Your brief and observed provider activity' : 'A starting point for your website'}</PlanDescription></div><PlanAction><PlanTrigger aria-label="Toggle build objective" /></PlanAction></PlanHeader><PlanContent><p>{view?.prompt || 'Describe your website, its audience, and what you want it to do.'}</p>
++          {!!providerWork.length && <Task defaultOpen={false} className="studio-plan-task"><TaskTrigger title="Provider work" /><TaskContent>{providerWork.map(entry => <TaskItem key={entry.id}>{workTitle(entry)}{entry.error ? ' · Error' : entry.status ? ` · ${entry.status.replaceAll('_', ' ')}` : ''}</TaskItem>)}</TaskContent></Task>}
++          {!!view?.files.length && <Task className="studio-plan-task"><TaskTrigger title="Shared project files" /><TaskContent><div className="studio-task-files">{view.files.map(file => <TaskItemFile key={file.id}><button type="button" onClick={() => { if (build) void openFile(build, file); }}>{file.filename}</button></TaskItemFile>)}</div></TaskContent></Task>}
++        </PlanContent></Plan>
+           {!!builds.length && <Queue>{[
+             { label: 'Pending', items: builds.filter(entry => !terminal(entry.status)), icon: <CircleDashedIcon size={14} /> },
+             { label: 'Completed', items: builds.filter(entry => entry.status === 'completed'), icon: <CheckCircle2Icon size={14} /> },
+@@ -477,13 +517,13 @@
+             {view.previewFilename && <button className="kit-mini-btn" onClick={() => { build.previewFilename = undefined; build.previewHtml = undefined; build.previewFragment = undefined; publish(); }}>Home preview</button>}
+             {view.navigating && <span role="status">Opening page…</span>}
+           </div>}
++          {view?.status === 'completed' && <Checkpoint><CheckpointIcon /><CheckpointTrigger tooltip="Restore to this checkpoint" onClick={() => { chooseBuild(view.localId); if (build) { build.previewFilename = undefined; build.previewHtml = undefined; build.previewFragment = undefined; publish(); } setPreviousId(view.responseId); setPrompt(''); }}>Restore {view.name} checkpoint</CheckpointTrigger></Checkpoint>}
+         </ConversationContent><ConversationScrollButton /></Conversation>
+         <div className="studio-composer"><label htmlFor="vibe-prompt">{previousId ? 'Refine this website' : 'Describe what you’re building'}</label>
+           <PromptInput onSubmit={() => submit()}><PromptInputBody><PromptInputTextarea id="vibe-prompt" value={prompt} onChange={event => setPrompt(event.target.value)} maxLength={2000} placeholder="A desert-modernist boutique hotel in Palm Springs…" /></PromptInputBody><PromptInputFooter><div className="native-studio__attachments"><label className="studio-attach">{readingFiles ? 'Reading…' : 'Attach documents'}<input aria-label="Attach documents" type="file" multiple accept=".pdf,.txt,.md,.csv,.html,.json,.css,.js,.ts,.tsx" disabled={readingFiles} onChange={event => { void attach(event.target.files); event.target.value = ''; }} /></label><span>{prompt.length}/2000</span></div><PromptInputSubmit aria-label="Brief the studio" disabled={!prompt.trim() || readingFiles} /></PromptInputFooter></PromptInput>
+           {attachments.map(file => <button key={file.filename} type="button" className="native-studio__file" onClick={() => setAttachments(previous => previous.filter(entry => entry !== file))}>Remove {file.filename} ×</button>)}
+           {previousId && <button type="button" className="native-studio__file" onClick={() => setPreviousId('')}>Using previous website · Start fresh ×</button>}{formError && <p role="alert">{formError}</p>}
+         </div>
+-        {view?.status === 'completed' && <Checkpoint><CheckpointIcon /><CheckpointTrigger onClick={() => { chooseBuild(view.localId); if (build) { build.previewFilename = undefined; build.previewHtml = undefined; build.previewFragment = undefined; publish(); } setPreviousId(view.responseId); setPrompt(''); }}>Restore {view.name} checkpoint</CheckpointTrigger></Checkpoint>}
+         {view && <details className="native-build__details"><summary>Run details</summary><p>Claude Opus 5.5 · 128,000 output token limit · 100 step limit · Background execution</p><p>{view.responseId || 'Waiting for the provider'} · {view.events} events received</p></details>}
+       </aside>
+     </div>
+--- before/studio.css
++++ app/capabilities/digital-products/studio.css
+@@ -1,86 +1,145 @@
+-.native-studio { --studio-blue: #1749d1; --studio-border: #dce3f0; --studio-muted: #65718b; display: flex; flex-direction: column; gap: 0; min-width: 0; border: 1px solid var(--studio-border); border-radius: 16px; background: #fff; overflow: hidden; box-shadow: 0 18px 60px #12356c0c; color: #182842; }
+-.studio-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 20px; background: #f8faff; border-bottom: 1px solid var(--studio-border); }
+-.studio-toolbar > div { display: flex; align-items: center; gap: 12px; min-width: 0; }
+-.studio-toolbar strong { font-size: 15px; letter-spacing: -.04em; }
+-.studio-mark { font-size: 26px; color: var(--studio-blue); }
+-.studio-caption { font-size: 11px; color: var(--studio-muted); border-left: 1px solid var(--studio-border); padding-left: 12px; }
+-.studio-toolbar select { max-width: 200px; min-width: 0; background: #fff; border: 1px solid var(--studio-border); border-radius: 6px; padding: 7px; font: inherit; font-size: 11px; }
++.native-studio {
++  --studio-blue: var(--blue);
++  --studio-ink: var(--ink);
++  --studio-muted: var(--ink-2);
++  --studio-surface: #fff;
++  --studio-surface-subtle: var(--paper);
++  --studio-workspace: var(--paper-2);
++  --studio-welcome-surface: var(--blue-ice);
++  --studio-glow: var(--blue-soft);
++  --studio-selected: var(--blue-ice);
++  --studio-border: color-mix(in srgb, var(--blue) 12%, var(--paper));
++  --studio-input-border: color-mix(in srgb, var(--blue) 22%, var(--paper));
++  --studio-terminal-surface: #101d34;
++  --studio-terminal-header: #162640;
++  --studio-terminal-border: #2d3e58;
++  --studio-terminal-ink: #dbe6ff;
++  --studio-terminal-muted: #94a6c5;
++  --studio-error: #9b2433;
++  --studio-error-surface: #fff2f1;
++  --studio-shadow: color-mix(in srgb, var(--blue-deep) 5%, transparent);
++  --studio-type-caption: 9px;
++  --studio-type-xs: 10px;
++  --studio-type-sm: 11px;
++  --studio-type-md: 12px;
++  --studio-type-body: 13px;
++  --studio-type-title: 15px;
++  --studio-type-display: clamp(28px, 3.4vw, 48px);
++  --studio-type-display-mobile: 38px;
++  --studio-radius-xs: 5px;
++  --studio-radius-sm: 6px;
++  --studio-radius-md: 8px;
++  --studio-radius-lg: 16px;
++  --studio-space-4: 4px;
++  --studio-space-6: 6px;
++  --studio-space-8: 8px;
++  --studio-space-10: 10px;
++  --studio-space-12: 12px;
++  --studio-space-14: 14px;
++  --studio-space-16: 16px;
++  --studio-space-18: 18px;
++  --studio-space-20: 20px;
++  --studio-space-24: 24px;
++  --studio-space-28: 28px;
++  --studio-space-40: 40px;
++  --studio-space-64: 64px;
++  --background: var(--studio-surface);
++  --foreground: var(--studio-ink);
++  --primary: var(--studio-blue);
++  --primary-foreground: var(--studio-surface);
++  --secondary: var(--studio-selected);
++  --muted: var(--studio-surface-subtle);
++  --muted-foreground: var(--studio-muted);
++  --border: var(--studio-border);
++  --ring: var(--studio-blue);
++  display: flex; flex-direction: column; gap: 0; min-width: 0; border: 1px solid var(--studio-border); border-radius: var(--studio-radius-lg); background: var(--studio-surface); overflow: hidden; box-shadow: 0 var(--studio-space-18) 60px var(--studio-shadow); color: var(--studio-ink); }
++.studio-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--studio-space-12); padding: var(--studio-space-16) var(--studio-space-20); background: var(--studio-surface-subtle); border-bottom: 1px solid var(--studio-border); }
++.studio-toolbar > div { display: flex; align-items: center; gap: var(--studio-space-12); min-width: 0; }
++.studio-toolbar strong { font-size: var(--studio-type-title); letter-spacing: -.04em; }
++.studio-mark { width: 26px; height: 26px; flex-shrink: 0; color: var(--studio-blue); }
++.studio-caption { font-size: var(--studio-type-sm); color: var(--studio-muted); border-left: 1px solid var(--studio-border); padding-left: var(--studio-space-12); }
++.studio-toolbar select { max-width: 200px; min-width: 0; background: var(--studio-surface); border: 1px solid var(--studio-border); border-radius: var(--studio-radius-sm); padding: var(--studio-space-8); font: inherit; font-size: var(--studio-type-sm); }
+ .studio-panels { display: grid; grid-template-columns: minmax(145px, .65fr) minmax(0, 2.25fr) minmax(290px, 1.25fr); height: 850px; min-height: 640px; }
+ .studio-files, .studio-workspace, .studio-agent { min-width: 0; min-height: 0; }
+-.studio-files { overflow: auto; background: #f8faff; border-right: 1px solid var(--studio-border); }
+-.studio-panel-heading { display: flex; justify-content: space-between; align-items: center; height: 47px; padding: 0 16px; color: var(--studio-muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; border-bottom: 1px solid var(--studio-border); }
+-.studio-files [role=tree] { border: 0; border-radius: 0; background: transparent; font-size: 11px; }
++.studio-files { overflow: auto; background: var(--studio-surface-subtle); border-right: 1px solid var(--studio-border); }
++.studio-panel-heading { display: flex; justify-content: space-between; align-items: center; height: 47px; padding: 0 var(--studio-space-16); color: var(--studio-muted); font-size: var(--studio-type-xs); letter-spacing: .12em; text-transform: uppercase; border-bottom: 1px solid var(--studio-border); }
++.studio-files [role=tree] { border: 0; border-radius: 0; background: transparent; font-size: var(--studio-type-sm); }
+ .studio-files [role=treeitem] { min-height: 32px; overflow-wrap: anywhere; }
+ .studio-files [role=treeitem] > span:last-child { min-width: 0; white-space: normal; }
+-.studio-empty-note { color: var(--studio-muted); font-size: 12px; line-height: 1.7; padding: 18px; }
+-.studio-stream-file { display: block; width: 100%; padding: 10px 16px; color: var(--studio-blue); text-align: left; font-size: 11px; cursor: pointer; }
+-.studio-downloads { display: grid; gap: 12px; padding: 20px 16px; border-top: 1px solid var(--studio-border); margin-top: 20px; }
+-.studio-downloads a { font-size: 11px; color: var(--studio-blue); overflow-wrap: anywhere; }
+-.studio-workspace { display: flex; flex-direction: column; background: #f0f4fb; }
+-.studio-editor-tabs { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 47px; border-bottom: 1px solid var(--studio-border); background: #fff; padding: 0 14px; }
+-.studio-editor-tabs [role=tablist] { display: flex; align-self: stretch; gap: 20px; }
+-.studio-editor-tabs button { border-bottom: 2px solid transparent; color: var(--studio-muted); font-size: 12px; cursor: pointer; }
++.studio-empty-note { color: var(--studio-muted); font-size: var(--studio-type-md); line-height: 1.7; padding: var(--studio-space-18); }
++.studio-stream-file { display: block; width: 100%; padding: var(--studio-space-10) var(--studio-space-16); color: var(--studio-blue); text-align: left; font-size: var(--studio-type-sm); cursor: pointer; }
++.studio-downloads { display: grid; gap: var(--studio-space-12); padding: var(--studio-space-20) var(--studio-space-16); border-top: 1px solid var(--studio-border); margin-top: var(--studio-space-20); }
++.studio-downloads a { font-size: var(--studio-type-sm); color: var(--studio-blue); overflow-wrap: anywhere; }
++.studio-workspace { display: flex; flex-direction: column; background: var(--studio-workspace); }
++.studio-editor-tabs { display: flex; justify-content: space-between; align-items: center; gap: var(--studio-space-10); min-height: 47px; border-bottom: 1px solid var(--studio-border); background: var(--studio-surface); padding: 0 var(--studio-space-14); }
++.studio-editor-tabs [role=tablist] { display: flex; align-self: stretch; gap: var(--studio-space-20); }
++.studio-editor-tabs button { border-bottom: 2px solid transparent; color: var(--studio-muted); font-size: var(--studio-type-md); cursor: pointer; }
+ .studio-editor-tabs button[aria-selected=true] { color: var(--studio-blue); border-color: var(--studio-blue); }
+-.studio-editor-tabs > span { font-size: 10px; color: var(--studio-muted); text-transform: capitalize; }
++.studio-editor-tabs > span { font-size: var(--studio-type-xs); color: var(--studio-muted); text-transform: capitalize; }
+ .studio-preview, .studio-code { flex: 1; min-height: 0; overflow: auto; }
+ .studio-preview[hidden], .studio-code[hidden] { display: none; }
+ .studio-preview .live-canvas { min-height: 100%; }
+-.studio-code { background: #fff; }
++.studio-code { background: var(--studio-surface); }
+ .studio-code > div { min-height: 100%; border: 0; border-radius: 0; }
+-.studio-code pre { font-size: 11px; }
+-.studio-welcome { display: flex; min-height: 100%; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(24px, 4vw, 64px); background: radial-gradient(ellipse at 85% 0%, #cfddff 0%, transparent 60%), #f4f7ff; }
+-.studio-welcome-icon { color: var(--studio-blue); font-size: 70px; line-height: 1; margin-bottom: 40px; }
+-.studio-welcome .micro-label { color: var(--studio-blue); font-size: 9px; margin-bottom: 16px; }
+-.studio-welcome h3 { font-size: clamp(28px, 3.4vw, 48px); line-height: 1.08; font-weight: 500; letter-spacing: -.055em; margin: 0 0 20px; }
+-.studio-welcome > p:last-of-type { font-size: 13px; max-width: 320px; color: var(--studio-muted); line-height: 1.8; margin-bottom: 24px; }
+-.studio-terminal { flex-shrink: 0; height: 180px; max-height: 30%; border: 0; border-radius: 0; border-top: 1px solid #263956; background: #101d34; color: #dbe6ff; overflow: hidden; }
+-.studio-terminal > div:first-child { background: #162640; border-color: #2d3e58; padding: 8px 14px; font-size: 11px; }
+-.studio-terminal > div:last-child { max-height: 130px; overflow: auto; font-size: 11px; }
+-.studio-terminal-empty { padding: 16px; color: #94a6c5; font-size: 11px; }
+-.studio-agent { display: flex; flex-direction: column; border-left: 1px solid var(--studio-border); background: #fff; }
+-.studio-agent-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--studio-blue); }
+-.studio-planning { padding: 12px; display: grid; gap: 10px; flex-shrink: 0; max-height: 240px; overflow: auto; border-bottom: 1px solid var(--studio-border); }
+-.studio-planning [data-slot=plan] { padding-block: 12px; gap: 10px; border-color: var(--studio-border); background: #f8faff; border-radius: 8px; }
+-.studio-planning [data-slot=plan-header], .studio-planning [data-slot=card-content] { padding-inline: 12px; }
+-.studio-planning [data-slot=card-title] { font-size: 12px; }
+-.studio-planning p { font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; max-height: 100px; overflow: auto; }
+-.studio-planning li, .studio-planning button { font-size: 11px; }
+-.studio-conversation { flex: 1; min-height: 100px; font-size: 12px; }
+-.studio-conversation > div > div { padding: 14px; gap: 16px; }
++.studio-code pre { font-size: var(--studio-type-sm); }
++.studio-welcome { display: flex; min-height: 100%; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(var(--studio-space-24), 4vw, var(--studio-space-64)); background: radial-gradient(ellipse at 85% 0%, var(--studio-glow) 0%, transparent 60%), var(--studio-welcome-surface); }
++.studio-welcome-icon { color: var(--studio-blue); width: 70px; height: 70px; flex-shrink: 0; margin-bottom: var(--studio-space-40); }
++.studio-welcome .micro-label { color: var(--studio-blue); font-size: var(--studio-type-caption); margin-bottom: var(--studio-space-16); }
++.studio-welcome h3 { font-size: var(--studio-type-display); line-height: 1.08; font-weight: 500; letter-spacing: -.055em; margin: 0 0 var(--studio-space-20); }
++.studio-welcome > p:last-of-type { font-size: var(--studio-type-body); max-width: 320px; color: var(--studio-muted); line-height: 1.8; margin-bottom: var(--studio-space-24); }
++.studio-terminal { flex-shrink: 0; height: 180px; max-height: 30%; border: 0; border-radius: 0; border-top: 1px solid var(--studio-terminal-border); background: var(--studio-terminal-surface); color: var(--studio-terminal-ink); overflow: hidden; }
++.studio-terminal > div:first-child { background: var(--studio-terminal-header); border-color: var(--studio-terminal-border); padding: var(--studio-space-8) var(--studio-space-14); font-size: var(--studio-type-sm); }
++.studio-terminal > div:last-child { max-height: 130px; overflow: auto; font-size: var(--studio-type-sm); }
++.studio-terminal-empty { padding: var(--studio-space-16); color: var(--studio-terminal-muted); font-size: var(--studio-type-sm); }
++.studio-agent { display: flex; flex-direction: column; border-left: 1px solid var(--studio-border); background: var(--studio-surface); }
++.studio-agent-dot { width: var(--studio-space-6); height: var(--studio-space-6); border-radius: 50%; background: var(--studio-blue); }
++.studio-planning { padding: var(--studio-space-12); display: grid; gap: var(--studio-space-10); flex-shrink: 0; max-height: 240px; overflow: auto; border-bottom: 1px solid var(--studio-border); }
++.studio-planning [data-slot=plan] { padding-block: var(--studio-space-12); gap: var(--studio-space-10); border-color: var(--studio-border); background: var(--studio-surface-subtle); border-radius: var(--studio-radius-md); }
++.studio-planning [data-slot=plan-header], .studio-planning [data-slot=plan-content] { padding-inline: var(--studio-space-12); }
++.studio-planning [data-slot=plan-title] { font-size: var(--studio-type-md); }
++.studio-planning p { font-size: var(--studio-type-md); line-height: 1.6; overflow-wrap: anywhere; max-height: 100px; overflow: auto; }
++.studio-planning li, .studio-planning button { font-size: var(--studio-type-sm); }
++.studio-conversation { flex: 1; min-height: 100px; font-size: var(--studio-type-md); }
++.studio-conversation > div > div { padding: var(--studio-space-14); gap: var(--studio-space-16); }
+ .studio-conversation [data-native-agent-trace] { border: 0; background: transparent; padding: 0; }
+ .studio-conversation .is-assistant { max-width: 100%; width: 100%; }
+-.studio-run-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+-.studio-composer { flex-shrink: 0; padding: 14px; border-top: 1px solid var(--studio-border); background: #fafbff; }
+-.studio-composer > label { display: block; margin-bottom: 10px; font-size: 11px; font-weight: 500; }
+-.studio-composer textarea { font-size: 12px; min-height: 86px; max-height: 180px; }
++.studio-run-actions { display: flex; flex-wrap: wrap; gap: var(--studio-space-8); }
++.studio-composer { flex-shrink: 0; padding: var(--studio-space-14); border-top: 1px solid var(--studio-border); background: var(--studio-surface-subtle); }
++.studio-composer > label { display: block; margin-bottom: var(--studio-space-10); font-size: var(--studio-type-sm); font-weight: 500; }
++.studio-composer textarea { font-size: var(--studio-type-md); min-height: 86px; max-height: 180px; }
+ .studio-composer form { min-width: 0; }
+-.studio-composer form > div { background: #fff; border-color: #cbd8f3; }
+-.studio-composer button[type=submit] { background: var(--studio-blue); color: white; }
+-.native-studio__attachments { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 9px; color: var(--studio-muted); }
+-.native-studio__attachments label { position: relative; cursor: pointer; font-size: 10px; color: var(--studio-blue); }
++.studio-composer form > div { background: var(--studio-surface); border-color: var(--studio-input-border); }
++.studio-composer button[type=submit] { background: var(--studio-blue); color: var(--studio-surface); }
++.native-studio__attachments { display: flex; gap: var(--studio-space-8); align-items: center; flex-wrap: wrap; font-size: var(--studio-type-caption); color: var(--studio-muted); }
++.native-studio__attachments label { position: relative; cursor: pointer; font-size: var(--studio-type-xs); color: var(--studio-blue); }
+ .native-studio__attachments input { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+-.native-studio__file { border: 1px solid var(--studio-border); border-radius: 6px; padding: 5px 8px; margin-top: 8px; background: #fff; font: inherit; font-size: 10px; cursor: pointer; max-width: 100%; overflow-wrap: anywhere; }
+-.native-build__error { margin: 0; padding: 12px; color: #9b2433; background: #fff2f1; overflow-wrap: anywhere; font-size: 12px; }
+-.native-build__details { padding: 10px 14px; font-size: 10px; color: var(--studio-muted); overflow-wrap: anywhere; }
+-.native-build__details p { margin: 10px 0 0; }
++.native-studio__file { border: 1px solid var(--studio-border); border-radius: var(--studio-radius-sm); padding: var(--studio-space-6) var(--studio-space-8); margin-top: var(--studio-space-8); background: var(--studio-surface); font: inherit; font-size: var(--studio-type-xs); cursor: pointer; max-width: 100%; overflow-wrap: anywhere; }
++.native-build__error { margin: 0; padding: var(--studio-space-12); color: var(--studio-error); background: var(--studio-error-surface); overflow-wrap: anywhere; font-size: var(--studio-type-md); }
++.native-build__details { padding: var(--studio-space-10) var(--studio-space-14); font-size: var(--studio-type-xs); color: var(--studio-muted); overflow-wrap: anywhere; }
++.native-build__details p { margin: var(--studio-space-10) 0 0; }
+ .native-build__details summary { cursor: pointer; }
+-.native-trace__entries { display: grid; gap: 16px; overflow-wrap: anywhere; }
+-.native-trace__file { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
++.native-trace__entries { display: grid; gap: var(--studio-space-16); overflow-wrap: anywhere; }
++.native-trace__file { display: flex; align-items: center; gap: var(--studio-space-6); flex-wrap: wrap; }
+ [data-native-agent-trace] { min-width: 0; }
+ [data-native-agent-trace] img { max-width: 100%; height: auto; }
+ [data-native-agent-trace] [data-streamdown=paragraph] { line-height: 1.65; }
+ .studio-mobile-nav { display: none; }
+ @media (max-width: 1100px) { .studio-panels { grid-template-columns: 140px minmax(0, 1fr) 290px; } .studio-caption { display: none; } }
+ @media (max-width: 800px) {
+- .studio-toolbar { padding: 12px; } .studio-toolbar > div { flex-wrap: wrap; gap: 8px; } .studio-toolbar select { max-width: 155px; }
+- .studio-mobile-nav { display: flex; padding: 6px; gap: 6px; background: #f8faff; border-bottom: 1px solid var(--studio-border); }
+- .studio-mobile-nav button { flex: 1; font-size: 11px; padding: 10px 4px; border-radius: 5px; color: var(--studio-muted); }
+- .studio-mobile-nav button[aria-pressed=true] { background: #e7eeff; color: var(--studio-blue); }
++ .studio-toolbar { padding: var(--studio-space-12); } .studio-toolbar > div { flex-wrap: wrap; gap: var(--studio-space-8); } .studio-toolbar select { max-width: 155px; }
++ .studio-mobile-nav { display: flex; padding: var(--studio-space-6); gap: var(--studio-space-6); background: var(--studio-surface-subtle); border-bottom: 1px solid var(--studio-border); }
++ .studio-mobile-nav button { flex: 1; font-size: var(--studio-type-sm); padding: var(--studio-space-10) var(--studio-space-4); border-radius: var(--studio-radius-xs); color: var(--studio-muted); }
++ .studio-mobile-nav button[aria-pressed=true] { background: var(--studio-selected); color: var(--studio-blue); }
+  .studio-panels { display: flex; height: 760px; min-height: 600px; }
+  .studio-panels > * { width: 100%; border: 0; }
+  .native-studio[data-mobile-panel=files] .studio-workspace, .native-studio[data-mobile-panel=files] .studio-agent, .native-studio[data-mobile-panel=workspace] .studio-files, .native-studio[data-mobile-panel=workspace] .studio-agent, .native-studio[data-mobile-panel=agent] .studio-files, .native-studio[data-mobile-panel=agent] .studio-workspace { display: none; }
+- .studio-welcome { padding: 28px; } .studio-welcome h3 { font-size: 38px; }
++ .studio-welcome { padding: var(--studio-space-28); } .studio-welcome h3 { font-size: var(--studio-type-display-mobile); }
+ }
+ .studio-canvas-instance { height: 100%; min-height: 480px; }
+ .studio-canvas-instance[hidden] { display: none; }
+ .studio-canvas-instance .vibe-live-canvas { width: 100%; height: 100%; min-height: 480px; border: 0; display: block; }
++
++.studio-plan-task { margin-top: var(--studio-space-12); }
++.studio-plan-task [data-state] > p { max-height: none; margin: 0; }
++.studio-task-files { display: flex; flex-wrap: wrap; gap: var(--studio-space-6); }
++.studio-task-files button { text-align: left; overflow-wrap: anywhere; cursor: pointer; color: var(--studio-blue); }

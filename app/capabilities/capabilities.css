@@ -1,0 +1,183 @@
+/* ============================================================
+   CAPABILITIES PAGE — scoped styles (cap-* prefix only)
+   Loaded exclusively by app/capabilities/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- hero ---------- */
+.cap-hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding-top: clamp(130px, 20vh, 220px);
+  padding-bottom: clamp(24px, 4vh, 48px);
+}
+.cap-hero__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cap-hero__title {
+  margin-top: 1.8rem;
+}
+.cap-hero__lede {
+  max-width: 36rem;
+  margin-top: 2.2rem;
+}
+
+/* ---------- index strip — a table of contents in hairlines ---------- */
+.cap-index {
+  margin-top: clamp(56px, 9vh, 110px);
+}
+.cap-index__list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.cap-index__list li + li {
+  border-left: 1px solid var(--line-soft);
+}
+.cap-index__link {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 20px 18px 24px;
+  transition: background 0.4s var(--ease-out);
+}
+.cap-index__link:hover {
+  background: rgba(46, 75, 255, 0.045);
+}
+.cap-index__link .index-no {
+  transition: color 0.35s var(--ease-out);
+}
+.cap-index__link:hover .index-no {
+  color: var(--blue);
+}
+.cap-index__title {
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  color: var(--ink-2);
+  transition: color 0.35s var(--ease-out);
+}
+.cap-index__link:hover .cap-index__title {
+  color: var(--ink);
+}
+
+@media (max-width: 1100px) {
+  .cap-index__list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .cap-index__list li {
+    border-left: 1px solid var(--line-soft);
+    border-top: 1px solid var(--line-soft);
+  }
+  .cap-index__list li:nth-child(3n + 1) {
+    border-left: none;
+  }
+  .cap-index__list li:nth-child(-n + 3) {
+    border-top: none;
+  }
+}
+@media (max-width: 640px) {
+  .cap-index__list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* equal-specificity, later-in-source overrides of the 3-col rules above */
+  .cap-index__list li:nth-child(even) {
+    border-left: 1px solid var(--line-soft);
+  }
+  .cap-index__list li:nth-child(odd) {
+    border-left: none;
+  }
+  .cap-index__list li:nth-child(n + 3) {
+    border-top: 1px solid var(--line-soft);
+  }
+  .cap-index__list li:nth-child(-n + 2) {
+    border-top: none;
+  }
+}
+
+/* ---------- practice sections ---------- */
+.cap-practice {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(90px, 12vw, 150px);
+  scroll-margin-top: 84px;
+}
+.cap-practice__inner {
+  position: relative;
+  z-index: 1;
+  max-width: min(40rem, 50vw);
+}
+.cap-practice__title {
+  margin-top: 1.6rem;
+}
+.cap-practice__lede {
+  max-width: 38rem;
+  margin-top: 1.8rem;
+}
+.cap-practice__tags {
+  margin-top: 2.4rem;
+}
+
+/* the ghosted watermark index behind each block */
+.cap-ghost {
+  position: absolute;
+  bottom: clamp(24px, 5vh, 56px);
+  right: var(--gutter);
+  font-size: clamp(6rem, 18vw, 9rem);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(10, 12, 18, 0.035);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+@media (max-width: 860px) {
+  .cap-practice {
+    min-height: 0;
+    padding-block: clamp(90px, 18vw, 130px);
+  }
+  .cap-practice__inner {
+    max-width: none;
+  }
+  .cap-ghost {
+    top: clamp(70px, 14vw, 110px);
+    transform: none;
+    font-size: clamp(5rem, 26vw, 7rem);
+  }
+}
+
+/* ---------- outro ---------- */
+.cap-outro {
+  min-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-block: clamp(100px, 14vw, 180px);
+}
+.cap-outro__title {
+  margin-top: 1.8rem;
+  max-width: 20ch;
+}
+.cap-outro__body {
+  max-width: 36rem;
+  margin-top: 1.8rem;
+}
+.cap-outro__cta {
+  margin-top: 3rem;
+}

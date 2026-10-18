@@ -1,0 +1,66 @@
+/* ============================================================
+   Region signature-moment dwell (rb-* prefix) — shared by
+   los-angeles, orange-county, san-francisco, napa, phoenix,
+   salt-lake-city. The stage is transparent: the GL set piece
+   behind it is the content.
+   ============================================================ */
+
+.rb-moment {
+  position: relative;
+  pointer-events: none;
+}
+.rb-moment__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.rb-moment__meter {
+  --rb-t: 0;
+  --rb-w: 0;
+  opacity: var(--rb-w);
+  transform: translateY(calc((1 - var(--rb-w)) * 14px));
+  padding-bottom: clamp(28px, 5vh, 56px);
+}
+.rb-moment__foot {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 3vw, 40px);
+}
+.rb-moment__caption {
+  flex: none;
+  white-space: nowrap;
+}
+.rb-moment__sep {
+  opacity: 0.45;
+  margin-inline: 0.2em;
+}
+.rb-moment__track {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.rb-moment__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--blue);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--rb-t));
+}
+
+@media (max-width: 720px) {
+  .rb-moment__foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .rb-moment__track {
+    width: 100%;
+    flex: none;
+  }
+}

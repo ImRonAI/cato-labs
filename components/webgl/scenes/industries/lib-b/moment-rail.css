@@ -1,0 +1,63 @@
+/* ============================================================
+   MOMENT RAIL — signature-moment dwell (industries-b pages)
+   Keep --mrail-dwell in sync with MOMENT_DWELL in stage.ts.
+   ============================================================ */
+
+.mrail {
+  --mrail-dwell: 280vh;
+  position: relative;
+  height: var(--mrail-dwell);
+  pointer-events: none;
+}
+.mrail__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: flex-end;
+}
+.mrail__foot {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-bottom: clamp(28px, 5vh, 52px);
+}
+.mrail__label {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  white-space: nowrap;
+}
+.mrail__index {
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+}
+.mrail__track {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.mrail__fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--blue-soft), var(--blue));
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mrail {
+    --mrail-dwell: 100vh;
+  }
+}
+@media (max-width: 720px) {
+  .mrail__foot {
+    gap: 18px;
+  }
+}

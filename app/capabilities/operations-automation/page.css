@@ -1,0 +1,110 @@
+/* ============================================================
+   OPERATIONS & AUTOMATION — scoped styles (ops-* prefix only)
+   Loaded exclusively by app/capabilities/operations-automation/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- machine — sticky dwell for the clockwork moment ---------- */
+.ops-machine {
+  min-height: 260vh;
+  position: relative;
+  pointer-events: none;
+}
+.ops-machine__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+@media (max-width: 720px) {
+  .ops-machine {
+    min-height: 210vh;
+  }
+}
+
+/* ---------- feature — alternating editorial blocks ---------- */
+.ops-feature {
+  padding-block: calc(var(--section-y) * 0.5) calc(var(--section-y) * 0.35);
+}
+.ops-feature__title {
+  margin-block: 18px 0;
+  max-width: 16ch;
+}
+.ops-feature__grid {
+  margin-top: clamp(64px, 9vw, 120px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.ops-feature__block {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.ops-feature__block:nth-child(even) {
+  align-self: flex-end;
+}
+.ops-feature__block .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.ops-feature__block-title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.ops-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.ops-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.ops-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.ops-detail__body {
+  max-width: 44rem;
+}
+.ops-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.ops-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.ops-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .ops-feature__block,
+  .ops-feature__block:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .ops-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,370 @@
+### Page
+- Page URL: http://127.0.0.1:3217/capabilities/digital-products#vibe
+- Page Title: Digital Products & Experiences — Cato Labs
+- Console: 0 errors, 120 warnings
+### Snapshot
+```yaml
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - link "Cato Labs — home" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e15]: Cato .Labs
+      - navigation "Primary" [ref=e16]:
+        - list [ref=e17]:
+          - listitem [ref=e18]:
+            - link "Capabilities" [ref=e19] [cursor=pointer]:
+              - /url: /capabilities
+          - listitem [ref=e20]:
+            - link "Work" [ref=e21] [cursor=pointer]:
+              - /url: /work
+          - listitem [ref=e22]:
+            - link "Industries" [ref=e23] [cursor=pointer]:
+              - /url: /industries
+          - listitem [ref=e24]:
+            - link "Regions" [ref=e25] [cursor=pointer]:
+              - /url: /regions
+          - listitem [ref=e26]:
+            - link "Approach" [ref=e27] [cursor=pointer]:
+              - /url: /approach
+          - listitem [ref=e28]:
+            - link "Contact" [ref=e29] [cursor=pointer]:
+              - /url: /contact
+      - link "Build with Cato Labs" [ref=e30] [cursor=pointer]:
+        - /url: /contact
+  - main [ref=e31]:
+    - region "The website is the flagship." [ref=e32]:
+      - navigation "Breadcrumb" [ref=e33]:
+        - link "Capabilities" [ref=e34] [cursor=pointer]:
+          - /url: /capabilities
+        - generic [ref=e35]: /
+        - generic [ref=e36]: Digital Products & Experiences
+      - generic [ref=e37]: Capabilities — 03
+      - heading "The website is the flagship." [level=1] [ref=e38]:
+        - generic [ref=e39]: The website is
+        - generic [ref=e41]: the flagship.
+      - generic [ref=e43]: Websites and applications treated as products — architected, designed and engineered on modern stacks to be editorial-grade, fast and built to convert.
+    - region "What the practice covers" [ref=e44]:
+      - generic [ref=e45]: The disciplines
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [aria-hidden] [ref=e48]: "01"
+          - heading "Information architecture & UX" [level=3] [ref=e49]
+          - paragraph [ref=e50]: The structure comes first. Every page has a job, every journey a destination, and the architecture is argued before a single pixel is placed.
+        - generic [ref=e51]:
+          - generic [aria-hidden] [ref=e52]: "02"
+          - heading "Interface & experience design" [level=3] [ref=e53]
+          - paragraph [ref=e54]: High-fidelity, system-driven design — typography, motion and interaction held to an editorial standard, because polish is how quality is judged.
+        - generic [ref=e55]:
+          - generic [aria-hidden] [ref=e56]: "03"
+          - heading "Next.js / React engineering" [level=3] [ref=e57]
+          - paragraph [ref=e58]: "Production engineering on modern stacks, chosen for the experience and the business case. Fast by default: performance is a feature, not a fix."
+    - region "The Studio — watch a site being born" [ref=e59]:
+      - generic [ref=e60]:
+        - generic [ref=e61]: The Studio
+        - heading [level=2] [ref=e62]:
+          - generic [ref=e63]:
+            - text: Watch a site being born.
+            - generic [aria-hidden]: Watch a site being born.
+        - generic [ref=e64]: "This is how a Cato flagship is built: strategy, design, engineering and discoverability working the same canvas at the same time. Watch four agents assemble AURELLE — an alpine fragrance house — from wireframe to launch."
+      - group "AURELLE site build simulation" [ref=e66]:
+        - generic [ref=e71]: aurelle.co
+        - generic [aria-hidden] [ref=e72]:
+          - generic [ref=e303]: wireframe · nav
+          - generic [ref=e304]: AURELLE
+          - generic [ref=e305]: Collection · Journal
+          - generic [ref=e306]: Alpine fragrance house — Chamonix
+          - generic [ref=e307]: Altitude,
+          - generic [ref=e308]: bottled.
+          - generic [ref=e309]: Rare air, distilled. Scents composed at 2,000 metres — mineral, cold, exact.
+          - generic [ref=e310]: Copy · tone — cold, exact
+          - generic [ref=e311]: Discover the collection
+          - generic [ref=e358]: media · generative
+          - generic [ref=e359]: schema · product
+          - generic [ref=e360]: Meta · OG · sitemap
+          - generic [ref=e361]: Product grid
+          - generic [ref=e362]: tokens · glass
+          - generic [ref=e363]: Sommet N°1
+          - generic [ref=e364]: Crevasse N°2
+          - generic [ref=e365]: Treeline N°3
+          - generic [ref=e366]: Eau de parfum · 50ml
+          - generic [ref=e367]: Eau de parfum · 50ml
+          - generic [ref=e368]: Eau de parfum · 50ml
+          - generic [ref=e369]: €180
+          - generic [ref=e370]: €210
+          - generic [ref=e371]: €165
+          - generic [ref=e372]: social proof
+          - generic [ref=e373]: ★★★★★
+          - generic [ref=e374]: “Like standing above the weather.”
+          - generic [ref=e375]: — Monocle, retail awards
+          - generic [ref=e376]: footer
+          - generic [ref=e377]: AURELLE
+          - generic [ref=e378]: Est. 2026
+          - generic: Sapphire
+          - generic: Azure
+          - generic: Ice
+          - generic: Indigo
+        - paragraph [ref=e74]: "Animated simulation: Sapphire, Azure, Ice, Indigo assemble a AURELLE landing page block by block inside a browser frame."
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - text: Sapphire
+              - generic [ref=e80]: · Strategy
+            - generic [ref=e81]:
+              - text: Azure
+              - generic [ref=e83]: · Design
+            - generic [ref=e84]:
+              - text: Ice
+              - generic [ref=e86]: · Engineering
+            - generic [ref=e87]:
+              - text: Indigo
+              - generic [ref=e89]: · Discoverability
+          - generic [ref=e90]:
+            - button "Play simulation" [ref=e379] [cursor=pointer]: Play
+            - button "Replay simulation" [ref=e92] [cursor=pointer]: Replay
+    - region "Vibe-code yours" [ref=e93]:
+      - generic [ref=e94]:
+        - generic [ref=e95]: The Sketch Engine
+        - heading [level=2] [ref=e96]:
+          - generic [ref=e97]:
+            - text: Vibe-code yours.
+            - generic [aria-hidden]: Vibe-code yours.
+        - generic [ref=e98]: Describe what you’re building. Your agent researches, designs and writes the website on a live canvas. Follow each element as it takes shape, then download the files or start another build.
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - strong [ref=e105]: cato studio
+            - generic [ref=e106]: Website workspace
+          - generic [ref=e107]:
+            - generic [ref=e108]: Selected build
+            - combobox "Selected build" [ref=e109]:
+              - option "New website"
+              - option "Builder 1 · cancelled" [selected]
+            - button "New build +" [ref=e110] [cursor=pointer]
+        - generic [ref=e111]:
+          - complementary "Project files" [ref=e112]:
+            - generic [ref=e113]:
+              - generic [ref=e114]: Explorer
+              - generic [ref=e115]: "0"
+            - tree [ref=e380]
+            - paragraph [ref=e118]: Shared project files appear here as the agent delivers them.
+            - button "Refresh files" [ref=e382] [cursor=pointer]
+          - region "Website preview and source" [ref=e119]:
+            - generic [ref=e120]:
+              - tablist "Website view" [ref=e121]:
+                - tab "Preview" [selected] [ref=e122] [cursor=pointer]
+                - tab "Code" [ref=e123] [cursor=pointer]
+              - status [ref=e124]: cancelled
+            - tabpanel "Preview" [ref=e125]:
+              - iframe [ref=e384]
+            - generic [ref=e134]:
+              - generic [ref=e135]:
+                - generic [ref=e136]: Sandbox terminal
+                - button [ref=e139] [cursor=pointer]
+              - paragraph [ref=e140]: No sandbox output yet.
+          - complementary "AI build conversation" [ref=e141]:
+            - generic [ref=e142]: Studio agent
+            - generic [ref=e145]:
+              - generic [ref=e146]:
+                - generic [ref=e147]:
+                  - generic [ref=e148]:
+                    - generic [ref=e149]: Build objective
+                    - generic [ref=e150]: Your brief and observed provider activity
+                  - button "Toggle build objective" [expanded] [ref=e152] [cursor=pointer]:
+                    - generic [ref=e153]: Toggle plan
+                - paragraph [ref=e155]: Design a multipage Cato Labs website for a creative AI implementation studio, using cobalt blue, editorial typography, and an interactive Three.js sculpture. Include the real Cato chat widget and downloadable source.
+              - generic [ref=e386]:
+                - button "1 Ended" [expanded] [ref=e387] [cursor=pointer]
+                - list [ref=e400]:
+                  - listitem [ref=e401]:
+                    - button "Builder 1 · cancelled" [ref=e404] [cursor=pointer]
+            - log [ref=e156]:
+              - generic [ref=e158]:
+                - generic [ref=e405]: Design a multipage Cato Labs website for a creative AI implementation studio, using cobalt blue, editorial typography, and an interactive Three.js sculpture. Include the real Cato chat widget and downloadable source.
+                - generic [ref=e408]:
+                  - generic [ref=e409]:
+                    - generic [ref=e410]: Builder 1
+                    - generic [ref=e417]:
+                      - paragraph [ref=e422] [cursor=pointer]: Agent activity
+                      - button "Activity" [expanded] [ref=e429] [cursor=pointer]
+                  - paragraph [ref=e442]: I'll start by loading the
+                - button "Revise brief" [ref=e444] [cursor=pointer]
+            - generic [ref=e163]:
+              - generic [ref=e164]: Describe what you’re building
+              - group [ref=e166]:
+                - textbox "Describe what you’re building" [ref=e168]:
+                  - /placeholder: A desert-modernist boutique hotel in Palm Springs…
+                - group [ref=e169]:
+                  - generic [ref=e170]:
+                    - generic [ref=e171] [cursor=pointer]:
+                      - text: Attach documents
+                      - button "Attach documents" [ref=e172]
+                    - generic [ref=e173]: 0/2000
+                  - button "Brief the studio" [disabled]
+            - group [ref=e445]:
+              - generic "Run details" [ref=e446] [cursor=pointer]
+    - region "Built to perform, measured like a product." [ref=e174]:
+      - generic [ref=e175]:
+        - generic [ref=e176]:
+          - generic [ref=e177]: The work
+          - heading "Built to perform, measured like a product." [level=2] [ref=e178]
+          - paragraph [ref=e179]: A Cato build ships with conversion architecture and Core Web Vitals in the definition of done — not as a later audit. The stack is headless where headless earns its complexity, and every surface is instrumented so the experience can be argued with evidence after launch.
+        - list "Deliverables" [ref=e181]:
+          - listitem [ref=e182]: Information architecture & UX
+          - listitem [ref=e183]: Interface & experience design
+          - listitem [ref=e184]: Next.js / React engineering
+          - listitem [ref=e185]: Headless commerce & CMS
+          - listitem [ref=e186]: Conversion architecture
+          - listitem [ref=e187]: Performance & Core Web Vitals
+    - region "Frequently asked questions" [ref=e188]:
+      - generic [ref=e189]: Questions
+      - heading "Asked, answered." [level=2] [ref=e190]
+      - generic [ref=e191]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - text: What stack do you build on?
+            - generic [ref=e194]: "01"
+          - paragraph [ref=e195]: React and Next.js by default, headless commerce and CMS where the business case supports it. The stack follows the experience — never the other way around.
+        - generic [ref=e196]:
+          - generic [ref=e197]:
+            - text: Can you rebuild on top of our existing systems?
+            - generic [ref=e198]: "02"
+          - paragraph [ref=e199]: Yes. Most flagships sit on existing commerce, booking or CRM infrastructure. We architect the experience layer around what already works.
+        - generic [ref=e200]:
+          - generic [ref=e201]:
+            - text: How do you measure success after launch?
+            - generic [ref=e202]: "03"
+          - paragraph [ref=e203]: Conversion, speed and the Core Web Vitals Google actually ranks on. Every build ships instrumented, so performance is a report, not an opinion.
+        - generic [ref=e204]:
+          - generic [ref=e205]:
+            - text: Do you handle content as well as code?
+            - generic [ref=e206]: "04"
+          - paragraph [ref=e207]: Yes. Copy, imagery and art direction are part of the build, working alongside Brand & Creative Systems. A flagship with placeholder words is not a flagship.
+    - region "Get started" [ref=e208]:
+      - generic [ref=e209]: Begin
+      - heading "Build the flagship." [level=2] [ref=e210]
+      - generic [ref=e211]: Show us the current site and the number it is failing to move. We will show you what a flagship does differently.
+      - link "Start a build" [ref=e214] [cursor=pointer]:
+        - /url: /contact
+        - text: Start a build
+        - generic [aria-hidden] [ref=e215]: →
+    - dialog "Message from Azure" [ref=e313]:
+      - generic [ref=e322]:
+        - paragraph [ref=e323]: Azure · Cato agent
+        - paragraph [ref=e324]: I design the flagships. One brief — your own words, as long as you like — and I will research your market and sketch yours live, right here on the page.
+        - link "Sketch my site" [ref=e327] [cursor=pointer]:
+          - /url: "#vibe"
+          - text: Sketch my site
+          - generic [aria-hidden] [ref=e328]: →
+      - button "Dismiss message" [ref=e329] [cursor=pointer]
+  - contentinfo [ref=e216]:
+    - generic [ref=e217]:
+      - generic [ref=e218]:
+        - generic [aria-hidden] [ref=e219]: CATO LABS
+        - paragraph [ref=e220]: AI-native strategy & implementation.
+      - separator [ref=e221]
+      - generic [ref=e222]:
+        - generic [ref=e223]:
+          - heading "Practice" [level=4] [ref=e224]
+          - list [ref=e225]:
+            - listitem [ref=e226]:
+              - link "Capabilities" [ref=e227] [cursor=pointer]:
+                - /url: /capabilities
+            - listitem [ref=e228]:
+              - link "Work" [ref=e229] [cursor=pointer]:
+                - /url: /work
+            - listitem [ref=e230]:
+              - link "Approach" [ref=e231] [cursor=pointer]:
+                - /url: /approach
+            - listitem [ref=e232]:
+              - link "Blog" [ref=e233] [cursor=pointer]:
+                - /url: /blog
+            - listitem [ref=e234]:
+              - link "Contact" [ref=e235] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=e236]:
+          - heading "Capabilities" [level=4] [ref=e237]
+          - list [ref=e238]:
+            - listitem [ref=e239]:
+              - link "Strategy & Transformation" [ref=e240] [cursor=pointer]:
+                - /url: /capabilities/strategy-transformation
+            - listitem [ref=e241]:
+              - link "AI & Agent Systems" [ref=e242] [cursor=pointer]:
+                - /url: /capabilities/ai-agent-systems
+            - listitem [ref=e243]:
+              - link "Digital Products & Experiences" [ref=e244] [cursor=pointer]:
+                - /url: /capabilities/digital-products
+            - listitem [ref=e245]:
+              - link "Brand & Creative Systems" [ref=e246] [cursor=pointer]:
+                - /url: /capabilities/brand-creative
+            - listitem [ref=e247]:
+              - link "Growth & Distribution" [ref=e248] [cursor=pointer]:
+                - /url: /capabilities/growth-distribution
+            - listitem [ref=e249]:
+              - link "Operations & Automation" [ref=e250] [cursor=pointer]:
+                - /url: /capabilities/operations-automation
+        - generic [ref=e251]:
+          - heading "Industries" [level=4] [ref=e252]
+          - list [ref=e253]:
+            - listitem [ref=e254]:
+              - link "E-commerce & Retail" [ref=e255] [cursor=pointer]:
+                - /url: /industries/ecommerce-retail
+            - listitem [ref=e256]:
+              - link "Professional Services" [ref=e257] [cursor=pointer]:
+                - /url: /industries/professional-services
+            - listitem [ref=e258]:
+              - link "Hospitality" [ref=e259] [cursor=pointer]:
+                - /url: /industries/hospitality
+            - listitem [ref=e260]:
+              - link "Real Estate" [ref=e261] [cursor=pointer]:
+                - /url: /industries/real-estate
+            - listitem [ref=e262]:
+              - link "Health & Wellness" [ref=e263] [cursor=pointer]:
+                - /url: /industries/health-wellness
+            - listitem [ref=e264]:
+              - link "Home Services" [ref=e265] [cursor=pointer]:
+                - /url: /industries/home-services
+            - listitem [ref=e266]:
+              - link "All industries" [ref=e267] [cursor=pointer]:
+                - /url: /industries
+        - generic [ref=e268]:
+          - heading "Regions" [level=4] [ref=e269]
+          - list [ref=e270]:
+            - listitem [ref=e271]:
+              - link "Palm Springs" [ref=e272] [cursor=pointer]:
+                - /url: /regions/palm-springs
+            - listitem [ref=e273]:
+              - link "Palm Desert" [ref=e274] [cursor=pointer]:
+                - /url: /regions/palm-desert
+            - listitem [ref=e275]:
+              - link "Indio" [ref=e276] [cursor=pointer]:
+                - /url: /regions/indio
+            - listitem [ref=e277]:
+              - link "San Bernardino" [ref=e278] [cursor=pointer]:
+                - /url: /regions/san-bernardino
+            - listitem [ref=e279]:
+              - link "Big Bear" [ref=e280] [cursor=pointer]:
+                - /url: /regions/big-bear
+            - listitem [ref=e281]:
+              - link "Los Angeles" [ref=e282] [cursor=pointer]:
+                - /url: /regions/los-angeles
+            - listitem [ref=e283]:
+              - link "All regions" [ref=e284] [cursor=pointer]:
+                - /url: /regions
+        - generic [ref=e285]:
+          - heading "Signal" [level=4] [ref=e286]
+          - list [ref=e287]:
+            - listitem [ref=e288]:
+              - link "hello@catolabs.com" [ref=e289] [cursor=pointer]:
+                - /url: mailto:hello@catolabs.com
+            - listitem [ref=e290]:
+              - link "llms.txt" [ref=e291] [cursor=pointer]:
+                - /url: /llms.txt
+      - separator [ref=e292]
+      - generic [ref=e293]:
+        - paragraph [ref=e294]: © 2026 Cato Labs. Build beyond ordinary.
+        - button "Back to the light ↑" [ref=e295] [cursor=pointer]
+  - alert [ref=e296]
+```

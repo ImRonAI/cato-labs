@@ -1,0 +1,170 @@
+/* ============================================================
+   MOTION — shared choreography layer v2
+   Carried by components/ui/Reveal.tsx + components/ui/Marquee.tsx
+   (imported there, so every route gets it), and by app/page.tsx.
+   Split-unit reveals, scroll parallax, magnetic drift, hairline
+   marquees. Everything degrades to static under reduced motion.
+   ============================================================ */
+
+/* ---------- a11y: visually hidden, still read by screen readers ---------- */
+.motion-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Reveal v2: split units (chars / words) ---------- */
+/* Container replaces .reveal when `split` is set — the units are
+   the reveal, so the wrapper itself carries no transform/blur. */
+.reveal-split {
+  display: block;
+}
+/* Char mode: chars group into word wrappers so lines never break
+   mid-word; word mode: each unit is a full word. */
+.reveal-split-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.reveal-unit {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* descender compensation — tight display line-heights (0.98)
+     would otherwise clip g/y/j at rest */
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.reveal-unit-inner {
+  display: inline-block;
+  transform: translateY(112%);
+  transition: transform 1s var(--ease-expo);
+  will-change: transform;
+}
+.reveal-split.is-in .reveal-unit-inner {
+  transform: translateY(0);
+}
+
+/* blur-in: units de-focus as they rise (words mode default) */
+.reveal-split--blur .reveal-unit-inner {
+  filter: blur(10px);
+  opacity: 0;
+  transition:
+    transform 1.1s var(--ease-expo),
+    filter 1.2s var(--ease-expo),
+    opacity 0.9s var(--ease-out);
+}
+.reveal-split--blur.is-in .reveal-unit-inner {
+  filter: blur(0);
+  opacity: 1;
+}
+/* unit masks need a touch of horizontal room so blur isn't clipped hard */
+.reveal-split--blur .reveal-unit {
+  padding-inline: 0.04em;
+  margin-inline: -0.04em;
+}
+
+/* line reveal: a faint rotation lends the rise a sense of weight */
+.reveal-line > span {
+  transform-origin: 0% 100%;
+}
+.reveal-line:not(.is-in) > span {
+  transform: translateY(110%) rotate(2.5deg);
+}
+
+/* ---------- Reveal v2: aux transform layers ---------- */
+/* Parallax + magnetic drift mutate these wrappers imperatively,
+   keeping .reveal's own entrance transition untouched. */
+.reveal-aux,
+.reveal-magnet {
+  display: block;
+  will-change: transform;
+}
+
+/* ---------- Marquee — hairline ribbon ---------- */
+.marquee {
+  position: relative;
+  overflow: hidden;
+  border-block: 1px solid var(--line);
+  padding-block: clamp(14px, 2.2vh, 22px);
+  /* soft fade at the edges so text never cuts hard */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll var(--mq-speed, 32s) linear infinite;
+  will-change: transform;
+}
+.marquee-group {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+.marquee-item {
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 550;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-inline: clamp(22px, 3vw, 40px);
+  transition: color 0.4s var(--ease-out);
+}
+.marquee:hover .marquee-item {
+  color: var(--ink-2);
+}
+/* blue square separator — the catalog motif at ribbon scale */
+.marquee-sep {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  background: var(--blue);
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- reduced motion — everything lands static ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-unit-inner,
+  .reveal-split--blur .reveal-unit-inner {
+    transition: none;
+    transform: none;
+    filter: none;
+    opacity: 1;
+  }
+  .reveal-line:not(.is-in) > span {
+    transform: none;
+  }
+  .reveal-aux,
+  .reveal-magnet {
+    transform: none !important;
+  }
+  .marquee-track {
+    animation: none;
+  }
+}

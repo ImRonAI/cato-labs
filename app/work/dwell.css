@@ -1,0 +1,114 @@
+/* ============================================================
+   DWELL — pinned signature-moment sections (dw-* prefix only)
+   Shared by /work, /work/resting-art, /blog via DwellSteps.
+   A 300vh outer section, a 100vh sticky stage; the GL set piece
+   plays while the stage holds still.
+   ============================================================ */
+
+.dw-section {
+  position: relative;
+  height: 300vh;
+}
+.dw-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+.dw-stage > * {
+  pointer-events: auto;
+}
+
+.dw-steps {
+  width: min(25rem, 100%);
+}
+.dw-steps__list {
+  list-style: none;
+  margin-top: 30px;
+  border-top: 1px solid var(--line);
+}
+.dw-steps__item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 14px;
+  align-items: baseline;
+  padding: 17px 0 18px;
+  border-bottom: 1px solid var(--line-soft);
+  opacity: 0.32;
+  transform: translateX(0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dw-steps__item[data-state='done'] {
+  opacity: 0.72;
+}
+.dw-steps__item[data-state='current'] {
+  opacity: 1;
+  transform: translateX(10px);
+}
+.dw-steps__no {
+  transition: color 0.7s ease;
+}
+.dw-steps__item[data-state='current'] .dw-steps__no {
+  color: var(--blue);
+}
+.dw-steps__text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dw-steps__title {
+  font-size: clamp(1.02rem, 1.35vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.dw-steps__meta {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+.dw-steps__track {
+  margin-top: 26px;
+  height: 1px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+.dw-steps__bar {
+  height: 100%;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+@media (max-width: 820px) {
+  .dw-stage {
+    align-items: flex-start;
+    padding-top: 92px;
+  }
+  .dw-steps__list {
+    margin-top: 18px;
+  }
+  .dw-steps__item {
+    padding: 9px 0 10px;
+  }
+  .dw-steps__meta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dw-steps__item,
+  .dw-steps__no {
+    transition: none;
+  }
+  .dw-steps__item[data-state='current'] {
+    transform: none;
+  }
+}

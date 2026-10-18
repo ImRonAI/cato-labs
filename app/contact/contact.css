@@ -1,0 +1,101 @@
+/* ============================================================
+   CONTACT page — scoped page styles
+   Imported by app/contact/page.tsx only.
+   ============================================================ */
+
+/* ------------------------------ hero ------------------------------ */
+/* A dwell: the copy holds while the glass sheet folds itself into a
+   plane on the right. Section progress is tracked on the outer element. */
+.contact-hero {
+  position: relative;
+  min-height: 230vh;
+}
+.contact-hero-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 90px;
+  padding-bottom: 6vh;
+}
+.contact-hero-title {
+  margin-top: 34px;
+}
+.contact-hero-sub {
+  margin-top: 38px;
+  max-width: 34rem;
+}
+
+/* --------------------------- the brief ---------------------------- */
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: clamp(28px, 4vw, 60px);
+  align-items: start;
+}
+.contact-panel {
+  padding: clamp(30px, 4.5vw, 56px);
+}
+
+.contact-brief {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.contact-submit-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.contact-note {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-3);
+  max-width: 250px;
+}
+
+/* --------------------------- direct line -------------------------- */
+/* the plane comes to rest in the clear space above the direct line */
+.contact-direct {
+  position: sticky;
+  top: 300px;
+  margin-top: 170px;
+}
+.contact-direct-mail {
+  margin-top: 30px;
+  font-size: clamp(1.45rem, 2.4vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  word-break: break-all;
+}
+.contact-direct-mail::after {
+  bottom: -6px;
+}
+.contact-direct-note {
+  margin-top: 26px;
+  max-width: 26rem;
+}
+
+/* ---------------------------- small screens ------------------------ */
+@media (max-width: 900px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .contact-direct {
+    position: static;
+    margin-top: 0;
+  }
+  .contact-hero {
+    min-height: 210vh;
+  }
+  .contact-hero-sticky {
+    justify-content: flex-end;
+    padding-bottom: 10vh;
+  }
+}

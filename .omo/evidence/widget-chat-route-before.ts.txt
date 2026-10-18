@@ -1,0 +1,154 @@
+import { NextRequest } from 'next/server';
+import { run } from '@/lib/pplx';
+import { toUi } from '@/lib/agent-events';
+import { GENUI_GUIDE } from '@/lib/genui';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
+
+/**
+ * POST /api/vibe-chat — the concierge behind every vibe-built site.
+ *
+ * One Agent API run per message through lib/pplx: anthropic/claude-haiku-5-5,
+ * background + streaming, every built-in tool (web/image/finance/people search,
+ * fetch_url, sandbox), the Telnyx Remote MCP as the lead engine, and the Office
+ * skills. Events go out in the shared agent-ui vocabulary, so the concierge
+ * renders with the same AI Elements as the builder: Task → ChainOfThought,
+ * SearchResults with favicons, Tool for fetch_url, Sandbox for code, and
+ * JSXPreview for the generative-UI cards Haiku writes in its replies.
+ *
+ * Keys never leave the server, and MCP arguments (visitor phone numbers) are never relayed.
+ */
+
+const MODEL = process.env.VIBE_CHAT_MODEL || 'anthropic/claude-haiku-5-5';
+
+/* ---- a polite per-IP drip: 24 messages / 10 minutes ------------------- */
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX = 24;
+const hits = new Map<string, { count: number; reset: number }>();
+function allowed(ip: string): boolean {
+  const now = Date.now();
+  const rec = hits.get(ip);
+  if (!rec || rec.reset < now) {
+    hits.set(ip, { count: 1, reset: now + RATE_WINDOW_MS });
+    if (hits.size > 5000) hits.clear();
+    return true;
+  }
+  if (rec.count >= RATE_MAX) return false;
+  rec.count += 1;
+  return true;
+}
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+interface SiteConfig {
+  brand?: string;
+  domain?: string;
+  personaName?: string;
+  personaRole?: string;
+  personaVoice?: string;
+  accent?: string;
+  category?: string;
+  audience?: string;
+  region?: string;
+  feel?: string;
+  links?: { label?: string; href?: string }[];
+}
+
+
+function instructions(cfg: SiteConfig, telnyxOn: boolean): string {
+  const brand = cfg.brand || 'this business';
+  const persona = cfg.personaName || 'Concierge';
+  const role = cfg.personaRole || 'Concierge';
+  const region = cfg.region || 'the local area';
+  const links = (cfg.links ?? [])
+    .filter((l) => l.href && l.label)
+    .slice(0, 12)
+    .map((l) => `${l.label} → ${l.href}`)
+    .join('; ');
+  const notify = process.env.VIBE_LEAD_NOTIFY_TO ? ` at ${process.env.VIBE_LEAD_NOTIFY_TO}` : '';
+
+  return `You are ${persona}, the ${role} of ${brand}${cfg.domain ? ` (${cfg.domain})` : ''} — the concierge living inside the business's website. ${cfg.personaVoice || 'Warm, precise, unhurried.'}
+
+THE BUSINESS: a ${cfg.category || 'local business'} for ${(cfg.audience || 'everyone').toLowerCase()} in ${region}. Feel: ${cfg.feel || 'warm'}.
+
+HOW TO BE:
+- Stay in persona, first person, as ${brand}'s ${role}. Keep replies short (1–4 sentences) and beautiful.
+- Use your tools for anything current: web search for facts, local events and seasonality in ${region}; fetch_url to read a specific page; image search (view_images) when a visitor wants to see something; the finance tools for market or public-company figures; people search for named people. Use the sandbox only for real data analysis or code execution, and when a visitor asks for a document (quote, itinerary, price sheet) build it with the office skill in the sandbox and deliver it with share_file — the visitor gets a download link. Visitors can't upload files; to revise a document, regenerate it with their changes.
+- Guide visitors around the site by name — its sections are: ${links || 'the sections on this page'}.
+- Never invent prices, availability, or policies. If unsure, say so and offer to have the team confirm.
+- Never mention Claude, Perplexity, models, or tools by name. You are simply ${persona}.
+
+${GENUI_GUIDE}
+
+LEAD CAPTURE — your quiet second job:
+- When a visitor shows intent (pricing, booking, availability, "can someone call me"), welcome it. Ask for their name and the best number or email.
+- Only when they share details AND agree to be contacted, act:${
+    telnyxOn
+      ? `
+  · Use the Telnyx tools (server "telnyx") to send ONE SMS with the lead — name, contact, what they want, one line of context — to the team${notify}, from the account's own messaging number (list numbers if you need one). Then confirm warmly, with a <ui> card summarizing what was passed on.
+  · If the SMS fails, apologize gracefully and promise the team follows up here.`
+      : `
+  · Tell them the team will reach out shortly, and note the details in your reply so they can be picked up.`
+  }
+- Never pressure, never ask twice, never text anyone who didn't agree to it.`;
+}
+
+export async function POST(req: NextRequest) {
+  if (!process.env.VIBE_PPLX_KEY && !process.env.PERPLEXITY_API_KEY) {
+    return new Response('concierge not configured', { status: 503 });
+  }
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
+  if (!allowed(ip)) return new Response('slow down', { status: 429 });
+
+  let body: { messages?: ChatMessage[]; config?: SiteConfig };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response('bad request', { status: 400 });
+  }
+  const messages = (body.messages ?? [])
+    .filter((m) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+    .slice(-24)
+    .map((m) => ({ type: 'message' as const, role: m.role, content: m.content.slice(0, 4000) }));
+  if (messages.length === 0 || messages[messages.length - 1].role !== 'user') {
+    return new Response('bad request', { status: 400 });
+  }
+
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (d: object) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(d)}\n\n`));
+      const hb = setInterval(() => controller.enqueue(encoder.encode(': hb\n\n')), 12_000);
+      try {
+        for await (const ev of run({
+          model: MODEL,
+          instructions: instructions(body.config ?? {}, Boolean(process.env.TELNYX_API_KEY)),
+          input: messages,
+          max_steps: 16,
+        })) {
+          const ui = toUi(ev);
+          if (ui) send(ui);
+          if (ev.type === 'response.failed' || ev.type === 'response.incomplete') {
+            const err = (ev.response as { error?: { message?: string } } | undefined)?.error?.message;
+            console.error('[vibe-chat] run', ev.type, err ?? '');
+            send({ t: 'error', message: 'The concierge lost its train of thought — please ask again.' });
+          }
+        }
+        send({ t: 'done' });
+      } catch (e) {
+        send({ t: 'error', message: e instanceof Error ? e.message : 'concierge error' });
+      } finally {
+        clearInterval(hb);
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'X-Accel-Buffering': 'no' },
+  });
+}

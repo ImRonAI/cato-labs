@@ -1,0 +1,115 @@
+/* ============================================================
+   E-COMMERCE & RETAIL — scoped styles (ecr-* prefix only)
+   Loaded exclusively by app/industries/ecommerce-retail/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- market-truth — the display statement ---------- */
+.ecr-truth {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.3);
+}
+.ecr-truth__statement {
+  margin-top: clamp(28px, 4.5vh, 44px);
+  max-width: 24ch;
+}
+
+/* ---------- feature — the plays, alternating editorial blocks ---------- */
+.ecr-plays {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.ecr-plays__grid {
+  margin-top: clamp(56px, 8vw, 100px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.ecr-play {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.ecr-play:nth-child(even) {
+  align-self: flex-end;
+}
+.ecr-play .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.ecr-play__title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.ecr-play__link {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(var(--blue), var(--blue));
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.5s var(--ease-out), color 0.4s var(--ease-out);
+}
+.ecr-play__link:hover,
+.ecr-play__link:focus-visible {
+  color: var(--blue);
+  background-size: 100% 1px;
+}
+.ecr-play__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.ecr-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.ecr-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.ecr-detail__body {
+  max-width: 44rem;
+}
+.ecr-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.ecr-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.ecr-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .ecr-truth__statement {
+    max-width: none;
+  }
+  .ecr-play,
+  .ecr-play:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .ecr-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

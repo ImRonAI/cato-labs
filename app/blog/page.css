@@ -1,0 +1,156 @@
+/* ============================================================
+   BLOG INDEX — scoped styles (bl-* prefix only)
+   Loaded exclusively by app/blog/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- hero ---------- */
+.bl-hero {
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+.bl-hero .lede {
+  max-width: 36rem;
+}
+
+/* ---------- feature — the journal index ---------- */
+.bl-index {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.4);
+}
+
+/* the honest note */
+.bl-note {
+  max-width: 34rem;
+  color: var(--ink-3);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* sample — the feature card */
+.bl-featured {
+  display: block;
+  margin-top: clamp(36px, 5vw, 56px);
+  padding: clamp(32px, 5vw, 64px);
+  border-radius: 24px;
+}
+.bl-featured__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.bl-featured__date {
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+.bl-featured__title {
+  margin-top: 26px;
+  max-width: 20ch;
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+.bl-featured__dek {
+  margin-top: 20px;
+  max-width: 42rem;
+  color: var(--ink-2);
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+.bl-featured__foot {
+  margin-top: clamp(32px, 5vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.bl-featured__more {
+  flex: none;
+  color: var(--blue);
+}
+.bl-featured__more::after {
+  background: var(--blue);
+}
+
+/* forthcoming — hairline rows, quiet, unlinked */
+.bl-rows {
+  margin-top: clamp(48px, 7vw, 80px);
+}
+.bl-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1.25fr) minmax(0, 1fr) auto;
+  gap: clamp(20px, 3vw, 44px);
+  align-items: start;
+  border-top: 1px solid var(--line);
+  padding: 30px 0 32px;
+  cursor: default;
+  opacity: 0.62;
+}
+.bl-row:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.bl-row__no {
+  padding-top: 5px;
+}
+.bl-row__title {
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+.bl-row__dek {
+  margin-top: 10px;
+  max-width: 34rem;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+.bl-row__tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 4px;
+}
+.bl-row__tags li {
+  padding: 6px 13px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+}
+/* the quiet "Forthcoming" micro-label */
+.bl-row__label {
+  justify-self: end;
+  padding-top: 6px;
+  font-size: 10.5px;
+  font-weight: 550;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 960px) {
+  .bl-row {
+    grid-template-columns: 36px 1fr;
+  }
+  .bl-row__tags,
+  .bl-row__label {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .bl-row__label {
+    padding-top: 0;
+  }
+}

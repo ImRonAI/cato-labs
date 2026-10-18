@@ -1,0 +1,81 @@
+/* ============================================================
+   KNOWLEDGE ARCHITECTURE (AI & Agent Systems grandchild) —
+   scoped page styles. Imported by this route's page.tsx only.
+   Feature stack echoes the approach page's alternating stages;
+   the ghost index is the Cato catalog motif.
+   ============================================================ */
+
+/* ---------------------------- features ---------------------------- */
+.ka-features {
+  padding-block: calc(var(--section-y) * 0.35);
+}
+.ka-feature {
+  position: relative;
+  min-height: 68vh;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(70px, 9vh, 120px);
+}
+.ka-feature-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 34rem;
+}
+.ka-feature--alt .ka-feature-inner {
+  margin-left: auto;
+}
+
+/* ghosted index watermark */
+.ka-feature-ghost {
+  position: absolute;
+  top: 50%;
+  right: var(--gutter);
+  transform: translateY(-54%);
+  font-size: clamp(10rem, 26vw, 24rem);
+  font-weight: 650;
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  color: rgba(10, 12, 18, 0.04);
+  user-select: none;
+  pointer-events: none;
+}
+.ka-feature--alt .ka-feature-ghost {
+  right: auto;
+  left: var(--gutter);
+}
+
+.ka-feature-title {
+  margin-top: 22px;
+}
+.ka-feature-body {
+  margin-top: 22px;
+}
+
+/* ----------------------------- detail ----------------------------- */
+.ka-detail-title {
+  margin-top: 26px;
+  max-width: 56rem;
+}
+.ka-detail-body {
+  margin-top: 30px;
+  max-width: 42rem;
+}
+.ka-detail-tags {
+  margin-top: 48px;
+  max-width: 52rem;
+}
+
+/* --------------------------- small screens ------------------------ */
+@media (max-width: 760px) {
+  .ka-feature {
+    min-height: 0;
+  }
+  .ka-feature-ghost {
+    font-size: 8rem;
+    top: clamp(70px, 9vh, 120px);
+    transform: none;
+  }
+  .ka-feature-inner {
+    margin-top: 16vh;
+  }
+}

@@ -1,0 +1,324 @@
+/* ============================================================
+   AI & AGENT SYSTEMS — scoped styles (aas-* prefix only)
+   Loaded exclusively by app/capabilities/ai-agent-systems/page.tsx.
+   Luminous minimalism, blue spectrum only.
+   ============================================================ */
+
+/* ---------- feature: three editorial blocks ---------- */
+.aas-feats {
+  margin-top: clamp(40px, 6vw, 72px);
+}
+.aas-feat {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: baseline;
+  padding-block: clamp(38px, 5vw, 58px);
+  border-top: 1px solid var(--line);
+}
+.aas-feat:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.aas-feat-no {
+  padding-top: 6px;
+}
+.aas-feat-title {
+  max-width: 15ch;
+}
+.aas-feat-body {
+  max-width: 34rem;
+}
+
+@media (max-width: 860px) {
+  .aas-feat {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .aas-feat-no {
+    padding-top: 0;
+  }
+  .aas-feat-title {
+    max-width: none;
+  }
+}
+
+/* ---------- sub-index: the four grandchild specialisms ---------- */
+.aas-sub {
+  margin-top: clamp(72px, 10vw, 120px);
+}
+.aas-sub-grid {
+  list-style: none;
+  margin-top: clamp(26px, 3.5vw, 40px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.aas-sub-grid li + li {
+  border-left: 1px solid var(--line-soft);
+}
+.aas-sub-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  padding: 24px 22px 30px;
+  transition: background 0.4s var(--ease-out);
+}
+.aas-sub-card:hover {
+  background: rgba(46, 75, 255, 0.045);
+}
+.aas-sub-card .index-no {
+  transition: color 0.35s var(--ease-out);
+}
+.aas-sub-card:hover .index-no {
+  color: var(--blue);
+}
+.aas-sub-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.aas-sub-line {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.aas-sub-arrow {
+  margin-top: auto;
+  padding-top: 18px;
+  font-size: 15px;
+  color: var(--blue);
+  transform: translateX(0);
+  transition: transform 0.45s var(--ease-out);
+}
+.aas-sub-card:hover .aas-sub-arrow {
+  transform: translateX(6px);
+}
+
+@media (max-width: 1000px) {
+  .aas-sub-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .aas-sub-grid li {
+    border-left: 1px solid var(--line-soft);
+    border-top: 1px solid var(--line-soft);
+  }
+  .aas-sub-grid li:nth-child(odd) {
+    border-left: none;
+  }
+  .aas-sub-grid li:nth-child(-n + 2) {
+    border-top: none;
+  }
+}
+@media (max-width: 560px) {
+  .aas-sub-grid {
+    grid-template-columns: 1fr;
+  }
+  .aas-sub-grid li {
+    border-left: none;
+    border-top: 1px solid var(--line-soft);
+  }
+  .aas-sub-grid li:first-child {
+    border-top: none;
+  }
+}
+
+/* ---------- detail: the work + bullets ---------- */
+.aas-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(44px, 6vw, 96px);
+  align-items: start;
+}
+.aas-detail-title {
+  margin-top: 1.5rem;
+  max-width: 16ch;
+}
+.aas-detail-body {
+  margin-top: 1.7rem;
+  max-width: 38rem;
+}
+.aas-detail-tags {
+  padding-top: clamp(6px, 1vw, 18px);
+}
+
+@media (max-width: 900px) {
+  .aas-detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .aas-detail-tags {
+    padding-top: 0;
+  }
+}
+
+/* ---------- persona: Your Cato Agent ---------- */
+.aas-persona {
+  scroll-margin-top: 90px;
+}
+.aas-persona-title {
+  margin-top: 1.5rem;
+}
+.aas-persona-lede {
+  margin-top: 1.4rem;
+  max-width: 35rem;
+}
+.aas-persona-grid {
+  margin-top: clamp(44px, 6vw, 72px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+@media (max-width: 940px) {
+  .aas-persona-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- persona card (the generated agent) ---------- */
+.aas-agent {
+  padding: clamp(26px, 3.2vw, 42px);
+  display: flex;
+  flex-direction: column;
+}
+.aas-agent-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.aas-agent-avatar {
+  width: 64px;
+  height: 64px;
+  flex: none;
+  filter: drop-shadow(0 8px 22px rgba(46, 75, 255, 0.28));
+}
+.aas-agent-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: aas-agent-blink 4.8s ease-in-out infinite;
+}
+@keyframes aas-agent-blink {
+  0%, 90%, 97%, 100% { transform: scaleY(1); }
+  93.5% { transform: scaleY(0.1); }
+}
+.aas-agent-name {
+  font-size: clamp(1.3rem, 2vw, 1.55rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.aas-agent-sub {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--blue-600);
+}
+.aas-agent-stream {
+  margin-top: 26px;
+  min-height: 13em;
+  font-size: clamp(1rem, 1.3vw, 1.1rem);
+  line-height: 1.75;
+  letter-spacing: -0.005em;
+  color: var(--ink-2);
+}
+.aas-agent-stream .kit-caret {
+  background: var(--blue-500);
+}
+
+/* representation bullets + foot — staged in once the greeting lands */
+.aas-agent-rep {
+  margin-top: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s var(--ease-out) 0.15s, transform 0.8s var(--ease-out) 0.15s;
+}
+.aas-agent-foot {
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s var(--ease-out) 0.35s, transform 0.8s var(--ease-out) 0.35s;
+}
+.aas-agent.is-live .aas-agent-rep,
+.aas-agent.is-live .aas-agent-foot {
+  opacity: 1;
+  transform: none;
+}
+.aas-agent-rep-label {
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.aas-agent-bullets {
+  list-style: none;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+}
+.aas-agent-bullets li {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  padding-block: 11px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.aas-agent-bullets li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: none;
+  background: var(--blue-600);
+  transform: translateY(-1px);
+}
+.aas-agent-note {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-3);
+  max-width: 26rem;
+}
+
+/* skeleton while signals assemble */
+.aas-agent-skel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-block: 8px;
+}
+.aas-agent-skel-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--blue-050), var(--blue-100), var(--blue-050));
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .aas-agent-eyes {
+    animation: none;
+  }
+  .aas-agent-rep,
+  .aas-agent-foot {
+    transition: none;
+  }
+  .aas-sub-card,
+  .aas-sub-arrow,
+  .aas-sub-card .index-no {
+    transition: none;
+  }
+}

@@ -1,0 +1,6 @@
+a130632bb80631d50aefedd8475ddb884a7420023628f870e3cda8be3e3b33f0  app/api/vibe-chat/route.ts
+d80fd71db3ac11a4ba76ca8ace5eccf1ba718d83313ce9c7a9a55edd57c385cf  app/api/vibe-build/route.ts
+90d942202a44ee36d0ba29ef4d4c1c2009ba58d4edd8e903c52e819946b43545  app/api/vibe-build/config.ts
+dae7acf763a65cad1d5b47f0f9b4511b2d5f35a71255e9b128fbc0a2055297a3  app/api/vibe-files/route.ts
+e8c49b77602b13bf6f3d6e2a3ce8927eb999b5fcdb279ffc627ce76868b7c9b6  lib/native-response-access.ts
+1d06364a78bf413d448ad0d9d06ac7bb8e17568494a53b4f47d7f55ef5c0f981  lib/public-chat-response.ts

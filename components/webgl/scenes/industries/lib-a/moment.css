@@ -1,0 +1,131 @@
+/* ============================================================
+   Industries signature-moment dwell (ia-* prefix only).
+   Imported by components/webgl/scenes/industries/lib-a/MomentDwell.tsx.
+   The outer section is the scroll room; the sticky stage holds the
+   viewport while the GL moment plays. Only a hairline legend sits
+   in the DOM — the moment itself is the visual.
+   ============================================================ */
+
+.ia-dwell {
+  position: relative;
+  min-height: 300vh;
+  --moment: 0;
+}
+.ia-dwell__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.ia-dwell__legend {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: end;
+  column-gap: clamp(24px, 4vw, 64px);
+  padding-bottom: clamp(28px, 5vh, 52px);
+}
+.ia-dwell__label {
+  margin: 0;
+  grid-column: 1;
+}
+.ia-dwell__count {
+  grid-column: 3;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0.22em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.ia-dwell__of {
+  color: var(--ink-3);
+}
+.ia-dwell__steps {
+  grid-column: 2 / 4;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: clamp(20px, 3.4vw, 56px);
+}
+.ia-dwell__step {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 550;
+  letter-spacing: -0.005em;
+  color: var(--ink-3);
+  opacity: 0.55;
+  transform: translateY(4px);
+  transition: color 0.7s var(--ease-out), opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out);
+}
+.ia-dwell__step .index-no {
+  transition: color 0.7s var(--ease-out);
+}
+.ia-dwell__step[data-state='done'] {
+  opacity: 0.9;
+  color: var(--ink-2);
+  transform: none;
+}
+.ia-dwell__step[data-state='on'] {
+  opacity: 1;
+  color: var(--ink);
+  transform: none;
+}
+.ia-dwell__step[data-state='on'] .index-no {
+  color: var(--blue);
+}
+.ia-dwell__rail {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 18px;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.ia-dwell__fill {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--moment));
+}
+
+@media (max-width: 820px) {
+  .ia-dwell {
+    min-height: 220vh;
+  }
+  .ia-dwell__legend {
+    grid-template-columns: 1fr auto;
+    row-gap: 14px;
+  }
+  .ia-dwell__steps {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+  }
+  .ia-dwell__step {
+    font-size: 12px;
+  }
+  .ia-dwell__rail {
+    grid-row: 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ia-dwell {
+    min-height: 120vh;
+  }
+  .ia-dwell__step {
+    transition: none;
+  }
+}

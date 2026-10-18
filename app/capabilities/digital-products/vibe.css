@@ -1,0 +1,1157 @@
+/* ============================================================
+   VIBE — "Cato Studio — Live" stage (vb-* prefix only)
+   Loaded exclusively by app/capabilities/digital-products/VibeCoder.tsx.
+   The chrome stays in the Cato blue spectrum; the generated page
+   inside the iframe owns its own palette — their brand, not ours.
+   ============================================================ */
+
+/* ---------- the card ---------- */
+.vb-live {
+  border: 1px solid var(--line-soft);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  box-shadow: 0 40px 90px -50px rgba(18, 38, 200, 0.28);
+}
+.vb-live__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.vb-live__title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.vb-live__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--blue-700);
+}
+.vb-live__badge i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue-600);
+  animation: vb-blink 1.7s var(--ease-out) infinite;
+}
+.vb-live__badge.is-done i {
+  animation: none;
+}
+@keyframes vb-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* ---------- body: crew rail + stage ---------- */
+.vb-live__body {
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr);
+}
+.vb-rail {
+  list-style: none;
+  margin: 0;
+  padding: 12px;
+  border-right: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vb-agent {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: background 0.4s var(--ease-out), border-color 0.4s var(--ease-out);
+}
+.vb-agent.is-working {
+  background: color-mix(in srgb, var(--agent-c) 6%, transparent);
+  border-color: color-mix(in srgb, var(--agent-c) 32%, transparent);
+}
+.vb-agent__status {
+  display: block;
+  padding-top: 4px;
+}
+.vb-agent__dot {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--agent-c);
+}
+.vb-agent.is-idle .vb-agent__dot {
+  opacity: 0.4;
+  animation: vb-pulse 2.4s ease-in-out infinite;
+}
+.vb-agent.is-working .vb-agent__dot {
+  animation: vb-glow 1.5s ease-out infinite;
+}
+@keyframes vb-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.22);
+  }
+}
+@keyframes vb-glow {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--agent-c) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--agent-c) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--agent-c) 0%, transparent);
+  }
+}
+.vb-agent__check {
+  display: block;
+  color: var(--agent-c);
+}
+.vb-agent__meta {
+  display: block;
+  min-width: 0;
+}
+.vb-agent__name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+.vb-agent__role {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+.vb-agent__note {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  overflow-wrap: break-word;
+}
+.vb-agent__note:empty {
+  display: none;
+}
+
+/* ---------- stage: browser chrome + live iframe ---------- */
+.vb-stage {
+  padding: 16px;
+  min-width: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+.vb-frame-card {
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 24px 55px -34px rgba(18, 38, 200, 0.3);
+}
+.vb-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.vb-chrome__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+.vb-chrome__dot:nth-child(1) {
+  background: var(--blue-200);
+}
+.vb-chrome__dot:nth-child(2) {
+  background: var(--blue-400);
+}
+.vb-chrome__dot:nth-child(3) {
+  background: var(--blue-600);
+}
+.vb-chrome__pill {
+  flex: 1;
+  max-width: 300px;
+  margin-inline: auto;
+  text-align: center;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--blue-050);
+  border: 1px solid var(--blue-100);
+  font-size: 11.5px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  color: var(--blue-800);
+}
+.vb-frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #fff;
+}
+.vb-frame__el {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #fff;
+  -webkit-user-drag: none;
+}
+.vb-frame__empty {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: var(--ink-3);
+  background: #fff;
+}
+
+/* ---------- the crew's cursors over the canvas ---------- */
+.vb-cursors {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+.vb-cursor {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  will-change: left, top, transform;
+}
+.vb-cursor svg {
+  filter: drop-shadow(0 2px 5px rgba(10, 12, 18, 0.25));
+  flex: none;
+}
+.vb-cursor__chip {
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+/* ---------- progress hairline ---------- */
+.vb-progress {
+  height: 2px;
+  background: var(--blue-100);
+  overflow: hidden;
+}
+.vb-progress__fill {
+  height: 100%;
+  width: 100%;
+  background: var(--blue-600);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s var(--ease-out);
+}
+.vb-progress__fill.is-indeterminate {
+  width: 35%;
+  transform: none;
+  animation: vb-sweep 1.5s ease-in-out infinite;
+}
+@keyframes vb-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+/* ---------- meta: sections counter + activity log ---------- */
+.vb-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 18px 14px;
+}
+.vb-meta__count {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blue-700);
+  padding-top: 3px;
+  white-space: nowrap;
+}
+.vb-log {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  min-height: 54px;
+  text-align: right;
+}
+.vb-log__line {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.vb-log__line[data-age='1'] {
+  opacity: 0.5;
+}
+.vb-log__line[data-age='2'] {
+  opacity: 0.28;
+}
+
+/* ---------- the honest close ---------- */
+.vb-done {
+  margin-top: 26px;
+  text-align: center;
+  padding: clamp(28px, 4vw, 48px);
+  border-radius: 20px;
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 30px 70px -40px rgba(18, 38, 200, 0.25);
+  animation: vb-rise 0.6s var(--ease-out) both;
+}
+@keyframes vb-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.vb-done__summary {
+  max-width: 36rem;
+  margin: 14px auto 0;
+  font-size: 1.12rem;
+  line-height: 1.6;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.vb-done__close {
+  max-width: 34rem;
+  margin: 12px auto 0;
+  color: var(--ink-2);
+  line-height: 1.65;
+}
+
+/* ---------- fallback note ---------- */
+.vb-fallback-note {
+  margin: 0 0 18px;
+  padding: 12px 18px;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .vb-live__body {
+    grid-template-columns: 1fr;
+  }
+  .vb-rail {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--line-soft);
+    scrollbar-width: thin;
+  }
+  .vb-agent {
+    min-width: 172px;
+    flex: none;
+  }
+  .vb-meta {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .vb-log {
+    text-align: left;
+    min-height: 0;
+  }
+}
+@media (max-width: 640px) {
+  .vb-stage {
+    padding: 10px;
+  }
+  .vb-frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ---------- reduced motion: the page still streams in; ornament stops ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .vb-live__badge i,
+  .vb-agent.is-idle .vb-agent__dot,
+  .vb-agent.is-working .vb-agent__dot,
+  .vb-progress__fill.is-indeterminate {
+    animation: none;
+  }
+  .vb-agent.is-idle .vb-agent__dot {
+    opacity: 0.4;
+  }
+  .vb-agent.is-working .vb-agent__dot {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--agent-c) 25%, transparent);
+  }
+  .vb-progress__fill {
+    transition: none;
+  }
+  .vb-progress__fill.is-indeterminate {
+    width: 30%;
+    opacity: 0.45;
+  }
+  .vb-done {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   RESEARCH PHASE — the trace console (vb-research / vb-trace)
+   Shown while the builder researches the region; swaps to the
+   frame card the moment the first fragment lands.
+   ============================================================ */
+.vb-research {
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 24px 55px -34px rgba(18, 38, 200, 0.3);
+}
+.vb-research__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.vb-research__pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--blue-600);
+  animation: vb-blink 1.7s var(--ease-out) infinite;
+}
+.vb-research__title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.vb-research__count {
+  margin-left: auto;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.vb-trace {
+  list-style: none;
+  margin: 0;
+  padding: 14px 16px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.vb-trace__line {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 9px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  animation: vb-trace-in 0.45s var(--ease-out) both;
+}
+@keyframes vb-trace-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.vb-trace__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--trace-c, var(--blue-400));
+  transform: translateY(-1px);
+  justify-self: center;
+}
+.vb-trace__text {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.vb-trace__agent {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trace-c, var(--ink-3));
+  white-space: nowrap;
+}
+/* kind palette — matches the persona doing the work */
+.vb-trace__line.is-status {
+  --trace-c: #93a9ff;
+  color: var(--ink-3);
+}
+.vb-trace__line.is-search,
+.vb-trace__line.is-results {
+  --trace-c: #0a1890;
+}
+.vb-trace__line.is-fetch,
+.vb-trace__line.is-fetched {
+  --trace-c: #1226c8;
+}
+.vb-trace__line.is-image,
+.vb-trace__line.is-images {
+  --trace-c: #2e4bff;
+}
+.vb-trace__line.is-thought {
+  --trace-c: var(--ink-3);
+  font-style: italic;
+  color: var(--ink-3);
+}
+.vb-trace__line.is-thought .vb-trace__agent {
+  display: none;
+}
+
+/* the concierge line on the close card */
+.vb-done__concierge {
+  max-width: 36rem;
+  margin: 10px auto 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--blue-700);
+}
+
+@media (max-width: 640px) {
+  .vb-research {
+    aspect-ratio: 4 / 3;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vb-research__pulse {
+    animation: none;
+  }
+  .vb-trace__line {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   THE BRIEF — one free-form prompt, no pills (dp-prompt)
+   ============================================================ */
+.dp-prompt {
+  margin-top: clamp(22px, 2.8vw, 34px);
+}
+.dp-prompt textarea {
+  display: block;
+  width: 100%;
+  min-height: 150px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+  padding: 18px 20px;
+  font-family: inherit;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--ink);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+}
+.dp-prompt textarea::placeholder {
+  color: var(--ink-3);
+}
+.dp-prompt textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(46, 75, 255, 0.08);
+}
+.dp-prompt__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+.dp-prompt__count {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.dp-prompt button[type='submit']:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ============================================================
+   AI ELEMENTS — ChainOfThought + Tool, in the Cato system
+   (ae-* prefix; loaded by the vibe research console)
+   ============================================================ */
+.ae-cot {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+.ae-cot__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  border-bottom: 1px solid var(--line-soft);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ae-cot__header-icon {
+  display: inline-flex;
+  color: var(--blue-600);
+  flex: none;
+}
+.ae-cot__header-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.ae-cot__header-chevron {
+  display: inline-flex;
+  color: var(--ink-3);
+  transition: transform 0.4s var(--ease-out);
+}
+.ae-cot__header-chevron.is-open {
+  transform: rotate(180deg);
+}
+.ae-cot__content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: vb-trace-in 0.45s var(--ease-out) both;
+}
+
+/* ---------- steps ---------- */
+.ae-cot-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 12px;
+  gap: 12px;
+  align-items: start;
+  animation: vb-trace-in 0.45s var(--ease-out) both;
+}
+.ae-cot-step__icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--blue-600);
+  z-index: 1;
+}
+/* the rail connecting consecutive steps */
+.ae-cot-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 12.5px;
+  top: 30px;
+  bottom: -14px;
+  width: 1px;
+  background: var(--line-soft);
+}
+.ae-cot-step__doticon {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue-400);
+}
+.ae-cot-step__body {
+  min-width: 0;
+  padding-bottom: 2px;
+}
+.ae-cot-step__label {
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.ae-cot-step.is-pending .ae-cot-step__label {
+  color: var(--ink-3);
+}
+.ae-cot-step__desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  overflow-wrap: break-word;
+}
+.ae-cot-step__status {
+  width: 8px;
+  height: 8px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--blue-200);
+}
+.ae-cot-step.is-active .ae-cot-step__status {
+  background: var(--blue-600);
+  animation: vb-pulse 2s ease-in-out infinite;
+}
+.ae-cot-step.is-pending .ae-cot-step__status {
+  background: var(--line);
+}
+
+/* ---------- search results with favicons ---------- */
+.ae-cot-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.ae-cot-result {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 4px 10px 4px 6px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.ae-cot-result__favicon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex: none;
+}
+.ae-cot-result__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- images ---------- */
+.ae-cot-images {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.ae-cot-image {
+  margin: 0;
+}
+.ae-cot-image__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: var(--blue-050);
+}
+.ae-cot-image__cap {
+  margin-top: 4px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- the Tool component ---------- */
+.ae-tool {
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+  animation: vb-trace-in 0.45s var(--ease-out) both;
+}
+.ae-tool__header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ae-tool__header-icon {
+  display: inline-flex;
+  color: var(--ink-3);
+  flex: none;
+}
+.ae-tool__name {
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--blue-050);
+  font-family: var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: 11.5px;
+  font-weight: 550;
+  color: var(--blue-800);
+}
+.ae-tool__header-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.ae-tool__chevron {
+  display: inline-flex;
+  color: var(--ink-3);
+  transition: transform 0.4s var(--ease-out);
+}
+.ae-tool__chevron.is-open {
+  transform: rotate(180deg);
+}
+.ae-tool__content {
+  border-top: 1px solid var(--line-soft);
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: vb-trace-in 0.4s var(--ease-out) both;
+}
+.ae-tool__label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 4px;
+}
+.ae-tool__pre {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: #f5f7ff;
+  font-family: var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  overflow: auto;
+  max-height: 150px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.ae-tool__pre.is-error {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+.ae-tool__block.is-error .ae-tool__label {
+  color: #b91c1c;
+}
+.ae-tool__output {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.ae-tool__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------- status badge ---------- */
+.ae-tool-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.ae-tool-badge.is-pending {
+  color: var(--ink-3);
+  border-color: var(--line-soft);
+  background: #fff;
+}
+.ae-tool-badge.is-running {
+  color: var(--blue-700);
+  border-color: color-mix(in srgb, var(--blue-600) 30%, transparent);
+  background: color-mix(in srgb, var(--blue-600) 7%, transparent);
+}
+.ae-tool-badge.is-completed {
+  color: var(--blue-700);
+  border-color: color-mix(in srgb, var(--blue-600) 30%, transparent);
+  background: color-mix(in srgb, var(--blue-600) 7%, transparent);
+}
+.ae-tool-badge.is-error {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+.ae-spin {
+  animation: ae-rotate 1.2s linear infinite;
+}
+@keyframes ae-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- the research panel around the chain ---------- */
+.vb-research__headline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.vb-research__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .ae-cot-images {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ae-spin {
+    animation: none;
+  }
+  .ae-cot-step.is-active .ae-cot-step__status {
+    animation: none;
+  }
+  .ae-cot__content,
+  .ae-cot-step,
+  .ae-tool,
+  .ae-tool__content {
+    animation: none;
+  }
+}
+
+/* ---------- the stall banner — never an infinite spinner ---------- */
+.vb-stall {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 18px;
+  border-top: 1px solid var(--line-soft);
+  background: color-mix(in srgb, var(--blue-600) 5%, transparent);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  animation: vb-trace-in 0.45s var(--ease-out) both;
+}
+.vb-stall__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+@media (max-width: 640px) {
+  .vb-stall {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ============================================================
+   The concierge — every site's chatbot, rendered by the host
+   page over the preview with AI Elements (ConciergeChat.tsx).
+   ============================================================ */
+.vb-concierge {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 5;
+  width: min(380px, calc(100% - 28px));
+  height: min(560px, calc(100% - 28px));
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid rgba(10, 12, 18, 0.1);
+  box-shadow: 0 24px 60px -18px rgba(10, 12, 40, 0.35), 0 2px 8px rgba(10, 12, 40, 0.08);
+  animation: vb-concierge-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  color: var(--foreground);
+  font-size: 14px;
+}
+@keyframes vb-concierge-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.vb-concierge__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(10, 12, 18, 0.08);
+}
+.vb-concierge__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 600;
+  background: var(--concierge-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--concierge-accent) 22%, transparent);
+}
+.vb-concierge__x {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--muted-foreground);
+}
+.vb-concierge__x:hover { background: var(--muted); color: var(--foreground); }
+.vb-concierge__log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+}
+.vb-msg {
+  max-width: 88%;
+  padding: 9px 12px;
+  border-radius: 14px;
+  line-height: 1.45;
+  font-size: 13.5px;
+}
+.vb-msg.is-assistant { align-self: flex-start; background: var(--muted); border-bottom-left-radius: 4px; }
+.vb-msg.is-user {
+  align-self: flex-end;
+  color: #fff;
+  background: var(--concierge-accent);
+  border-bottom-right-radius: 4px;
+}
+.vb-msg.is-note { align-self: center; background: none; color: var(--muted-foreground); font-size: 12px; }
+.vb-chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid color-mix(in srgb, var(--concierge-accent) 40%, transparent);
+  color: var(--foreground);
+  background: #fff;
+}
+.vb-chip:hover { background: color-mix(in srgb, var(--concierge-accent) 10%, #fff); }
+.vb-concierge__trace {
+  border: 1px solid rgba(10, 12, 18, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+}
+.vb-concierge__row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(10, 12, 18, 0.08);
+}
+.vb-concierge__row input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--input);
+  background: #fff;
+  font-size: 13.5px;
+  outline: none;
+}
+.vb-concierge__row input:focus { border-color: var(--concierge-accent); }
+.vb-concierge__row button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--concierge-accent);
+}
+.vb-concierge__row button:disabled { opacity: 0.4; }

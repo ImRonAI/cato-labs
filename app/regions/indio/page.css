@@ -1,0 +1,199 @@
+/* ============================================================
+   INDIO — scoped styles (in-* prefix only)
+   Loaded exclusively by app/regions/indio/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- stats — the market in numbers, three sourced figures ---------- */
+.in-stats {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.25);
+}
+.in-stats__grid {
+  margin-top: clamp(40px, 6vw, 72px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(32px, 4.5vw, 64px);
+  border-bottom: 1px solid var(--line);
+}
+.in-stat {
+  border-top: 1px solid var(--line);
+  padding: 26px 0 30px;
+}
+.in-stat__value {
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--blue);
+  display: block;
+}
+.in-stat__label {
+  margin-top: 14px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  max-width: 30ch;
+}
+
+/* ---------- angles — the local read, alternating editorial blocks ---------- */
+.in-angles {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.3);
+}
+.in-angles__stack {
+  margin-top: clamp(56px, 8vw, 100px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.in-angle {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.in-angle:nth-child(even) {
+  align-self: flex-end;
+}
+.in-angle .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.in-angle__title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.in-angle__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- feature — the three engagements, hairline grid ---------- */
+.in-features {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.in-features__grid {
+  margin-top: clamp(48px, 7vw, 84px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(32px, 5vw, 72px);
+}
+.in-feature {
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.in-feature .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.in-feature__title {
+  margin-bottom: 14px;
+  max-width: 20ch;
+}
+.in-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.in-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.in-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.in-detail__body {
+  max-width: 44rem;
+}
+.in-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.in-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.in-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- build — the practices, hairline ledger ---------- */
+.in-build {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.in-build__title {
+  margin-block: 18px 0;
+  max-width: 22ch;
+}
+.in-build__grid {
+  margin-top: clamp(48px, 7vw, 84px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.in-build__row {
+  border-top: 1px solid var(--line);
+  padding: 24px 0 28px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 18px;
+  align-items: baseline;
+}
+.in-build__row .index-no {
+  color: var(--blue);
+  grid-row: span 2;
+}
+.in-build__practice {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-bottom: 10px;
+}
+.in-build__example {
+  color: var(--ink-2);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .in-stats__grid {
+    grid-template-columns: 1fr;
+    border-bottom: 0;
+  }
+  .in-angle,
+  .in-angle:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .in-features__grid {
+    grid-template-columns: 1fr;
+    row-gap: 48px;
+  }
+  .in-build__grid {
+    grid-template-columns: 1fr;
+  }
+  .in-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

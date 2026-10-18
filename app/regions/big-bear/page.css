@@ -1,0 +1,211 @@
+/* ============================================================
+   BIG BEAR — scoped styles (bbr-* prefix only)
+   Loaded exclusively by app/regions/big-bear/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- stats — the market in numbers, three sourced figures ---------- */
+.bbr-stats {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.25);
+}
+.bbr-stats__grid {
+  margin-top: clamp(40px, 6vw, 72px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(32px, 4.5vw, 64px);
+  border-bottom: 1px solid var(--line);
+}
+.bbr-stat {
+  border-top: 1px solid var(--line);
+  padding: 26px 0 30px;
+}
+.bbr-stat__value {
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--blue);
+  display: block;
+}
+.bbr-stat__label {
+  margin-top: 14px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  max-width: 30ch;
+}
+
+/* ---------- angles — the local read, 2×2 grid ---------- */
+.bbr-angles {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.3);
+}
+.bbr-angles__region {
+  margin-top: 18px;
+  font-size: 13px;
+  font-weight: 550;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.bbr-angles__grid {
+  margin-top: clamp(48px, 7vw, 88px);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(36px, 5vw, 64px) clamp(32px, 4.5vw, 64px);
+}
+.bbr-angle {
+  border-top: 1px solid var(--line);
+  padding-top: 26px;
+}
+.bbr-angle .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.bbr-angle__title {
+  margin-bottom: 14px;
+  max-width: 20ch;
+}
+.bbr-angle__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- feature — the pillars, alternating editorial blocks ---------- */
+.bbr-features {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.bbr-features__grid {
+  margin-top: clamp(56px, 8vw, 100px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.bbr-feature {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.bbr-feature:nth-child(even) {
+  align-self: flex-end;
+}
+.bbr-feature .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.bbr-feature__title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.bbr-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.bbr-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.bbr-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.bbr-detail__body {
+  max-width: 44rem;
+}
+.bbr-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.bbr-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.bbr-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- build — the practices, hairline ledger ---------- */
+.bbr-build {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.bbr-build__title {
+  margin-block: 18px 0;
+  max-width: 22ch;
+}
+.bbr-build__grid {
+  margin-top: clamp(48px, 7vw, 84px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.bbr-build__row {
+  border-top: 1px solid var(--line);
+  padding: 24px 0 28px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 18px;
+  align-items: baseline;
+}
+.bbr-build__row .index-no {
+  color: var(--blue);
+  grid-row: span 2;
+}
+.bbr-build__practice {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-bottom: 10px;
+}
+.bbr-build__example {
+  color: var(--ink-2);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .bbr-angles__grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 720px) {
+  .bbr-stats__grid {
+    grid-template-columns: 1fr;
+    border-bottom: 0;
+  }
+  .bbr-angle__title {
+    max-width: none;
+  }
+  .bbr-feature,
+  .bbr-feature:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .bbr-build__grid {
+    grid-template-columns: 1fr;
+  }
+  .bbr-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

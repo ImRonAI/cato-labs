@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "activeGoalId": "4c142c50-a25c-4d6c-a020-e4d705fc3b9d",
+  "goals": [
+    {
+      "id": "4c142c50-a25c-4d6c-a020-e4d705fc3b9d",
+      "title": "Why are you not done yet.",
+      "status": "in_progress",
+      "successCriteria": []
+    }
+  ]
+}

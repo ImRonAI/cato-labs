@@ -1,0 +1,650 @@
+/* ============================================================
+   CATO LABS — Nav v3: scroll-aware glass bar, editorial mega
+   panels, staggered mobile overlay. Loaded after globals.css.
+   Same tokens, same spectrum.
+   ============================================================ */
+
+/* ---------- the bar ---------- */
+.nav {
+  --nav-progress: 0;
+  transition:
+    background 0.6s var(--ease-out),
+    box-shadow 0.6s var(--ease-out),
+    backdrop-filter 0.6s var(--ease-out),
+    transform 0.75s var(--ease-expo);
+}
+.nav-inner {
+  transition: padding 0.6s var(--ease-expo);
+}
+.nav.is-scrolled {
+  background: rgba(250, 251, 254, 0.68);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  box-shadow:
+    inset 0 -1px 0 var(--line-soft),
+    0 10px 40px -28px rgba(18, 38, 200, 0.28);
+}
+.nav.is-scrolled .nav-inner {
+  padding-block: 14px;
+}
+.nav.is-hidden {
+  transform: translateY(-104%);
+}
+/* while a mega panel is open the bar and panel read as one sheet */
+.nav.has-panel {
+  background: rgba(250, 251, 254, 0.94);
+  backdrop-filter: blur(22px) saturate(1.6);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  box-shadow: none;
+}
+.nav.is-menu-open {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* hairline reading-progress rule — the bar's quiet instrument */
+.nav-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--blue-300), var(--blue));
+  transform-origin: left center;
+  transform: scaleX(var(--nav-progress));
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-out);
+  pointer-events: none;
+}
+.nav.is-scrolled .nav-progress {
+  opacity: 0.9;
+}
+.nav.has-panel .nav-progress,
+.nav.is-menu-open .nav-progress {
+  opacity: 0;
+}
+
+/* brand: the monogram breathes a degree on hover */
+.nav-brand svg {
+  transition: transform 0.8s var(--ease-expo);
+}
+.nav-brand:hover svg {
+  transform: rotate(-90deg);
+}
+.nav-brand span {
+  transition: letter-spacing 0.8s var(--ease-expo);
+}
+.nav-brand:hover span {
+  letter-spacing: 0.36em;
+}
+
+/* top links — hairline that draws in from the left */
+@media (min-width: 861px) {
+  .nav-links > li > a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 0.55s var(--ease-expo);
+  }
+  .nav-links > li > a:hover::after,
+  .nav-links > li > a[aria-expanded="true"]::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  /* active markers keep their blue pixel (overrides the hairline) */
+  .nav-links > li > a[aria-current="page"]::after,
+  .nav-links > li > a.is-active::after {
+    left: 50%;
+    right: auto;
+    bottom: -2px;
+    width: 4px;
+    height: 4px;
+    background: var(--blue);
+    transform: translateX(-50%);
+  }
+  .nav-item--menu > a {
+    display: inline-flex;
+    align-items: center;
+  }
+  .nav-item--menu > a::before {
+    content: "";
+    order: 2;
+    width: 5px;
+    height: 5px;
+    margin-left: 7px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: translateY(-1.5px) rotate(45deg);
+    opacity: 0.45;
+    transition: transform 0.45s var(--ease-expo), opacity 0.35s var(--ease-out);
+  }
+  .nav-item--menu > a[aria-expanded="true"]::before {
+    transform: translateY(1.5px) rotate(225deg);
+    opacity: 0.9;
+  }
+}
+
+/* parent marked while any child route is active */
+.nav-links a.is-active {
+  color: var(--ink);
+}
+.nav-links a.is-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 4px;
+  height: 4px;
+  background: var(--blue);
+  transform: translateX(-50%);
+}
+
+/* CTA — the label rolls up to a fresh copy on hover */
+.nav-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.nav-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--blue);
+  transform: translateY(101%);
+  transition: transform 0.6s var(--ease-expo);
+}
+.nav-cta:hover {
+  background: var(--ink);
+}
+.nav-cta:hover::before {
+  transform: translateY(0);
+}
+.nav-cta__roll {
+  display: block;
+  overflow: hidden;
+  line-height: 1.3;
+  height: 1.3em;
+}
+.nav-cta__roll > span {
+  position: relative;
+  display: block;
+  transition: transform 0.6s var(--ease-expo);
+}
+.nav-cta__roll > span::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 100%;
+}
+.nav-cta:hover .nav-cta__roll > span {
+  transform: translateY(-100%);
+}
+
+/* keyboard focus, consistent with the blue spectrum */
+.nav-links a:focus-visible,
+.nav-panel a:focus-visible,
+.nav-overlay a:focus-visible,
+.nav-overlay button:focus-visible,
+.nav-cta:focus-visible,
+.nav-brand:focus-visible,
+.nav-burger:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- mega panel ---------- */
+.nav-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 65; /* above .gl-stage (0), below the veil (90) */
+  background: rgba(250, 251, 254, 0.94);
+  backdrop-filter: blur(22px) saturate(1.6);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  box-shadow:
+    inset 0 1px 0 var(--line-soft),
+    0 40px 80px -40px rgba(18, 38, 200, 0.22);
+  visibility: hidden;
+  clip-path: inset(0 0 100% 0);
+  transition:
+    clip-path 0.7s var(--ease-expo),
+    visibility 0s linear 0.7s;
+}
+.nav-panel.is-open {
+  visibility: visible;
+  clip-path: inset(0 0 -60px 0);
+  transition:
+    clip-path 0.75s var(--ease-expo),
+    visibility 0s;
+}
+/* hairline of light along the panel's lower edge */
+.nav-panel::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue-300) 30%, var(--blue) 50%, var(--blue-300) 70%, transparent);
+  opacity: 0.55;
+}
+
+.nav-panel__inner {
+  display: grid;
+  grid-template-columns: minmax(220px, 4fr) 8fr;
+  gap: 28px clamp(48px, 6vw, 120px);
+  padding-block: 44px 34px;
+}
+.nav-panel--1 .nav-panel__inner {
+  grid-template-columns: minmax(220px, 4fr) 8fr;
+}
+
+/* editorial aside */
+.nav-panel__feature {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-right: clamp(24px, 3vw, 56px);
+  border-right: 1px solid var(--line-soft);
+}
+.nav-panel__title {
+  font-size: clamp(1.8rem, 2.6vw, 2.7rem);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+.nav-panel__title > span {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.nav-panel__title > span > span {
+  display: block;
+  transform: translateY(105%);
+  transition: transform 0.9s var(--ease-expo);
+  transition-delay: calc(var(--i) * 70ms + 120ms);
+}
+.nav-panel.is-open .nav-panel__title > span > span {
+  transform: translateY(0);
+}
+
+.nav-panel__groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px clamp(32px, 4vw, 80px);
+  align-content: start;
+}
+.nav-panel--1 .nav-panel__groups {
+  grid-template-columns: minmax(0, 360px);
+}
+
+.nav-panel__label {
+  margin-bottom: 14px;
+}
+
+.nav-panel__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.nav-panel__list > li {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
+}
+.nav-panel.is-open .nav-panel__list > li {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s var(--ease-expo),
+    transform 0.8s var(--ease-expo);
+  transition-delay: calc(var(--i) * 28ms + 140ms);
+}
+.nav-panel__list a {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink-2);
+  transition: color 0.35s var(--ease-out);
+}
+/* a small blue pixel slides in ahead of the hovered row */
+.nav-panel__list a::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  background: var(--blue);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.35s var(--ease-out), transform 0.5s var(--ease-expo);
+}
+.nav-panel__text {
+  transition: transform 0.5s var(--ease-expo);
+}
+.nav-panel__list a:hover {
+  color: var(--ink);
+}
+.nav-panel__list a:hover::before {
+  opacity: 1;
+  transform: none;
+}
+.nav-panel__list a:hover .nav-panel__text {
+  transform: translateX(4px);
+}
+.nav-panel__list a:hover .index-no,
+.nav-panel__list a:hover .nav-panel__note {
+  color: var(--blue);
+}
+.nav-panel__list a[aria-current="page"] {
+  color: var(--blue);
+}
+.nav-panel__list .index-no {
+  flex: none;
+  transition: color 0.3s var(--ease-out);
+}
+
+.nav-panel__note {
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition: color 0.3s var(--ease-out);
+}
+
+/* indented sub-group (Agent systems under AI & Agent Systems) */
+.nav-panel__group--sub {
+  padding-left: 20px;
+  border-left: 1px solid var(--line);
+}
+
+/* "All …" foot link */
+.nav-panel__all {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  margin-top: 4px;
+  padding-top: 18px;
+  font-size: 11.5px;
+  font-weight: 550;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition: color 0.3s var(--ease-out), letter-spacing 0.6s var(--ease-expo);
+}
+.nav-panel__all:hover {
+  color: var(--blue);
+  letter-spacing: 0.3em;
+}
+
+/* the page beneath softens while a panel is open */
+.nav-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 58;
+  background: rgba(250, 251, 254, 0.38);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s var(--ease-out), visibility 0s linear 0.6s;
+}
+.nav-dim.is-on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s var(--ease-out), visibility 0s;
+}
+
+/* panels are desktop-only; the overlay covers mobile */
+@media (max-width: 860px) {
+  .nav-panel,
+  .nav-dim {
+    display: none;
+  }
+}
+@media (max-width: 1100px) and (min-width: 861px) {
+  .nav-panel__feature {
+    display: none;
+  }
+  .nav-panel__inner,
+  .nav-panel--1 .nav-panel__inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- burger ---------- */
+.nav-burger {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+.nav-burger span {
+  transition: transform 0.6s var(--ease-expo), opacity 0.3s;
+}
+
+/* ---------- mobile overlay ---------- */
+.nav-overlay {
+  justify-content: flex-start;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 1;
+  background: rgba(250, 251, 254, 0.97);
+  clip-path: inset(0 0 100% 0);
+  transition:
+    clip-path 0.8s var(--ease-expo),
+    visibility 0s linear 0.8s;
+}
+.nav-overlay.is-open {
+  visibility: visible;
+  clip-path: inset(0 0 0 0);
+  transition:
+    clip-path 0.9s var(--ease-expo),
+    visibility 0s;
+}
+/* faint ice glow pooled at the foot of the sheet */
+.nav-overlay::before {
+  content: "";
+  position: absolute;
+  inset: auto -20% -30% -20%;
+  height: 60%;
+  background: radial-gradient(closest-side, rgba(147, 169, 255, 0.22), transparent);
+  pointer-events: none;
+}
+.nav-overlay__scroll {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 104px 48px;
+  display: flex;
+  flex-direction: column;
+}
+.nav-overlay__item {
+  border-bottom: 1px solid var(--line-soft);
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.3s var(--ease-out),
+    transform 0.4s var(--ease-out);
+}
+.nav-overlay.is-open .nav-overlay__item,
+.nav-overlay.is-open .nav-overlay__foot {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.9s var(--ease-expo),
+    transform 1s var(--ease-expo);
+  transition-delay: calc(var(--i) * 55ms + 220ms);
+}
+.nav-overlay__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.nav-overlay__row > a {
+  flex: 1;
+  padding-block: 10px;
+  font-size: clamp(2rem, 8.4vw, 3.4rem);
+  line-height: 1.12;
+}
+.nav-overlay__row > a .index-no {
+  min-width: 2.2em;
+}
+.nav-overlay__row > a[aria-current="page"] .nav-overlay__label {
+  color: var(--blue);
+}
+.nav-overlay__toggle {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: box-shadow 0.4s var(--ease-out), background 0.4s var(--ease-out);
+}
+.nav-overlay__toggle span,
+.nav-overlay__toggle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 1.5px;
+  margin: -0.75px 0 0 -6px;
+  background: var(--ink);
+  transition: transform 0.6s var(--ease-expo), background 0.4s;
+}
+.nav-overlay__toggle::after {
+  transform: rotate(90deg);
+}
+.nav-overlay__toggle.is-open {
+  background: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+.nav-overlay__toggle.is-open span,
+.nav-overlay__toggle.is-open::after {
+  background: #fff;
+}
+.nav-overlay__toggle.is-open::after {
+  transform: rotate(0deg);
+}
+
+/* collapsible child groups — grid-rows 0fr → 1fr */
+.nav-overlay__children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.7s var(--ease-expo);
+}
+.nav-overlay__children.is-open {
+  grid-template-rows: 1fr;
+}
+.nav-overlay__children-inner {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-left: calc(2.2em * 0.4 + 18px);
+  padding-left: 18px;
+  border-left: 1px solid var(--line);
+}
+.nav-overlay__children.is-open .nav-overlay__children-inner {
+  padding-bottom: 18px;
+}
+.nav-overlay__group {
+  display: flex;
+  flex-direction: column;
+}
+.nav-overlay__group .micro-label {
+  margin: 12px 0 4px;
+  font-size: 10px;
+}
+.nav-overlay .nav-overlay__children a {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.45;
+  color: var(--ink-2);
+  padding: 6px 0;
+  display: block;
+  transition: color 0.3s var(--ease-out);
+}
+.nav-overlay .nav-overlay__children a:hover,
+.nav-overlay .nav-overlay__children a[aria-current="page"] {
+  color: var(--blue);
+}
+
+.nav-overlay__foot {
+  margin-top: auto;
+  padding-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(20px);
+}
+.nav-overlay .nav-overlay__mail {
+  font-size: 17px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  color: var(--blue);
+}
+.nav-overlay__tagline {
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+html.is-scroll-locked,
+html.is-scroll-locked body {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav,
+  .nav-panel,
+  .nav-panel.is-open,
+  .nav-overlay,
+  .nav-overlay.is-open {
+    transition: none;
+  }
+  .nav.is-hidden {
+    transform: none;
+  }
+  .nav-panel__title > span > span,
+  .nav-panel__list > li,
+  .nav-overlay__item,
+  .nav-overlay__foot {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

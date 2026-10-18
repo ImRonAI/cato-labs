@@ -1,0 +1,285 @@
+/* ============================================================
+   /capabilities/brand-creative — route-scoped styles
+   The Spectrum Machine + practice / detail sections.
+   Palette law: paper, ink, and the blue spectrum only
+   (--blue-050 → --blue-900).
+   ============================================================ */
+
+/* ---------- the practice (features) ---------- */
+.bc-features {
+  padding-block: calc(var(--section-y) * 0.55) calc(var(--section-y) * 0.3);
+}
+.bc-features__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(28px, 4vw, 64px);
+  margin-top: 48px;
+}
+.bc-feature {
+  border-top: 1px solid var(--line);
+  padding-top: 26px;
+}
+.bc-feature__title {
+  margin-block: 18px 14px;
+}
+.bc-feature__body {
+  color: var(--ink-2);
+  line-height: 1.7;
+}
+
+/* ---------- the spectrum machine ---------- */
+.bc-machine__title {
+  margin-block: 18px 22px;
+}
+.bc-machine__lede {
+  max-width: 38rem;
+  margin-bottom: clamp(48px, 6vw, 84px);
+}
+
+.sm-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(36px, 5vw, 88px);
+  align-items: start;
+}
+
+/* dials */
+.sm-controls {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(30px, 3.4vw, 46px);
+}
+.sm-dial__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  margin-bottom: 14px;
+}
+.sm-dial__label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.sm-dial__current {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blue-600);
+  font-variant-numeric: tabular-nums;
+}
+.sm-dial__face {
+  width: clamp(118px, 13vw, 148px);
+  cursor: grab;
+  touch-action: none;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+.sm-dial__face:active {
+  cursor: grabbing;
+}
+.sm-dial__face:focus-visible {
+  outline: 2px solid var(--blue-600);
+  outline-offset: 6px;
+}
+.sm-dial__rail {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.sm-dial__tick {
+  stroke: var(--ink-3);
+  stroke-width: 1.4;
+  opacity: 0.55;
+}
+.sm-dial__arc {
+  fill: none;
+  stroke: var(--blue-600);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.sm-dial__needle {
+  stroke: var(--ink);
+  stroke-width: 2;
+  opacity: 0.85;
+}
+.sm-dial__hub {
+  fill: var(--paper);
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.sm-dial__notch {
+  stroke: var(--blue-600);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.sm-stops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.sm-stop {
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+}
+.sm-stop:hover {
+  color: var(--blue-600);
+}
+.sm-stop[aria-pressed='true'] {
+  color: var(--blue-700);
+  border-color: rgba(46, 75, 255, 0.35);
+  background: rgba(46, 75, 255, 0.06);
+}
+.sm-dial__caption {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* sample headline */
+.sm-voice {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.sm-headline {
+  margin-top: 16px;
+  font-size: clamp(1.55rem, 2.4vw, 2.15rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  min-height: 2.3em;
+}
+.sm-headline > span {
+  display: block;
+  animation: sm-line-in 0.55s var(--ease-out) both;
+}
+@keyframes sm-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/* live specimen card */
+.sm-stage {
+  padding: clamp(22px, 2.6vw, 36px);
+  position: sticky;
+  top: 90px;
+  overflow: hidden;
+}
+.sm-stage__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.sm-stage__frame {
+  position: relative;
+  margin-block: clamp(18px, 2.4vw, 30px);
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 40%, var(--blue-050) 0%, rgba(244, 247, 255, 0) 68%),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+}
+.sm-mark {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  padding: clamp(14px, 2vw, 26px);
+}
+.sm-recipe {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 16px;
+}
+.sm-recipe__line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.sm-chip {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: none;
+}
+
+/* ---------- the work (detail) ---------- */
+.bc-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(36px, 5vw, 96px);
+  align-items: start;
+}
+.bc-detail__title {
+  margin-block: 18px 20px;
+}
+.bc-detail__list {
+  list-style: none;
+}
+.bc-detail__list li {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 17px 0;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+  font-weight: 550;
+  color: var(--ink-2);
+}
+.bc-detail__list li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.bc-detail__list li::before {
+  content: '+';
+  color: var(--blue-600);
+  font-weight: 600;
+  flex: none;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .bc-features__grid {
+    grid-template-columns: 1fr;
+  }
+  .sm-grid,
+  .bc-detail {
+    grid-template-columns: 1fr;
+  }
+  .sm-stage {
+    position: static;
+  }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .sm-headline > span {
+    animation: none;
+  }
+  .sm-stop {
+    transition: none;
+  }
+}

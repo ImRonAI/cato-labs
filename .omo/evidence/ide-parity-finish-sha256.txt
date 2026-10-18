@@ -1,0 +1,2 @@
+26464f4189339aa960393d53f93cf42ab2b9379c15bf33cc7e85f147aa53f12b  app/capabilities/digital-products/VibeCoder.tsx
+ba19f26c5045d50531db56c2e2115079664066c721806af7b56a5ab617f7b4df  app/capabilities/digital-products/studio.css

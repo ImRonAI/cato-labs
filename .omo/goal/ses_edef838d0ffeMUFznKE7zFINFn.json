@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "goal": {
+    "id": "4c142c50-a25c-4d6c-a020-e4d705fc3b9d",
+    "sessionID": "ses_edef838d0ffeMUFznKE7zFINFn",
+    "objective": "Why are you not done yet.",
+    "status": "active",
+    "tokensUsed": 0,
+    "timeUsedSeconds": 0,
+    "createdAt": 1791565900,
+    "updatedAt": 1791565900,
+    "lastStartedAt": 1791565900
+  }
+}

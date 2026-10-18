@@ -1,0 +1,158 @@
+/* ============================================================
+   /INDUSTRIES INDEX — scoped styles (ind-* prefix only)
+   Loaded exclusively by app/industries/page.tsx.
+   The row pattern mirrors the home practices-index (app/home.css).
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- hero ---------- */
+.ind-hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding-top: clamp(130px, 20vh, 220px);
+  padding-bottom: clamp(48px, 8vh, 96px);
+}
+.ind-hero__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.ind-hero__title {
+  margin-top: 1.8rem;
+}
+.ind-hero__lede {
+  max-width: 36rem;
+  margin-top: 2.2rem;
+}
+
+/* ---------- feature — the editorial index of twelve ---------- */
+.ind-index {
+  padding-block: calc(var(--section-y) * 0.4) calc(var(--section-y) * 0.35);
+}
+.ind-list {
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+}
+.ind-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1.1fr) minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: clamp(18px, 3vw, 40px);
+  padding-block: clamp(28px, 3.8vw, 42px);
+  border-top: 1px solid var(--line);
+  transition: transform 0.6s var(--ease-out), background 0.6s var(--ease-out);
+}
+.ind-row:hover,
+.ind-row:focus-visible {
+  transform: translateY(-4px);
+  background: linear-gradient(
+    to right,
+    rgba(46, 75, 255, 0.045),
+    rgba(46, 75, 255, 0) 55%
+  );
+}
+.ind-row:focus-visible {
+  outline: none;
+}
+.ind-row .index-no {
+  transition: color 0.45s var(--ease-out);
+}
+.ind-row:hover .index-no,
+.ind-row:focus-visible .index-no {
+  color: var(--blue);
+}
+.ind-row__title {
+  transition: transform 0.55s var(--ease-out);
+}
+.ind-row:hover .ind-row__title,
+.ind-row:focus-visible .ind-row__title {
+  transform: translateX(8px);
+}
+.ind-row__lede {
+  justify-self: end;
+  max-width: 38ch;
+  text-align: right;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.ind-row__arrow {
+  justify-self: end;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink-3);
+  transform: translateX(-6px);
+  opacity: 0.45;
+  transition: transform 0.45s var(--ease-out), color 0.45s var(--ease-out),
+    opacity 0.45s var(--ease-out);
+}
+.ind-row:hover .ind-row__arrow,
+.ind-row:focus-visible .ind-row__arrow {
+  transform: translateX(0);
+  color: var(--blue);
+  opacity: 1;
+}
+
+/* ---------- detail — the market-truth callout strip ---------- */
+.ind-truths {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.4);
+}
+.ind-truths__grid {
+  margin-top: clamp(40px, 6vw, 64px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(20px, 3vw, 36px);
+}
+.ind-truth {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.ind-truth__tag {
+  align-self: flex-start;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 550;
+  color: var(--blue);
+  transition: opacity 0.3s;
+}
+.ind-truth__tag:hover {
+  opacity: 0.65;
+}
+.ind-truth__body {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .ind-row {
+    grid-template-columns: 52px minmax(0, 1fr) 28px;
+  }
+  .ind-row__lede {
+    grid-column: 2 / 3;
+    grid-row: 2;
+    justify-self: start;
+    text-align: left;
+    max-width: 44ch;
+    margin-top: 12px;
+    -webkit-line-clamp: 3;
+  }
+  .ind-row__arrow {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .ind-truths__grid {
+    grid-template-columns: 1fr;
+  }
+}

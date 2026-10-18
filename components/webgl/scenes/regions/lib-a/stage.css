@@ -1,0 +1,68 @@
+/* ============================================================
+   REGION STAGE — the dwell section that gives each region's
+   signature scroll moment room to breathe (rgs-* prefix only).
+   Height must match DWELL_VH / DWELL_VH_COMPACT in lib-a/dwell.ts.
+   ============================================================ */
+
+.rgs-stage {
+  position: relative;
+  min-height: 280vh;
+}
+.rgs-stage__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.rgs-stage__foot {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(18px, 3vw, 40px);
+  padding-bottom: clamp(28px, 5vh, 56px);
+}
+.rgs-stage__foot .micro-label {
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.rgs-stage__track {
+  position: relative;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.rgs-stage__bar {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--blue-300), var(--blue));
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+@media (max-width: 820px) {
+  .rgs-stage {
+    min-height: 220vh;
+  }
+  .rgs-stage__foot {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .rgs-stage__caption {
+    display: none;
+  }
+}
+
+/* reduced motion: the scene renders its composed final state —
+   one viewport of quiet stage instead of a long scrubbed dwell */
+@media (prefers-reduced-motion: reduce) {
+  .rgs-stage {
+    min-height: 100vh;
+  }
+  .rgs-stage__bar {
+    transform: scaleX(1);
+  }
+}

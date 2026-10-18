@@ -1,0 +1,333 @@
+/* growth-distribution — route-scoped styles.
+   Global classes (glass-card, tag-list, micro-label…) come from globals.css;
+   everything here is prefixed .gd- and belongs to this page only. */
+
+/* ---------- feature grid ---------- */
+.gd-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.gd-feature {
+  padding: 34px 30px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 230px;
+}
+
+.gd-feature:hover {
+  transform: translateY(-4px);
+}
+
+.gd-feature .index-no {
+  margin-bottom: 6px;
+}
+
+.gd-feature__title {
+  margin: 0;
+}
+
+.gd-feature__body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+/* ---------- chart section ---------- */
+.gd-chart__intro {
+  max-width: 44rem;
+  margin: 0 0 44px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.gd-chart__intro b {
+  color: var(--blue-600);
+  font-weight: 600;
+}
+
+.gd-chart {
+  border: 1px solid var(--line-soft);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: clamp(20px, 4vw, 44px);
+}
+
+.gd-chart__axis-note {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ---------- levers grid ---------- */
+.gd-levers__lede {
+  max-width: 40rem;
+  margin-bottom: 52px;
+}
+
+.gd-levers {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  margin-top: 8px;
+}
+
+.gd-lever {
+  padding: 36px 32px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 260px;
+  overflow: hidden;
+}
+
+.gd-lever:hover {
+  transform: translateY(-6px);
+}
+
+.gd-lever__no {
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--ink-3);
+  font-weight: 550;
+}
+
+.gd-lever__title {
+  margin: 0;
+}
+
+.gd-lever__body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  flex: 1;
+}
+
+.gd-lever__action {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+/* spotlight — the Fabulous Bananas partnership card */
+.gd-lever--spotlight {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.82)) padding-box,
+    linear-gradient(135deg, var(--blue-800) 0%, var(--blue-600) 45%, var(--blue-300) 100%) border-box;
+  box-shadow: 0 34px 90px -38px rgba(18, 38, 200, 0.35);
+}
+
+.gd-lever--spotlight:hover {
+  border-color: transparent;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)) padding-box,
+    linear-gradient(135deg, var(--blue-800) 0%, var(--blue-600) 45%, var(--blue-300) 100%) border-box;
+  box-shadow: 0 44px 110px -40px rgba(18, 38, 200, 0.45);
+}
+
+.gd-lever--spotlight .gd-lever__title {
+  color: var(--blue-800);
+}
+
+.gd-lever__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--blue-600);
+}
+
+.gd-lever__tag::before {
+  content: '';
+  width: 18px;
+  height: 1px;
+  background: var(--blue-600);
+}
+
+.gd-lever__soon {
+  margin-top: 2px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gd-lever__soon i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--blue-400);
+  display: inline-block;
+  animation: gd-pulse 2.4s var(--ease-out, ease) infinite;
+}
+
+@keyframes gd-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* ---------- social stage ---------- */
+.gd-social__lede {
+  max-width: 40rem;
+  margin-bottom: 44px;
+}
+
+.gd-stage {
+  position: relative;
+  height: 60vh;
+  min-height: 380px;
+  max-height: 640px;
+  border: 1px solid var(--line-soft);
+  border-radius: 28px;
+  background:
+    radial-gradient(120% 90% at 50% 110%, rgba(46, 75, 255, 0.07) 0%, rgba(46, 75, 255, 0) 55%),
+    rgba(255, 255, 255, 0.45);
+  overflow: hidden;
+}
+
+.gd-stage__canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* the water cursor reads the global pointer */
+}
+
+.gd-stage__hint {
+  position: absolute;
+  top: 22px;
+  left: 26px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.gd-stage__fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--blue-300);
+}
+
+/* tab row — hairline pills */
+.gd-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 26px;
+  list-style: none;
+  padding: 0;
+}
+
+.gd-tab {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: border-color 0.35s, color 0.35s, background 0.35s,
+    box-shadow 0.35s, transform 0.35s var(--ease-out, ease);
+}
+
+.gd-tab:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(46, 75, 255, 0.05);
+}
+
+.gd-tab[aria-pressed='true'] {
+  border-color: var(--blue-600);
+  color: #fff;
+  background: var(--blue-600);
+  box-shadow: 0 14px 34px -14px rgba(46, 75, 255, 0.55);
+}
+
+.gd-tab:focus-visible {
+  outline: 2px solid var(--blue-400);
+  outline-offset: 2px;
+}
+
+/* per-platform one-liner */
+.gd-platform-line {
+  margin: 30px auto 0;
+  max-width: 38rem;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  min-height: 3.4em;
+}
+
+.gd-platform-line span {
+  display: inline-block;
+  animation: gd-line-in 0.55s var(--ease-out, ease) both;
+}
+
+.gd-platform-line b {
+  color: var(--blue-600);
+  font-weight: 600;
+}
+
+@keyframes gd-line-in {
+  from { opacity: 0; transform: translateY(10px); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* ---------- detail ---------- */
+.gd-detail__lede {
+  max-width: 44rem;
+  margin-bottom: 40px;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .gd-feature-grid {
+    grid-template-columns: 1fr;
+  }
+  .gd-levers {
+    grid-template-columns: 1fr;
+  }
+  .gd-stage {
+    height: 52vh;
+    min-height: 320px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-platform-line span,
+  .gd-lever__soon i {
+    animation: none;
+  }
+  .gd-feature:hover,
+  .gd-lever:hover {
+    transform: none;
+  }
+}

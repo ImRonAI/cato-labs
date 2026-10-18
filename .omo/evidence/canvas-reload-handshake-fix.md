@@ -1,0 +1,11 @@
+# Defensive canvas load replay and visible-frame acceptance
+
+Root initially observed a completed build with valid saved HTML and an empty bootstrap iframe after reload. Follow-up observation established that this was an offscreen requestAnimationFrame delay: ready and iframe-load were already recorded, and scrolling the actual IDE into view produced the pending paint. This observation does not prove a lost ready/render handshake or a reload defect. See .omo/evidence/canvas-visible-reload-after.log: 202 elements, 77,314 HTML characters, one paint, and the real Three.js scene in ready state. The older inline-module timeout message was persisted state, not a new render-error from that reload.
+
+Added an iframe onLoad handler in components/vibe/LiveCanvas.tsx that sends the latest real render payload. Existing ready handling and prop-driven updates remain. This is a defensive replay of current completed HTML once the iframe document has loaded; the observed blank offscreen frame must not be presented as evidence that this replay repaired a measured message-loss failure. Canvas painting still uses requestAnimationFrame and may wait until the cross-origin frame is visible. No synthetic provider events, iframe DOM injections, storage fixtures or generated-site edits were introduced. No runtime parser/reconciliation changes were made in this step.
+
+Grounding: Context7 /mdn/content documents asynchronous postMessage delivery and iframe load timing after document processing. Official source: https://developer.mozilla.org/en-US/docs/Web/API/HTMLIFrameElement/loading#timing_of_the_load_event .
+
+Verification: npx tsc --noEmit exited 0 (.omo/evidence/canvas-reload-handshake-tsc.log). Root rebuilt production and verified the actual visible restored frame and real Three.js scene in canvas-visible-reload-after.log. The real Send workflow and a completed native Haiku follow-up are recorded in widget-send-button-actual-completion.log; the reply recalled the blue multipage Three.js project and the refusal of a call using the completed previous_response_id. Module timeout absence and further navigation/MCP acceptance remain with root.
+
+SHA256 of components/vibe/LiveCanvas.tsx: 3abde569b4e39b84b5df1103ec8c4b82d7f4a2024a62fa716f311c423d6b942e

@@ -1,0 +1,98 @@
+/* ============================================================
+   HEALTH & WELLNESS — scoped styles (hw-* prefix only)
+   Loaded exclusively by app/industries/health-wellness/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- market-truth — the editorial statement ---------- */
+.hw-truth {
+  padding-block: calc(var(--section-y) * 0.5) calc(var(--section-y) * 0.3);
+}
+.hw-truth__statement {
+  margin-top: 26px;
+  max-width: 22ch;
+}
+
+/* ---------- feature — the three plays ---------- */
+.hw-feature {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.hw-feature__grid {
+  margin-top: clamp(52px, 7vw, 88px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(32px, 5vw, 72px);
+}
+.hw-feature__play {
+  border-top: 1px solid var(--line);
+  padding-top: 26px;
+}
+.hw-feature__play .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.hw-feature__title {
+  margin-bottom: 14px;
+  max-width: 20ch;
+}
+.hw-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- detail — two-column hairline list ---------- */
+.hw-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.hw-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.hw-detail__body {
+  max-width: 44rem;
+}
+.hw-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.hw-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.hw-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .hw-feature__grid {
+    grid-template-columns: 1fr;
+    row-gap: 56px;
+  }
+  .hw-feature__title {
+    max-width: none;
+  }
+}
+@media (max-width: 720px) {
+  .hw-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

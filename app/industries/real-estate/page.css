@@ -1,0 +1,97 @@
+/* ============================================================
+   INDUSTRIES / REAL ESTATE — scoped styles (res-* prefix only)
+   Loaded exclusively by app/industries/real-estate/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- market-truth — the display-2 statement ---------- */
+.res-truth {
+  padding-block: calc(var(--section-y) * 0.42) calc(var(--section-y) * 0.3);
+  border-top: 1px solid var(--line);
+}
+.res-truth__statement {
+  max-width: 23ch;
+}
+
+/* ---------- feature — alternating editorial blocks ---------- */
+.res-feature {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.res-feature__grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.res-feature__block {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.res-feature__block:nth-child(even) {
+  align-self: flex-end;
+}
+.res-feature__block .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.res-feature__block-title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.res-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.res-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.res-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.res-detail__body {
+  max-width: 44rem;
+}
+.res-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.res-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.res-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .res-feature__block,
+  .res-feature__block:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .res-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

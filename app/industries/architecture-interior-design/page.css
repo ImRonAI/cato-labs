@@ -1,0 +1,139 @@
+/* ============================================================
+   ARCHITECTURE & INTERIOR DESIGN — scoped styles (aid-* prefix only)
+   Loaded exclusively by app/industries/architecture-interior-design/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- market-truth — the monumental statement ---------- */
+.aid-truth {
+  padding-block: calc(var(--section-y) * 0.4) calc(var(--section-y) * 0.3);
+}
+.aid-truth .micro-label {
+  margin-bottom: 30px;
+}
+.aid-truth__statement {
+  margin: 0;
+  max-width: 21ch;
+}
+
+/* ---------- feature — the three systems ---------- */
+.aid-feature {
+  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
+}
+.aid-feature > .micro-label {
+  margin-bottom: clamp(56px, 8vw, 104px);
+}
+.aid-feature__grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 10vw, 140px);
+}
+.aid-feature__block {
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+.aid-feature__block:nth-child(even) {
+  align-self: flex-end;
+}
+.aid-feature__block .index-no {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--blue);
+}
+.aid-feature__block-title {
+  margin-bottom: 14px;
+  max-width: 22ch;
+}
+.aid-feature__body {
+  color: var(--ink-2);
+  line-height: 1.75;
+  font-size: 1.0625rem;
+}
+
+/* ---------- plays — mapped to Cato practices ---------- */
+.aid-plays {
+  margin-top: clamp(88px, 12vw, 160px);
+}
+.aid-plays__grid {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: clamp(28px, 4vw, 60px);
+}
+.aid-play {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.aid-play .index-no {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--blue);
+}
+.aid-play__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+.aid-play__body {
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+/* ---------- detail — the work + two-column hairline list ---------- */
+.aid-detail {
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
+}
+.aid-detail__title {
+  margin-block: 18px 24px;
+  max-width: 20ch;
+}
+.aid-detail__body {
+  max-width: 44rem;
+}
+.aid-detail__bullets {
+  margin-top: clamp(48px, 7vw, 84px);
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+}
+.aid-detail__bullets li {
+  border-top: 1px solid var(--line);
+  padding: 18px 0 20px;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.aid-detail__bullets li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  flex: none;
+  transform: translateY(-1px);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .aid-feature__block,
+  .aid-feature__block:nth-child(even) {
+    align-self: stretch;
+    max-width: none;
+  }
+  .aid-plays__grid {
+    grid-template-columns: 1fr;
+    row-gap: 40px;
+  }
+  .aid-detail__bullets {
+    grid-template-columns: 1fr;
+  }
+}

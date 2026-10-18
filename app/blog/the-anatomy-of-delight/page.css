@@ -1,0 +1,111 @@
+/* ============================================================
+   ARTICLE — the reading experience (art-* prefix only)
+   Loaded exclusively by app/blog/the-anatomy-of-delight/page.tsx.
+   Uses the design tokens from app/globals.css.
+   ============================================================ */
+
+/* ---------- reading progress island — fixed under the nav ---------- */
+.art-progress {
+  position: fixed;
+  top: 66px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--line-soft);
+  z-index: 55;
+  pointer-events: none;
+}
+.art-progress__bar {
+  height: 100%;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+/* ---------- header ---------- */
+.art-hero {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  padding-top: 96px;
+}
+.art-hero .crumbs {
+  margin-bottom: 40px;
+}
+.art-title {
+  margin-block: 24px 26px;
+  max-width: 16ch;
+}
+.art-lede {
+  max-width: 40rem;
+}
+
+/* ---------- body ---------- */
+.art-body {
+  padding-block: calc(var(--section-y) * 0.15) calc(var(--section-y) * 0.35);
+}
+.art-section {
+  margin-top: clamp(84px, 11vw, 148px);
+}
+.art-section:first-child {
+  margin-top: 0;
+}
+.art-h {
+  max-width: 40rem;
+  margin-bottom: clamp(24px, 3vw, 34px);
+  font-size: clamp(1.6rem, 3vw, 2.35rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+.art-p {
+  max-width: 40rem;
+  font-size: clamp(1.075rem, 1.35vw, 1.2rem);
+  line-height: 1.8;
+  letter-spacing: -0.008em;
+  color: var(--ink-2);
+}
+.art-p + .art-p {
+  margin-top: 1.6em;
+}
+
+/* drop cap — the large blue initial, first paragraph only */
+.art-drop::first-letter {
+  float: left;
+  padding: 0.075em 0.14em 0 0;
+  font-size: 4.35em;
+  font-weight: 600;
+  line-height: 0.78;
+  letter-spacing: -0.02em;
+  color: var(--blue);
+}
+
+/* pull quote — display-3 blue statement with a hairline rule */
+.art-quote {
+  margin-block: clamp(84px, 11vw, 140px);
+  max-width: 46rem;
+}
+.art-quote__rule {
+  margin-bottom: clamp(30px, 4vw, 44px);
+}
+.art-quote__text {
+  font-size: clamp(1.9rem, 3.9vw, 3.3rem);
+  font-weight: 600;
+  line-height: 1.16;
+  letter-spacing: -0.035em;
+  color: var(--blue);
+}
+
+/* the closing honest note */
+.art-endnote {
+  margin-top: clamp(96px, 13vw, 160px);
+  padding-top: clamp(28px, 4vw, 40px);
+  border-top: 1px solid var(--line);
+  max-width: 40rem;
+  color: var(--ink-3);
+  font-size: 14px;
+  line-height: 1.7;
+}
