@@ -10,14 +10,18 @@ WebGL inventory of all 43 routes, design system and contracts) and that session'
 
 | # | Topic | Status |
 |---|---|---|
-| D1 | Where Rivet's journey lives | ✅ **`/capabilities/ai-agent-systems`** (owner). No new route. Keeps the URL's SEO. |
+| D1 | Where Cato's journey lives | ✅ **`/capabilities/ai-agent-systems`** (owner). No new route. Keeps the URL's SEO. |
 | D2 | Email provider | ✅ **Telnyx Email** (owner: "Yes they do"). Confirmed: `POST https://api.telnyx.com/v2/email_messages` (Bearer key; `from` must be a verified sender domain; `sandbox_mode` for testing). The last session was wrong to say Telnyx has no email API. Nothing else is needed (no Resend, no Supabase). |
-| D3 | Abuse protection for outbound actions | ⚠️ Owner answered **"Alert and Approve."** That could mean two things — see Q2. |
-| Q1 | Agent's name | ❓ Not answered. The file is `Timmy.html`; the character inside is called **Rivet**; the page's current bubble agent is **Meridian**. |
-| Q2 | "Alert and Approve": who approves? | ❓ (a) **Visitor approves** in an on-page dialog (ElevenLabs `onMCPToolApprovalRequest`). This alone doesn't stop toll fraud or harassment, because the visitor is the possible abuser. (b) **Cato staff are alerted** (SMS/email to Tim) and approve before the action runs. Safe, but slow for a live demo. (c) **Both** (recommended): the visitor confirms on the page, then actions to any number/email other than the visitor's own verified one need staff approval. Server caps apply in every case. |
-| Q3 | New dependencies (CLAUDE.md says ask first) | ❓ `@elevenlabs/react` (voice agent SDK), `@google/genai` (Lyria RealTime, server-side only). Optional: vendor HeadAudio (MIT, plain files, no npm package). |
-| Q4 | New marketing copy | ❓ The 9 journey sections need headlines and body text in `lib/content/capabilities.ts` (rule: copy comes from the content decks only). Should I draft it for your review? |
-| Q5 | Initialise git first? | ❓ This folder is **not a git repo**. Strongly recommended before any execution wave so every change can be reviewed and rolled back. |
+| D3 | Abuse protection for outbound actions | ✅ **The visitor approves** each outbound action in an on-page alert (ElevenLabs `onMCPToolApprovalRequest`). Because the visitor could be the abuser, the server-side guards in §2.4 (caps, destination validation, no premium/international numbers) are **mandatory**. |
+| D4 | Agent's name | ✅ **Cato** (owner, 2026-10-18). Every "Rivet" label and line from Timmy.html gets renamed to Cato. Retire "Meridian". |
+| D5 | New dependencies | ✅ Approved and installed (commit `245e382`): `@elevenlabs/react@1.18.0` (pulls `@elevenlabs/client@1.28.0`), `@google/genai@2.30.0`. HeadAudio vendoring still allowed if needed. `npm audit` warnings all predate these (streamdown/katex/mermaid, ansi-to-react, next). |
+| D6 | Copy | ✅ Copy is driven by Palm Springs local-SEO research. The brief is at `research/palm-springs-seo-brief.md` (in progress). After owner review, the copy goes into `lib/content/capabilities.ts`. |
+| D7 | Git | ✅ Repo initialised. `f3df771` is the baseline snapshot; local tool artifacts are gitignored and `.env.local` stays untracked. |
+
+**Tooling installed 2026-10-18:**
+- The ElevenLabs agent skills (agents, music, speech-engine, text-to-speech, speech-to-text, sound-effects, voice-changer, voice-isolator, dubbing, setup-api-key) are in `.agents/skills/`, `.claude/skills/` and `agent/skills/`.
+- The ElevenLabs hosted MCP server is configured in OpenCode as `elevenlabs` (`https://api.us.elevenlabs.io/v1/mcp`, OAuth). That's the URL the server's OAuth metadata points to, not `api.elevenlabs.io`.
+- Claude Code already has it via the claude.ai ElevenLabs connector.
 
 ---
 
@@ -30,7 +34,7 @@ WebGL inventory of all 43 routes, design system and contracts) and that session'
   - `AgentPersona.tsx`
   - `components/kit/ProactiveBubble.tsx` ("Meridian")
   - The 3D `RobotMascot.tsx` is mounted nowhere.
-- **Timmy.html** (`~/Downloads`, 3,295 lines, 207 KB) is a self-contained procedural **SVG** robot rig named "Rivet":
+- **Timmy.html** (`~/Downloads`, 3,295 lines, 207 KB) is a self-contained procedural **SVG** robot rig named "Rivet" (renamed Cato for the site):
   - Software 3D projection, IK, about 30 moves, 13 prop scenes (desk, phone call, guitar, DJ, painting…), and a HUD reasoning trace.
   - Oculus viseme mouth table: `speak()` drives it from text, and `rivet.viseme(key, v)` accepts external lip-sync.
   - Other hooks: `rivet.beat(bpm, phase)` and `rivet.play(id)`. There is also a desk/typing scene already.
@@ -38,17 +42,17 @@ WebGL inventory of all 43 routes, design system and contracts) and that session'
   - Fonts it loads: Big Shoulders / IBM Plex. These must be swapped to Inter to match the site.
 - **No** ElevenLabs, Lyria, WebAudio or WebSocket code exists. There is **no** lead backend either: the contact form is a `mailto:`.
 - `/api/vibe-chat` already uses the Telnyx Remote MCP through the Perplexity Agent API, but it **removes tool events** before they reach the browser. So it can't drive animations.
-- The WebGL canvas has `pointer-events: none`. Interactive characters must live in the DOM, which suits Rivet because he is SVG.
+- The WebGL canvas has `pointer-events: none`. Interactive characters must live in the DOM, which suits Cato because he is SVG.
 
-## 2. Architecture for Rivet (the agents page)
+## 2. Architecture for Cato (the agents page)
 
 ### 2.1 Rendering layer
 - Port Timmy.html into `components/rivet/` as a client module. The rig and props become a TS module, and the stage is an `<svg>` in a fixed overlay above the persistent canvas.
   - Remove the dev UI (key dock, fps HUD).
   - Keep the reasoning-trace HUD, because it becomes the "thinking" layer.
 - **Recolour (owner spec):** primary accent `#FF5A1F` → **Cato electric blue `#2e4bff`** (the token family; `#4536f9` from `UI.png` is the only "blurple" anywhere and fails the site's own violet band). The previous **orange surfaces → white `#ffffff`**. Shell, panel and graphite stay. LED `#7DF3FF` → `--blue-300 #b9c9ff` so everything stays blue-only (PLAN.md rule).
-- **Thought bubble:** replace the HUD card with a classic cloud bubble: a lobed SVG path plus three trailing puffs toward Rivet's head. Inter text, glass fill `rgba(255,255,255,.78)` with blur, and a `--line` hairline.
-- Reduced motion: Rivet holds a static pose, and the journey falls back to normal sections with no flips.
+- **Thought bubble:** replace the HUD card with a classic cloud bubble: a lobed SVG path plus three trailing puffs toward Cato's head. Inter text, glass fill `rgba(255,255,255,.78)` with blur, and a `--line` hairline.
+- Reduced motion: Cato holds a static pose, and the journey falls back to normal sections with no flips.
 
 ### 2.2 Scroll journey: "the fall"
 Nine stops, each a `data-scene-section`:
@@ -64,18 +68,18 @@ Nine stops, each a `data-scene-section`:
 
 How each stop plays:
 - Each stop is a dwell of about 180vh with a sticky stage.
-  - On entry, Rivet **walks** in and runs that section's move set (scroll-scrubbed: `play()` is driven by progress, not time).
+  - On entry, Cato **walks** in and runs that section's move set (scroll-scrubbed: `play()` is driven by progress, not time).
   - On exit, he jumps off the ledge and **falls to the next stop with a trick**.
 - **Trick rotation:** backflip, front flip, corkscrew, cannonball, starfish, superman, double twist, handspring, moonwalk-off. Shuffled once per visit with a seeded order, so **no trick repeats** along the way. Scrolling back up rewinds the same trick.
-- **The camera falls with him:** the WebGL scene camera descends the same Y distance in lock-step (a new `AgentJourneyScene` replaces "The Relay"), and the SVG overlay keeps Rivet framed. The domino relay is reused as the **Process Automation** stop's set piece.
+- **The camera falls with him:** the WebGL scene camera descends the same Y distance in lock-step (a new `AgentJourneyScene` replaces "The Relay"), and the SVG overlay keeps Cato framed. The domino relay is reused as the **Process Automation** stop's set piece.
 - The ScrollDirector stale-progress bug (§5, B1) must be fixed first, or stops will show the previous page's values.
 
 ### 2.3 Voice agent and lead capture: ElevenLabs Agents
-- Create a new ElevenLabs agent, "Cato — Rivet". The workspace has only "Atlas — Cato Labs Brand Intake" and two blank agents, and no MCP servers yet.
+- Create a new ElevenLabs agent, "Cato — Website Agent". The workspace has only "Atlas — Cato Labs Brand Intake" and two blank agents, and no MCP servers yet.
 - **Browser:** `@elevenlabs/react` (`ConversationProvider` / `useConversationControls`). The session token is minted server-side by a new `/api/agent-session` route, so the API key never reaches the browser.
 - **Driving actions from events** (documented callbacks):
 
-  | Event | Rivet does |
+  | Event | Cato does |
   |---|---|
   | `onModeChange` speaking/listening | talk / listen idle |
   | `onAgentToolRequest` / `onAgentToolResponse` | sits at the **desk** typing (native scene) |
@@ -83,9 +87,9 @@ How each stop plays:
   | client tools (`setMood`, `playScene`, `showSection`) | the agent can trigger moves and scroll to a stop |
 
 - **Lip-sync (the "library or solution" requirement):**
-  - **Primary:** ElevenLabs `onAudioAlignment` gives `chars[]`, `char_start_times_ms[]` and `char_durations_ms[]`. These map to Rivet's existing text→viseme table, so the mouth matches the actual words with no extra library. ⚠️ Need to verify that alignment is emitted on the chosen connection type (WebSocket vs WebRTC) before committing.
+  - **Primary:** ElevenLabs `onAudioAlignment` gives `chars[]`, `char_start_times_ms[]` and `char_durations_ms[]`. These map to Cato's existing text→viseme table, so the mouth matches the actual words with no extra library. ⚠️ Need to verify that alignment is emitted on the chosen connection type (WebSocket vs WebRTC) before committing.
   - **Fallback:** vendor **HeadAudio** (met4citizen, MIT). It's an AudioWorklet that turns the output audio into Oculus visemes. Feed it to `rivet.viseme()` with a `DelayNode` of about 100 ms.
-- **"Proactive after ~3 seconds":** browsers block audio playback and microphone access until the user interacts with the page (autoplay policy). So at 3 s Rivet waves, says his greeting in the thought bubble, and shows a **"Talk to Rivet"** button. One tap starts the voice session, and the agent opens with `firstMessage`. Starting voice without a tap isn't possible on Chrome or Safari.
+- **"Proactive after ~3 seconds":** browsers block audio playback and microphone access until the user interacts with the page (autoplay policy). So at 3 s Cato waves, says his greeting in the thought bubble, and shows a **"Talk to Cato"** button. One tap starts the voice session, and the agent opens with `firstMessage`. Starting voice without a tap isn't possible on Chrome or Safari.
 - **Leads:** an ElevenLabs server webhook tool `saveLead` posts to `/api/lead`. The server validates the fields, emails `hello@catolabs.com` via **Telnyx Email**, and texts the team. Persistence is staff email/SMS only, unless you want a store.
 
 ### 2.4 Telnyx Remote MCP (calls / SMS / fax / video / email)
@@ -93,9 +97,9 @@ How each stop plays:
   - `transport: STREAMABLE_HTTP`
   - `secret_token` = Telnyx key stored as a workspace secret (Telnyx docs: `Authorization: Bearer <key>`)
   - `approval_policy: require_approval_all`, which fits "Alert and Approve"
-  - `pre_tool_speech: force`, so Rivet says what he's about to do
+  - `pre_tool_speech: force`, so Cato says what he's about to do
 - Doing this in ElevenLabs means tool events reach the browser natively. The `/api/vibe-chat` filtering problem doesn't apply.
-- Telnyx's MCP is generic: `list_api_endpoints` / `get_api_endpoint_schema` / `invoke_api_endpoint` (saved discovery in `.omo/evidence/widget-telnyx-discovery.json`). Rivet's action is chosen by inspecting which endpoint is invoked (`calls` / `messages` / `faxes` / `rooms` / `email_messages`).
+- Telnyx's MCP is generic: `list_api_endpoints` / `get_api_endpoint_schema` / `invoke_api_endpoint` (saved discovery in `.omo/evidence/widget-telnyx-discovery.json`). Cato's action is chosen by inspecting which endpoint is invoked (`calls` / `messages` / `faxes` / `rooms` / `email_messages`).
 - **Server-side guard (required whatever Q2's answer is):** don't give the agent raw `invoke_api_endpoint` with no limits. Wrap outbound actions in our own webhook tools (`callMe`, `textMe`, `emailMe`, `faxMe`, `videoRoom`) that do these things:
   - Enforce per-IP, per-destination and daily caps.
   - Validate destinations and block premium/international numbers.
@@ -111,7 +115,7 @@ How each stop plays:
   - A **verified email sender domain** (e.g. `catolabs.com`).
 
 ### 2.5 "Impressive Tooling" stop: build a tool live, check it's safe, run it
-1. The visitor asks Rivet for a tool. He calls the webhook tool `buildTool`, which hits `/api/tool-forge`.
+1. The visitor asks Cato for a tool. He calls the webhook tool `buildTool`, which hits `/api/tool-forge`.
 2. `/api/tool-forge` runs a **Perplexity Agent API** call with the `sandbox` tool (the same pattern as `vibe-build`). It returns a single self-contained JS/HTML tool.
 3. The code goes to the **Perplexity Decisions API**: `POST https://api.perplexity.ai/v1/decisions`, Bearer key, model `pplx-decider-latest`, `state` = code plus request. It asks these `noul` questions:
    - `is_safe`
@@ -119,8 +123,8 @@ How each stop plays:
    - `no_credential_access`
    - `matches_request`
    - `no_harmful_content`
-4. If every probability of "yes" is ≥ 0.9 (threshold to tune), the tool runs right there on the page inside the existing **strict-CSP sandboxed iframe** (`components/vibe/LiveCanvas.tsx` + `canvas-runtime.ts`). Rivet celebrates.
-5. Otherwise the tool returns a text result, "I can't implement that tool for safety reasons — want X instead?", and Rivet speaks it and offers an alternative.
+4. If every probability of "yes" is ≥ 0.9 (threshold to tune), the tool runs right there on the page inside the existing **strict-CSP sandboxed iframe** (`components/vibe/LiveCanvas.tsx` + `canvas-runtime.ts`). Cato celebrates.
+5. Otherwise the tool returns a text result, "I can't implement that tool for safety reasons — want X instead?", and Cato speaks it and offers an alternative.
 6. Pricing is $0.02 per 1M input tokens with free output; rate limit 10 req/s per org. Uses the existing `PERPLEXITY_API_KEY`.
 
 ### 2.6 "Entertainment & Leisure" stop: music matched to the moves
@@ -164,7 +168,7 @@ Each wave ends with `npm run build`, `tsc`, and Playwright screenshots at 1440 /
 | Wave | Agents (in parallel) | Lane |
 |---|---|---|
 | 0 | 1 — me | git init (Q5), core fixes B1–B4 (each needs your approval), approved dependencies, content deck copy (Q4) |
-| 1 | A: Rivet port + recolour + bubble · B: ElevenLabs agent + session/lead/tool routes + Telnyx guards · C: journey scene + scroll choreography | `components/rivet/*` · `app/api/agent-*`, `app/api/lead` · `scenes/capabilities/children/AiAgentSystemsScene.tsx`, page |
+| 1 | A: Cato port + recolour + bubble · B: ElevenLabs agent + session/lead/tool routes + Telnyx guards · C: journey scene + scroll choreography | `components/rivet/*` · `app/api/agent-*`, `app/api/lead` · `scenes/capabilities/children/AiAgentSystemsScene.tsx`, page |
 | 2 | D: tool-forge + Decisions · E: music (Lyria relay + Eleven Music) · F: lip-sync integration and QA | own API routes and modules |
 | 3 | 5 region agents (one per weak region) + 1 heighten agent for the strong six | `app/regions/<slug>`, `scenes/regions/children/<Slug>Scene.tsx` |
 | 4 | 3 agents: capabilities P1, industries P1 (two halves) | per route |
