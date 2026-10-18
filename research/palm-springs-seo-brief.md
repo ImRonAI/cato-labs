@@ -230,9 +230,13 @@ Voice: short declarative sentences, no hype words, no exclamation marks. Cato is
 ### 5. Implementations of top frameworks & agent homes
 - **Eyebrow:** Frameworks & deployment
 - **Headline:** The right framework. / The right home.
-- **Body (58 words):** Cato is built on the agent frameworks and model APIs that hold up in production, chosen per task, not by habit. Then the agent needs a home: your website, your phone line, Slack, a CRM sidebar, a desktop app. We deploy where your team and customers already are, and keep the architecture portable as models change.
-- **Tags:** Framework selection & build · Model-agnostic architecture · Tool & MCP integration · Web, phone, Slack & app deployments
-- *Fact-check flag:* name specific frameworks only if Cato Labs ships on them in production. "MCP" stays only if confirmed.
+- **Body (~65 words):** Cato is built on the frameworks that hold up in production, chosen per task: Strands, Vercel's Eve, LangChain, CrewAI, the OpenAI Agents SDK, the Claude Agent SDK, the Perplexity Agent API, Temporal, Gemini Live, ElevenLabs, Vapi and Telnyx. Then we put agents to work inside the tools your engineers already use: Claude Code, Codex, OpenCode, Cursor, Devin and more.
+- **Tags:** Agent frameworks & SDKs · Voice & realtime stacks · Durable workflows · Coding-agent rollouts · MCP integration
+- **Owner-confirmed list (2026-10-18). Use exact names.**
+  - Frameworks and platforms: Strands, Vercel Eve, LangChain, CrewAI, Antigravity SDK agents, OpenCode SDK agents, OpenAI Agents SDK, Claude Agent SDK, Perplexity Agent API, Temporal, Zapier, Mistral, ElevenLabs, Gemini Live, Vapi, Telnyx, "and more".
+  - Coding agents: Claude Code, Codex, OpenCode, Cursor, Devin, Trae AI, Kimi Code, Mistral Vibe, Grok Build, Qwen Code, "and more".
+  - The full lists belong in a visible logo/tag grid in this section, because named entities help SEO and AI-answer citation. Keep the body to a representative subset.
+  - MCP is confirmed.
 
 ### 6. SEO & marketing
 - **Eyebrow:** AI search & marketing
@@ -255,8 +259,9 @@ Voice: short declarative sentences, no hype words, no exclamation marks. Cato is
 ### 9. Customer support & compliance-based industries
 - **Eyebrow:** Support & compliance
 - **Headline:** Support that / follows the rules.
-- **Body (61 words):** Cato resolves the routine case, escalates the sensitive one and documents both. For healthcare, legal and financial teams, deployments are designed around your obligations: business associate agreements with vendors that sign them, TCPA consent for calls, 10DLC registration for texts, CCPA/CPRA privacy rights and California's bot-disclosure rule. Your counsel sets the policy. Cato follows it, every time.
-- **Tags:** HIPAA-aware architecture · TCPA consent & opt-out · 10DLC-registered messaging · CCPA/CPRA data rights · Bot disclosure & audit trails
+- **Body (55 words):** Cato resolves the routine case, escalates the sensitive one and documents both. For legal, financial and other regulated teams, deployments are designed around your obligations: TCPA consent for calls, 10DLC registration for texts, CCPA/CPRA privacy rights and California's bot-disclosure rule. Your counsel sets the policy. Cato follows it, every time.
+- **Tags:** TCPA consent & opt-out · 10DLC-registered messaging · CCPA/CPRA data rights · Bot disclosure & audit trails
+- **OWNER HOLD (2026-10-18):** No HIPAA, BAA or healthcare-compliance wording goes on the site until the owner says it's time. The guardrail notes below are kept for that later decision only.
 - **Compliance guardrails for this section (do not overclaim):**
   - There is **no official "HIPAA certification"**. Never write "HIPAA certified", "HIPAA compliant agent" as a product label, "SOC 2" or "PCI" unless Cato Labs holds the attestation. "HIPAA-aware" and "designed around HIPAA obligations" are accurate.
   - Under 45 CFR 164.502(e), a covered entity may share PHI with a business associate only with "satisfactory assurance" that it will safeguard the information (in practice, a BAA). Before writing "Telnyx signs BAAs" or "Cato Labs signs BAAs", confirm both in writing. Telnyx publishes HIPAA-oriented guidance (https://telnyx.com/hipaa), but I could not verify a BAA offer from a primary source.
@@ -283,8 +288,7 @@ These add to the four existing FAQs and target local and question queries. They 
 2. **Q: Can an AI receptionist answer after-hours calls for a Palm Springs hotel or restaurant?**
    A: Yes. Cato answers in your house voice, takes the reservation or the message, answers common questions from your own knowledge base, and sends staff a summary by text or email. Anything outside its scope goes to a person, with the transcript attached. *(45 words)*
 
-3. **Q: Is an AI receptionist HIPAA compliant for a dental office or med spa?**
-   A: Compliance belongs to the whole deployment, not to a product label. For practices handling protected health information, we build on vendors that will sign a business associate agreement, limit what the agent stores and log every access. Your compliance lead approves the configuration before anything goes live. *(48 words)*
+3. *(Removed per owner hold, 2026-10-18: no HIPAA/BAA FAQ until the owner says it's time.)*
 
 4. **Q: Can an AI agent legally call or text our customers?**
    A: Within the rules, yes. The FCC treats AI-generated voices as artificial voices under the TCPA, so outbound calls need the right prior consent. Business texting on US local numbers requires 10DLC registration. We build consent capture, opt-out handling and AI disclosure into the agent from day one. Your counsel has the final word. *(54 words)*

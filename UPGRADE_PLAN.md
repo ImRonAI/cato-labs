@@ -18,6 +18,35 @@ WebGL inventory of all 43 routes, design system and contracts) and that session'
 | D6 | Copy | ✅ Copy is driven by Palm Springs local-SEO research. The brief is at `research/palm-springs-seo-brief.md` (in progress). After owner review, the copy goes into `lib/content/capabilities.ts`. |
 | D7 | Git | ✅ Repo initialised. `f3df771` is the baseline snapshot; local tool artifacts are gitignored and `.env.local` stays untracked. |
 
+**Owner answers, 2026-10-18 (round 2):**
+- **Frameworks:** owner-confirmed list recorded in the SEO brief §8.5. MCP is confirmed.
+- **HIPAA/BAA:** on hold. Nothing goes on the site until the owner says so, and it has been removed from the draft copy.
+- **Airport stat:** updated to 3.3M+ for 2025. Source: PSP newsroom, 17 Sep 2026.
+- **Docs:** read live through the MCP servers (ElevenLabs, Telnyx, Telnyx-docs). Don't vendor copies.
+- **Geocoding: "advertise as anywhere's favorite"** — proposed approach, awaiting a go-ahead:
+  - The canonical `<title>`, meta description, H1 and JSON-LD stay **static** for crawlers. Googlebot crawls mostly from the US, so IP-based titles would get indexed as "Mountain View". Serving bots different content from users would also be cloaking.
+  - Personalise the **visible** copy per visitor from IP geolocation:
+    - Eyebrow / lede line and Cato's greeting read e.g. "Phoenix's favorite AI agents."
+    - Use Vercel's `geolocation()` from `@vercel/functions`, or the `x-vercel-ip-city` / `x-vercel-ip-latitude` headers. Next 15 removed `request.geo`.
+    - Fallback when the city is unknown: "Coachella Valley's favorite…".
+  - Every `/regions/*` page gets exact coordinates through the unused `geo` option of `pageMetadata()` (`geo.position`, `ICBM`), plus `areaServed` → `City` / `GeoCoordinates` / `GeoCircle` in JSON-LD.
+  - ⚠️ "Favorite" is promotional puffery. Fine as a tagline, but never pair it with a fake rating or a review count.
+  - ⚠️ Needs a hosting decision: is it Vercel? (No `.vercel` folder exists yet.)
+- **Music licensing (looked up):**
+  - **ElevenLabs Music Terms (updated 9 Oct 2026):**
+    - Output may be used for "all online and offline commercial use … except film, TV, radio, and Studio Games" on every plan, so playing it on our website is allowed.
+    - **But** Free through Pro are "for individual use only". Cato Labs as a company needs **Scale** (fewer than 10 employees), **Business** (fewer than 50) or Enterprise.
+    - Free requires attribution.
+    - Prohibited prompts: artist names, songwriter names, song titles, album titles, label names, lyrics. **Cato must filter visitor requests** (e.g. "play something like Drake") before calling the API.
+    - **No "Music Library":** don't let visitors download generated tracks for their own use.
+    - **Model resale is prohibited:** a visitor must not get raw prompt access to the model. Cato picks the genre and mood himself; music is distributed only as "Output through its own product", which the terms allow.
+  - **Gemini API terms (Lyria RealTime):**
+    - Google doesn't claim ownership of generated content.
+    - Output is instrumental and SynthID-watermarked.
+    - Use the **Paid** tier, because the Unpaid tier lets Google train on prompts.
+    - The terms prohibit API clients "directed towards or likely to be accessed by individuals under 18". A B2B consultancy site should be fine, but keep the experience clearly business-oriented.
+    - Lyria RealTime is still an experimental model.
+
 **Tooling installed 2026-10-18:**
 - The ElevenLabs agent skills (agents, music, speech-engine, text-to-speech, speech-to-text, sound-effects, voice-changer, voice-isolator, dubbing, setup-api-key) are in `.agents/skills/`, `.claude/skills/` and `agent/skills/`.
 - The ElevenLabs hosted MCP server is configured in OpenCode as `elevenlabs` (`https://api.us.elevenlabs.io/v1/mcp`, OAuth). That's the URL the server's OAuth metadata points to, not `api.elevenlabs.io`.

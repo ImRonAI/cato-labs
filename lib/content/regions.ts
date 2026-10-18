@@ -61,9 +61,9 @@ export const regions: RegionCopy[] = [
           'Visitor spending in Palm Springs — about $5.1M a day, 2024 (Tourism Economics)',
       },
       {
-        value: '3.2M',
+        value: '3.3M+',
         label:
-          'Record passengers through Palm Springs International Airport, 2024 (City of Palm Springs)',
+          'Record passengers through Palm Springs International Airport, 2025 (Palm Springs International Airport)',
       },
       {
         value: '130K',
