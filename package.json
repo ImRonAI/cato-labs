@@ -5,6 +5,8 @@
   "description": "Cato Labs — AI-native strategy and implementation consultancy. Official website.",
   "scripts": {
     "dev": "next dev",
+    "studio:kb": "node scripts/build-studio-kb.mjs",
+    "studio:build": "node scripts/build-studio-concierge.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,6 +15,8 @@
     "@dimforge/rapier3d-compat": "0.21.0",
     "@elevenlabs/react": "1.18.0",
     "@google/genai": "2.30.0",
+    "@modelcontextprotocol/client": "^2.3.0",
+    "@modelcontextprotocol/ext-apps": "^2.0.3",
     "@perplexity-ai/perplexity_ai": "^0.38.8",
     "@radix-ui/react-collapsible": "^1.1.21",
     "@radix-ui/react-slot": "^1.4.0",

@@ -1,15 +1,10 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import gsap from 'gsap';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './kit.css';
 
 /* ------------------------------------------------------------------ */
-/*  Public API                                                         */
-/*                                                                     */
-/*  All coordinates are percents of the stage (0–100 in both axes).    */
-/*  SVG `stroke` paths are authored in the same 0–100 space (the       */
-/*  stage SVG uses viewBox="0 0 100 100", preserveAspectRatio="none"). */
+/*  Public API (preserved for compatibility with buildScript.ts)       */
 /* ------------------------------------------------------------------ */
 
 export interface StreamAgent {
@@ -52,169 +47,154 @@ export type StreamStep =
   | { type: 'parallel'; steps: StreamStep[] };
 
 /* ------------------------------------------------------------------ */
-/*  Internal entity model (flattened from the script)                  */
+/*  10 Real HTML Websites Catalog                                      */
 /* ------------------------------------------------------------------ */
 
-type Entity =
-  | {
-      kind: 'rect';
-      id: string;
-      at: { x: number; y: number; w: number; h: number };
-      rstyle: 'wire' | 'fill' | 'glass';
-      label?: string;
-      agent: string;
-    }
-  | { kind: 'stroke'; id: string; path: string; agent: string }
-  | {
-      kind: 'text';
-      id: string;
-      at: { x: number; y: number };
-      content: string;
-      tstyle: 'h1' | 'h2' | 'body' | 'label' | 'button';
-      agent: string;
-    }
-  | {
-      kind: 'image';
-      id: string;
-      at: { x: number; y: number; w: number; h: number };
-      seed: string;
-      agent: string;
-    };
-
-function collectEntities(script: StreamStep[]): Entity[] {
-  const out: Entity[] = [];
-  const walk = (steps: StreamStep[]) => {
-    for (const s of steps) {
-      if (s.type === 'parallel') walk(s.steps);
-      else if (s.type === 'rect')
-        out.push({ kind: 'rect', id: s.id, at: s.at, rstyle: s.style, label: s.label, agent: s.agent });
-      else if (s.type === 'stroke')
-        out.push({ kind: 'stroke', id: s.id, path: s.path, agent: s.agent });
-      else if (s.type === 'text')
-        out.push({ kind: 'text', id: s.id, at: s.at, content: s.content, tstyle: s.style, agent: s.agent });
-      else if (s.type === 'image')
-        out.push({ kind: 'image', id: s.id, at: s.at, seed: s.seed ?? s.id, agent: s.agent });
-    }
-  };
-  walk(script);
-  return out;
+export interface StudioSiteEntry {
+  slug: string;
+  name: string;
+  subtitle: string;
+  domain: string;
+  file: string;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Seeded generative art (blue spectrum only, no photos)              */
-/* ------------------------------------------------------------------ */
-
-const BLUE_STOPS = [
-  '#f4f7ff', '#e8eeff', '#dce4ff', '#b9c9ff', '#93a9ff',
-  '#6b87ff', '#2e4bff', '#1f38e0', '#1226c8', '#0a1890',
+export const STUDIO_SITES: StudioSiteEntry[] = [
+  {
+    slug: 'aurelle',
+    name: 'AURELLE',
+    subtitle: 'Alpine Botanical Parfum',
+    domain: 'aurelle.ch',
+    file: '/studio-sites/aurelle.html',
+  },
+  {
+    slug: 'vespera',
+    name: 'VESPERA',
+    subtitle: 'Stratospheric Defense Systems',
+    domain: 'vespera.aero',
+    file: '/studio-sites/vespera.html',
+  },
+  {
+    slug: 'kuroshio',
+    name: 'KUROSHIO',
+    subtitle: 'Ginza Hinoki Omakase Counter',
+    domain: 'kuroshio.jp',
+    file: '/studio-sites/kuroshio.html',
+  },
+  {
+    slug: 'solstice-bio',
+    name: 'SOLSTICE BIO',
+    subtitle: 'Cellular Reprogramming Therapeutics',
+    domain: 'solstice.bio',
+    file: '/studio-sites/solstice-bio.html',
+  },
+  {
+    slug: 'monolith',
+    name: 'MONOLITH',
+    subtitle: 'Brutalist Architectural Monograph',
+    domain: 'monolith.arch',
+    file: '/studio-sites/monolith.html',
+  },
+  {
+    slug: 'velour-capital',
+    name: 'VELOUR CAPITAL',
+    subtitle: 'Sovereign & Family Office Advisory',
+    domain: 'velour.capital',
+    file: '/studio-sites/velour-capital.html',
+  },
+  {
+    slug: 'aether-motors',
+    name: 'AETHER MOTORS',
+    subtitle: 'Coachbuilt Grand Tourer EV',
+    domain: 'aether.motors',
+    file: '/studio-sites/aether-motors.html',
+  },
+  {
+    slug: 'nocturne-audio',
+    name: 'NOCTURNE AUDIO',
+    subtitle: 'Planar-Magnetic Reference Acoustics',
+    domain: 'nocturneaudio.ch',
+    file: '/studio-sites/nocturne-audio.html',
+  },
+  {
+    slug: 'helios-grid',
+    name: 'HELIOS GRID',
+    subtitle: 'High-Field Compact Tokamak Fusion',
+    domain: 'heliosgrid.ch',
+    file: '/studio-sites/helios-grid.html',
+  },
+  {
+    slug: 'maison-verve',
+    name: 'MAISON VERVE',
+    subtitle: 'Geneva Independent Haute Horlogerie',
+    domain: 'maisonverve.ch',
+    file: '/studio-sites/maison-verve.html',
+  },
 ];
 
-function hashSeed(str: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
+const DEFAULT_AGENTS: StreamAgent[] = [
+  { id: 'strategy', name: 'Sapphire', role: 'Strategy', color: '#1226c8' },
+  { id: 'design', name: 'Azure', role: 'Design', color: '#2e4bff' },
+  { id: 'engineering', name: 'Ice', role: 'Engineering', color: '#5c78ff' },
+  { id: 'seo', name: 'Indigo', role: 'Discoverability', color: '#0a1890' },
+];
+
+interface DomBuildTarget {
+  el: HTMLElement;
+  docTop: number;
+  label: string;
 }
 
-function mulberry32(a: number): () => number {
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+interface AgentLiveDrawState {
+  agent: StreamAgent;
+  x: number;
+  y: number;
+  task: string;
+  box: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    tag: string;
+  } | null;
 }
 
-function GenerativeArt({ seed }: { seed: string }): React.JSX.Element {
-  const rawId = React.useId();
-  const gid = `kit-g-${rawId.replace(/[^a-zA-Z0-9]/g, '')}`;
-
-  const art = useMemo(() => {
-    const rnd = mulberry32(hashSeed(seed));
-    const pick = (lo: number, hi: number) =>
-      BLUE_STOPS[lo + Math.floor(rnd() * (hi - lo + 1))];
-    const items: React.ReactNode[] = [];
-    const n = 3 + Math.floor(rnd() * 3);
-    for (let i = 0; i < n; i++) {
-      const kind = rnd();
-      const cx = rnd() * 100;
-      const cy = rnd() * 100;
-      if (kind < 0.45) {
-        const r = 8 + rnd() * 26;
-        items.push(
-          <circle key={i} cx={cx} cy={cy} r={r} fill={pick(2, 7)} opacity={0.35 + rnd() * 0.45} />
-        );
-      } else if (kind < 0.75) {
-        const w = 14 + rnd() * 30;
-        const h = 10 + rnd() * 26;
-        items.push(
-          <rect
-            key={i}
-            x={cx - w / 2}
-            y={cy - h / 2}
-            width={w}
-            height={h}
-            rx={3}
-            fill={pick(1, 6)}
-            opacity={0.4 + rnd() * 0.4}
-            transform={`rotate(${(rnd() * 40 - 20).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})`}
-          />
-        );
-      } else {
-        const r = 10 + rnd() * 22;
-        const a0 = rnd() * Math.PI * 2;
-        const a1 = a0 + 1 + rnd() * 2.5;
-        items.push(
-          <path
-            key={i}
-            d={`M ${(cx + r * Math.cos(a0)).toFixed(1)} ${(cy + r * Math.sin(a0)).toFixed(1)} A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${(cx + r * Math.cos(a1)).toFixed(1)} ${(cy + r * Math.sin(a1)).toFixed(1)}`}
-            fill="none"
-            stroke={pick(5, 9)}
-            strokeWidth={2.5}
-            opacity={0.7}
-            vectorEffect="non-scaling-stroke"
-          />
-        );
-      }
-    }
-    const hy = 62 + rnd() * 24;
-    items.push(
-      <line
-        key="horizon"
-        x1={0}
-        y1={hy}
-        x2={100}
-        y2={hy}
-        stroke={pick(3, 5)}
-        strokeWidth={1}
-        opacity={0.6}
-        vectorEffect="non-scaling-stroke"
-      />
+function stripBundledRuntimeForCodeView(rawHtml: string): string {
+  const begin = '<!-- STUDIO-CONCIERGE:BEGIN -->';
+  const end = '<!-- STUDIO-CONCIERGE:END -->';
+  const i = rawHtml.indexOf(begin);
+  const j = rawHtml.indexOf(end);
+  if (i !== -1 && j !== -1 && j > i) {
+    return (
+      rawHtml.slice(0, i) +
+      `${begin}\n  <!-- Studio Concierge AI Elements Runtime (anthropic/claude-haiku-4-5) -->\n${end}` +
+      rawHtml.slice(j + end.length)
     );
-    return { items, g0: pick(0, 2), g1: pick(4, 6) };
-  }, [seed]);
+  }
+  return rawHtml;
+}
 
-  return (
-    <svg
-      viewBox="0 0 100 100"
-      preserveAspectRatio="xMidYMid slice"
-      width="100%"
-      height="100%"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor={art.g0} />
-          <stop offset="1" stopColor={art.g1} />
-        </linearGradient>
-      </defs>
-      <rect width="100" height="100" fill={`url(#${gid})`} />
-      {art.items}
-    </svg>
-  );
+function describeElement(el: HTMLElement): string {
+  const tag = el.tagName.toLowerCase();
+  if (tag === 'img') {
+    const src = (el as HTMLImageElement).getAttribute('src') || '';
+    const file = src.split('/').pop() || 'image';
+    return `<img> ${file.slice(0, 22)}`;
+  }
+  if (tag === 'canvas') {
+    return `<canvas#${el.id || 'webgl'}> 3D Stage`;
+  }
+  if (tag === 'svg') {
+    return `<svg> Vector Diagram`;
+  }
+  if (tag === 'form') {
+    return `<form#${el.id || 'interactive'}>`;
+  }
+  const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+  const idPart = el.id ? `#${el.id}` : '';
+  if (text.length > 0) {
+    return `<${tag}${idPart}> ${text.slice(0, 22)}${text.length > 22 ? '…' : ''}`;
+  }
+  return `<${tag}${idPart}>`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -222,44 +202,61 @@ function GenerativeArt({ seed }: { seed: string }): React.JSX.Element {
 /* ------------------------------------------------------------------ */
 
 export function StreamSimulator({
-  script,
-  agents,
+  agents = DEFAULT_AGENTS,
   autoPlay = true,
-  loop = false,
   onDone,
-  brand,
 }: {
-  script: StreamStep[];
-  agents: StreamAgent[];
+  script?: StreamStep[];
+  agents?: StreamAgent[];
   autoPlay?: boolean;
   loop?: boolean;
   onDone?: () => void;
   brand?: { name: string; domain: string };
 }): React.JSX.Element {
-  const scriptKey = useMemo(() => JSON.stringify(script), [script]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const entities = useMemo(() => collectEntities(script), [scriptKey]);
+  const [selectedSlug, setSelectedSlug] = useState<string>(STUDIO_SITES[0].slug);
+  const [codeHtml, setCodeHtml] = useState<string>('');
+  const [iframeReady, setIframeReady] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
+  const [playing, setPlaying] = useState<boolean>(autoPlay);
+  const [reduced, setReduced] = useState<boolean>(false);
+  const [showCodePane, setShowCodePane] = useState<boolean>(true);
+  const [agentVisuals, setAgentVisuals] = useState<AgentLiveDrawState[]>([]);
 
-  const elRefs = useRef(new Map<string, Element>());
-  const textRefs = useRef(new Map<string, HTMLSpanElement>());
-  const caretRefs = useRef(new Map<string, HTMLSpanElement>());
-  const cursorRefs = useRef(new Map<string, HTMLDivElement>());
-  const barRef = useRef<HTMLDivElement>(null);
-  const tlRef = useRef<gsap.core.Timeline | null>(null);
-
-  const [playing, setPlaying] = useState(false);
-  const [reduced, setReduced] = useState(false);
-
+  const simRootRef = useRef<HTMLDivElement | null>(null);
+  const codePreRef = useRef<HTMLPreElement | null>(null);
+  const barFillRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const domTargetsRef = useRef<DomBuildTarget[]>([]);
+  const rafRef = useRef<number | null>(null);
+  const lastTickRef = useRef<number | null>(null);
+  const lastStateCommitRef = useRef<number>(0);
+  const progressRef = useRef<number>(0);
+  const inViewRef = useRef<boolean>(true);
+  const userScrolledCodeRef = useRef<boolean>(false);
+  const autoScrollingCodeRef = useRef<boolean>(false);
+  const smoothScrollRef = useRef<number | null>(null);
+  const smoothedAgentsRef = useRef<
+    Map<
+      string,
+      {
+        x: number;
+        y: number;
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+      }
+    >
+  >(new Map());
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 
-  const brandName = brand?.name ?? 'Your brand';
-  const domain = brand?.domain ?? 'your-next-site.com';
+  const activeSite = useMemo(
+    () => STUDIO_SITES.find((s) => s.slug === selectedSlug) ?? STUDIO_SITES[0],
+    [selectedSlug]
+  );
 
-  const agentColor = (id: string) =>
-    agents.find((a) => a.id === id)?.color ?? 'var(--blue-600)';
-
-  /* reduced-motion listener (client only) */
+  /* Respect prefers-reduced-motion */
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReduced(mq.matches);
@@ -268,423 +265,579 @@ export function StreamSimulator({
     return () => mq.removeEventListener('change', fn);
   }, []);
 
-  /* build / rebuild the timeline */
+  /* Pause simulation ticks when scrolled out of viewport so the build awaits the visitor */
   useEffect(() => {
-    const els = elRefs.current;
-    const texts = textRefs.current;
-    const carets = caretRefs.current;
-    const cursors = cursorRefs.current;
+    const node = simRootRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        inViewRef.current = entry.isIntersecting;
+        if (!entry.isIntersecting) {
+          lastTickRef.current = null;
+        }
+      },
+      { threshold: 0.08 }
+    );
+    obs.observe(node);
+    return () => obs.disconnect();
+  }, []);
 
-    /* final cursor positions (last cursor step per agent wins) */
-    const finalCursors = new Map<string, { x: number; y: number }>();
-    const walkFinal = (steps: StreamStep[]) => {
-      for (const s of steps) {
-        if (s.type === 'parallel') walkFinal(s.steps);
-        else if (s.type === 'cursor') finalCursors.set(s.agent, s.to);
+  /* Fetch HTML source for the streaming code pane & reset build when site changes */
+  useEffect(() => {
+    let cancelled = false;
+    setIframeReady(false);
+    domTargetsRef.current = [];
+    const initialProgress = reduced ? 1 : 0;
+    progressRef.current = initialProgress;
+    setProgress(initialProgress);
+    setPlaying(reduced ? false : autoPlay);
+    lastTickRef.current = null;
+    lastStateCommitRef.current = 0;
+    smoothScrollRef.current = null;
+    smoothedAgentsRef.current.clear();
+    userScrolledCodeRef.current = false;
+
+    fetch(activeSite.file)
+      .then((res) => (res.ok ? res.text() : ''))
+      .then((html) => {
+        if (cancelled || !html) return;
+        setCodeHtml(stripBundledRuntimeForCodeView(html));
+      })
+      .catch(() => {
+        /* ignore code preview fetch errors */
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSite.file, autoPlay, reduced]);
+
+  /* Collect real renderable DOM elements inside the live iframe when it loads */
+  const collectIframeTargets = useCallback(() => {
+    const iframe = iframeRef.current;
+    const doc = iframe?.contentDocument;
+    const win = iframe?.contentWindow;
+    if (!doc || !win || !doc.body) return;
+
+    /* Inject progressive build stylesheet into the iframe document */
+    let styleEl = doc.getElementById('kit-sim-build-style') as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = doc.createElement('style');
+      styleEl.id = 'kit-sim-build-style';
+      styleEl.textContent = `
+        [data-sim-stage="pending"] {
+          opacity: 0 !important;
+          transform: translateY(18px) scale(0.985) !important;
+          pointer-events: none !important;
+        }
+        [data-sim-stage="building"] {
+          opacity: 0.9 !important;
+          transform: translateY(2px) scale(0.997) !important;
+          transition: opacity 1.6s cubic-bezier(0.16, 1, 0.3, 1), transform 1.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        [data-sim-stage="done"] {
+          opacity: 1 !important;
+          transform: none !important;
+          transition: opacity 1.2s ease, transform 1.2s ease !important;
+        }
+      `;
+      doc.head.appendChild(styleEl);
+    }
+
+    /* Force any scroll-triggered reveal elements (.rv, .reveal) to be visible once built */
+    doc.querySelectorAll('.rv, .reveal').forEach((el) => el.classList.add('in'));
+
+    const selector = [
+      'header',
+      'h1',
+      'h2',
+      'h3',
+      'p',
+      'figure',
+      'img',
+      'canvas',
+      'svg',
+      'article',
+      'form',
+      'table',
+      'dl',
+      '.flacon',
+      '.sys',
+      '.course',
+      '.piece',
+      '.work-entry',
+      '.tech-item',
+      '.prog',
+      'footer',
+    ].join(', ');
+
+    const rawNodes = Array.from(doc.body.querySelectorAll<HTMLElement>(selector));
+    const filtered: DomBuildTarget[] = [];
+
+    for (const el of rawNodes) {
+      if (
+        el.closest(
+          '#concierge-root, [hidden], dialog, .dlg, .view, .sheet, .drawer, .mnav, .menu, .dossier-backdrop, template'
+        )
+      ) {
+        continue;
       }
-    };
+      /* Skip child SVG icons inside buttons or links so we target meaningful blocks */
+      if (el.tagName.toLowerCase() === 'svg' && el.closest('a, button')) {
+        continue;
+      }
+      /* Skip nested elements if an ancestor card/article is already in our list */
+      const rect = el.getBoundingClientRect();
+      if (rect.width < 28 || rect.height < 14) continue;
+      if (rect.height > win.innerHeight * 2.2 && el.tagName.toLowerCase() !== 'section') continue;
 
-    const revealFinal = () => {
-      entities.forEach((e) => {
-        const el = els.get(e.id);
-        if (el) gsap.set(el, { autoAlpha: 1, y: 0, scale: 1 });
-        if (e.kind === 'rect') {
-          const r = el?.querySelector('rect');
-          if (r) r.setAttribute('stroke-dashoffset', '0');
-          const lbl = els.get(`${e.id}__label`);
-          if (lbl) gsap.set(lbl, { autoAlpha: 1, y: 0 });
-        }
-        if (e.kind === 'stroke' && el) el.setAttribute('stroke-dashoffset', '0');
-        if (e.kind === 'text') {
-          const t = texts.get(e.id);
-          if (t) t.textContent = e.content;
-          const c = carets.get(e.id);
-          if (c) gsap.set(c, { autoAlpha: 0 });
-        }
+      const docTop = rect.top + win.scrollY;
+      filtered.push({
+        el,
+        docTop,
+        label: describeElement(el),
       });
-      cursors.forEach((el, id) => {
-        const fin = finalCursors.get(id);
-        if (fin) gsap.set(el, { left: `${fin.x}%`, top: `${fin.y}%` });
-      });
-      if (barRef.current) barRef.current.style.transform = 'scaleX(1)';
-    };
+    }
 
-    walkFinal(script);
+    filtered.sort((a, b) => a.docTop - b.docTop);
 
-    if (reduced) {
-      revealFinal();
-      setPlaying(false);
+    /* Deduplicate closely overlapping parent/child targets so each step is visually distinct */
+    const deduped: DomBuildTarget[] = [];
+    for (const item of filtered) {
+      const prev = deduped[deduped.length - 1];
+      if (prev && prev.el.contains(item.el) && Math.abs(prev.docTop - item.docTop) < 18) {
+        /* Prefer the more specific child element (e.g. h1, img, canvas) */
+        deduped[deduped.length - 1] = item;
+      } else {
+        deduped.push(item);
+      }
+    }
+
+    domTargetsRef.current = deduped;
+    smoothScrollRef.current = 0;
+    smoothedAgentsRef.current.clear();
+    setIframeReady(true);
+  }, []);
+
+  /* Clean up build attributes once complete */
+  const restoreFullDocument = useCallback(() => {
+    const iframe = iframeRef.current;
+    const doc = iframe?.contentDocument;
+    const win = iframe?.contentWindow;
+    if (!doc || !win) return;
+    doc.querySelectorAll('[data-sim-stage]').forEach((el) => {
+      el.removeAttribute('data-sim-stage');
+    });
+    const styleEl = doc.getElementById('kit-sim-build-style');
+    if (styleEl) styleEl.remove();
+    try {
+      win.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  /* Synchronize DOM element reveal states + agent cursor coordinates with live iframe DOM */
+  useEffect(() => {
+    if (!iframeReady) return;
+    const iframe = iframeRef.current;
+    const doc = iframe?.contentDocument;
+    const win = iframe?.contentWindow;
+    if (!doc || !win) return;
+
+    if (progress >= 1) {
+      restoreFullDocument();
+      setAgentVisuals([]);
       return;
     }
 
-    /* ---- prep: everything hidden, dash lengths set ---- */
-    entities.forEach((e) => {
-      const el = els.get(e.id);
-      if (!el) return;
-      if (e.kind === 'rect' && e.rstyle === 'wire') {
-        const r = el.querySelector('rect');
-        if (r) {
-          const per = 2 * (e.at.w + e.at.h);
-          r.setAttribute('stroke-dasharray', String(per));
-          r.setAttribute('stroke-dashoffset', String(per));
-        }
-        gsap.set(el, { autoAlpha: 0 });
-      } else if (e.kind === 'stroke') {
-        let len = 120;
-        try {
-          len = (el as SVGPathElement).getTotalLength();
-        } catch {
-          /* keep fallback */
-        }
-        el.setAttribute('stroke-dasharray', String(len));
-        el.setAttribute('stroke-dashoffset', String(len));
-        gsap.set(el, { autoAlpha: 0 });
-      } else {
-        gsap.set(el, { autoAlpha: 0, y: 0, scale: 1 });
-      }
-      if (e.kind === 'rect') {
-        const lbl = els.get(`${e.id}__label`);
-        if (lbl) gsap.set(lbl, { autoAlpha: 0, y: 0 });
-      }
-      if (e.kind === 'text') {
-        const t = texts.get(e.id);
-        if (t) t.textContent = '';
-        const c = carets.get(e.id);
-        if (c) gsap.set(c, { autoAlpha: 1 });
-      }
-    });
-    agents.forEach((a, i) => {
-      const c = cursors.get(a.id);
-      if (c) gsap.set(c, { left: `${6 + i * 9}%`, top: '105%' });
-    });
-    if (barRef.current) barRef.current.style.transform = 'scaleX(0)';
-
-    /* ---- timeline ---- */
-    const tl = gsap.timeline({ paused: true, repeat: loop ? -1 : 0 });
-    tlRef.current = tl;
-
-    const addStep = (s: StreamStep, pos?: number): void => {
-      switch (s.type) {
-        case 'cursor': {
-          const el = cursorRefs.current.get(s.agent);
-          if (!el) return;
-          tl.to(
-            el,
-            {
-              left: `${s.to.x}%`,
-              top: `${s.to.y}%`,
-              duration: s.dur ?? 0.9,
-              ease: 'back.out(1.5)',
-            },
-            pos
-          );
-          break;
-        }
-        case 'rect': {
-          const el = els.get(s.id);
-          if (!el) return;
-          const dur = s.dur ?? (s.style === 'wire' ? 1 : 0.7);
-          if (s.style === 'wire') {
-            const r = el.querySelector('rect') ?? el;
-            tl.set(el, { autoAlpha: 1 }, pos);
-            tl.to(
-              r,
-              { attr: { 'stroke-dashoffset': 0 }, duration: dur, ease: 'power2.inOut' },
-              pos
-            );
-          } else {
-            tl.fromTo(
-              el,
-              { autoAlpha: 0, y: 1.6 },
-              { autoAlpha: 1, y: 0, duration: dur, ease: 'power3.out' },
-              pos
-            );
-          }
-          const lbl = els.get(`${s.id}__label`);
-          if (lbl) {
-            tl.fromTo(
-              lbl,
-              { autoAlpha: 0, y: 4 },
-              { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power2.out' },
-              typeof pos === 'number' ? pos + dur * 0.55 : `>-${(dur * 0.45).toFixed(2)}`
-            );
-          }
-          break;
-        }
-        case 'stroke': {
-          const el = els.get(s.id);
-          if (!el) return;
-          tl.set(el, { autoAlpha: 1 }, pos);
-          tl.to(
-            el,
-            {
-              attr: { 'stroke-dashoffset': 0 },
-              duration: s.dur ?? 1.1,
-              ease: 'power2.inOut',
-            },
-            pos
-          );
-          break;
-        }
-        case 'text': {
-          const wrap = els.get(s.id);
-          const contentEl = texts.get(s.id);
-          const caret = carets.get(s.id);
-          if (!wrap || !contentEl) return;
-          const chars = s.content.length;
-          const dur = s.dur ?? Math.min(1.8, 0.35 + chars * 0.035);
-          const proxy = { n: 0 };
-          tl.set(wrap, { autoAlpha: 1 }, pos);
-          tl.to(
-            proxy,
-            {
-              n: chars,
-              duration: dur,
-              ease: 'none',
-              onUpdate: () => {
-                const n = Math.round(proxy.n);
-                const next = s.content.slice(0, n);
-                if (contentEl.textContent !== next) contentEl.textContent = next;
-              },
-            },
-            pos
-          );
-          if (caret) {
-            tl.set(
-              caret,
-              { autoAlpha: 0 },
-              typeof pos === 'number' ? pos + dur + 0.05 : undefined
-            );
-          }
-          break;
-        }
-        case 'image': {
-          const el = els.get(s.id);
-          if (!el) return;
-          tl.fromTo(
-            el,
-            { autoAlpha: 0, y: 14, scale: 0.97 },
-            { autoAlpha: 1, y: 0, scale: 1, duration: s.dur ?? 0.9, ease: 'power3.out' },
-            pos
-          );
-          break;
-        }
-        case 'wait': {
-          tl.to({}, { duration: Math.max(0.05, s.ms / 1000) }, pos);
-          break;
-        }
-        case 'parallel': {
-          const start = tl.duration();
-          s.steps.forEach((sub) => addStep(sub, start));
-          break;
-        }
-      }
-    };
-
-    script.forEach((s) => addStep(s));
-
-    tl.eventCallback('onUpdate', () => {
-      if (barRef.current && tlRef.current) {
-        barRef.current.style.transform = `scaleX(${tlRef.current.progress()})`;
-      }
-    });
-    let doneFired = false;
-    const fireDone = () => {
-      if (!doneFired) {
-        doneFired = true;
-        onDoneRef.current?.();
-      }
-    };
-    tl.eventCallback('onComplete', () => {
-      fireDone();
-      setPlaying(false);
-    });
-    tl.eventCallback('onRepeat', fireDone);
-
-    if (autoPlay) {
-      tl.play(0);
-      setPlaying(true);
-    } else {
-      setPlaying(false);
+    /* Ensure build style exists when replaying */
+    if (!doc.getElementById('kit-sim-build-style')) {
+      collectIframeTargets();
     }
 
-    return () => {
-      tl.kill();
-      if (tlRef.current === tl) tlRef.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scriptKey, reduced, autoPlay, loop]);
+    const targets = domTargetsRef.current;
+    if (!targets.length) return;
 
-  const toggle = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
-    if (!tl.paused()) {
-      tl.pause();
-      setPlaying(false);
-    } else {
-      if (tl.progress() >= 1) tl.restart();
-      else tl.play();
+    const total = targets.length;
+    const headFloat = progress * total;
+    const headIdx = Math.min(total - 1, Math.max(0, Math.floor(headFloat)));
+    const nextIdx = Math.min(total - 1, headIdx + 1);
+    const localPhase = headFloat - Math.floor(headFloat);
+    const smoothLocal = localPhase * localPhase * (3 - 2 * localPhase);
+
+    /* Assign the 4 agents to the 4 elements currently rendering at the build frontier */
+    const activeIndices = agents.map((_, aIdx) =>
+      Math.max(0, Math.min(total - 1, headIdx - (agents.length - 1 - aIdx)))
+    );
+    const activeSet = new Set(activeIndices);
+
+    for (let i = 0; i < total; i++) {
+      const node = targets[i].el;
+      const desired =
+        i > headIdx ? 'pending' : activeSet.has(i) ? 'building' : 'done';
+      if (node.getAttribute('data-sim-stage') !== desired) {
+        node.setAttribute('data-sim-stage', desired);
+      }
+    }
+
+    /* Smoothly interpolate and damp iframe scroll between current and next build target */
+    const leadTarget = targets[headIdx];
+    const nextTarget = targets[nextIdx] ?? leadTarget;
+    if (leadTarget && playing) {
+      const interpolatedDocTop =
+        leadTarget.docTop + (nextTarget.docTop - leadTarget.docTop) * smoothLocal;
+      const maxScroll = Math.max(0, doc.documentElement.scrollHeight - win.innerHeight);
+      const desiredScroll = Math.max(
+        0,
+        Math.min(maxScroll, interpolatedDocTop - win.innerHeight * 0.48)
+      );
+      const prevScroll = smoothScrollRef.current ?? win.scrollY;
+      const nextScroll = prevScroll + (desiredScroll - prevScroll) * 0.14;
+      smoothScrollRef.current = nextScroll;
+      win.scrollTo({ top: nextScroll, behavior: 'auto' });
+    }
+
+    /* Measure the live viewport bounding boxes of the 4 active elements */
+    const vw = Math.max(1, win.innerWidth);
+    const vh = Math.max(1, win.innerHeight);
+
+    const nextVisuals: AgentLiveDrawState[] = agents.map((agent, aIdx) => {
+      const targetIdx = activeIndices[aIdx];
+      const target = targets[targetIdx];
+      if (!target) {
+        return {
+          agent,
+          x: 20 + aIdx * 18,
+          y: 30,
+          task: ' Rendering DOM',
+          box: null,
+        };
+      }
+
+      const rect = target.el.getBoundingClientRect();
+      const rawLeftPct = Math.max(1, Math.min(94, (rect.left / vw) * 100));
+      const rawTopPct = Math.max(2, Math.min(92, (rect.top / vh) * 100));
+      const rawWidthPct = Math.max(4, Math.min(98 - rawLeftPct, (rect.width / vw) * 100));
+      const rawHeightPct = Math.max(3, Math.min(96 - rawTopPct, (rect.height / vh) * 100));
+
+      /* Trace the agent cursor along a continuous Lissajous path inside the active bounding box */
+      const orbitAngle = localPhase * Math.PI * 2 + aIdx * 1.57;
+      const sweepX = 0.5 + 0.34 * Math.sin(orbitAngle);
+      const sweepY = 0.5 + 0.32 * Math.cos(orbitAngle * 0.75 + aIdx * 0.9);
+      const rawCursorX = Math.max(3, Math.min(84, rawLeftPct + rawWidthPct * sweepX));
+      const rawCursorY = Math.max(6, Math.min(91, rawTopPct + rawHeightPct * sweepY));
+
+      const prevAgent = smoothedAgentsRef.current.get(agent.id);
+      const lerpFactor = 0.22;
+      const smoothed = prevAgent
+        ? {
+            x: prevAgent.x + (rawCursorX - prevAgent.x) * lerpFactor,
+            y: prevAgent.y + (rawCursorY - prevAgent.y) * lerpFactor,
+            left: prevAgent.left + (rawLeftPct - prevAgent.left) * lerpFactor,
+            top: prevAgent.top + (rawTopPct - prevAgent.top) * lerpFactor,
+            width: prevAgent.width + (rawWidthPct - prevAgent.width) * lerpFactor,
+            height: prevAgent.height + (rawHeightPct - prevAgent.height) * lerpFactor,
+          }
+        : {
+            x: rawCursorX,
+            y: rawCursorY,
+            left: rawLeftPct,
+            top: rawTopPct,
+            width: rawWidthPct,
+            height: rawHeightPct,
+          };
+      smoothedAgentsRef.current.set(agent.id, smoothed);
+
+      return {
+        agent,
+        x: smoothed.x,
+        y: smoothed.y,
+        task: ` ${target.label}`,
+        box: {
+          left: smoothed.left,
+          top: smoothed.top,
+          width: smoothed.width,
+          height: smoothed.height,
+          tag: `${agent.name} · ${target.label}`,
+        },
+      };
+    });
+
+    setAgentVisuals(nextVisuals);
+  }, [progress, iframeReady, playing, agents, collectIframeTargets, restoreFullDocument]);
+
+  /*
+   * Animate progressive DOM build & HTML code stream over ~150 seconds (~13.6x slower than 11s).
+   * Uses delta-time clamping (max 100ms per frame) to prevent tab-switch jumps and throttled
+   * React state commits (~24fps) to avoid main-thread layout thrashing on 70–90KB HTML strings.
+   */
+  useEffect(() => {
+    if (!iframeReady || !playing || reduced) {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      lastTickRef.current = null;
+      return;
+    }
+
+    const BUILD_DURATION_MS = 150_000;
+    const STATE_COMMIT_INTERVAL_MS = 42;
+
+    const step = (now: number) => {
+      if (!inViewRef.current || document.hidden) {
+        lastTickRef.current = now;
+        rafRef.current = requestAnimationFrame(step);
+        return;
+      }
+
+      if (lastTickRef.current === null) {
+        lastTickRef.current = now;
+      }
+      const rawDt = now - lastTickRef.current;
+      const dt = Math.min(100, Math.max(0, rawDt));
+      lastTickRef.current = now;
+
+      const next = Math.min(1, progressRef.current + dt / BUILD_DURATION_MS);
+      progressRef.current = next;
+
+      if (barFillRef.current) {
+        barFillRef.current.style.transform = `scaleX(${next})`;
+      }
+
+      if (next >= 1) {
+        setProgress(1);
+        setPlaying(false);
+        onDoneRef.current?.();
+        return;
+      }
+
+      if (now - lastStateCommitRef.current >= STATE_COMMIT_INTERVAL_MS) {
+        lastStateCommitRef.current = now;
+        setProgress(next);
+      }
+
+      rafRef.current = requestAnimationFrame(step);
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      lastTickRef.current = null;
+    };
+  }, [iframeReady, playing, reduced]);
+
+  /* Auto-scroll the streaming HTML code pane unless the user manually scrolled up to read */
+  const streamedCode = useMemo(() => {
+    if (!codeHtml) return '';
+    const charCount = Math.max(120, Math.floor(codeHtml.length * progress));
+    return codeHtml.slice(0, charCount);
+  }, [codeHtml, progress]);
+
+  const lineCount = useMemo(() => {
+    if (!streamedCode) return 0;
+    return streamedCode.split('\n').length;
+  }, [streamedCode]);
+
+  const handleCodePaneScroll = useCallback(() => {
+    if (autoScrollingCodeRef.current) return;
+    const pre = codePreRef.current;
+    if (!pre) return;
+    const distanceFromBottom = pre.scrollHeight - pre.scrollTop - pre.clientHeight;
+    userScrolledCodeRef.current = distanceFromBottom > 48;
+  }, []);
+
+  useEffect(() => {
+    const pre = codePreRef.current;
+    if (pre && playing && !userScrolledCodeRef.current) {
+      autoScrollingCodeRef.current = true;
+      pre.scrollTop = pre.scrollHeight;
+      requestAnimationFrame(() => {
+        autoScrollingCodeRef.current = false;
+      });
+    }
+  }, [streamedCode, playing]);
+
+  const togglePlay = () => {
+    if (progress >= 1) {
+      collectIframeTargets();
+      progressRef.current = 0;
+      setProgress(0);
+      lastTickRef.current = null;
+      userScrolledCodeRef.current = false;
       setPlaying(true);
+    } else {
+      lastTickRef.current = null;
+      setPlaying((p) => !p);
     }
   };
 
   const replay = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
-    tl.restart();
+    collectIframeTargets();
+    progressRef.current = 0;
+    setProgress(0);
+    lastTickRef.current = null;
+    userScrolledCodeRef.current = false;
     setPlaying(true);
   };
 
-  /* ref helpers */
-  const setEl = (id: string) => (el: Element | null) => {
-    if (el) elRefs.current.set(id, el);
-    else elRefs.current.delete(id);
-  };
-  const setText = (id: string) => (el: HTMLSpanElement | null) => {
-    if (el) textRefs.current.set(id, el);
-    else textRefs.current.delete(id);
-  };
-  const setCaret = (id: string) => (el: HTMLSpanElement | null) => {
-    if (el) caretRefs.current.set(id, el);
-    else caretRefs.current.delete(id);
-  };
-  const setCursor = (id: string) => (el: HTMLDivElement | null) => {
-    if (el) cursorRefs.current.set(id, el);
-    else cursorRefs.current.delete(id);
+  const finishImmediately = () => {
+    progressRef.current = 1;
+    setProgress(1);
+    setPlaying(false);
+    restoreFullDocument();
+    onDoneRef.current?.();
   };
 
-  const hidden: React.CSSProperties = { opacity: 0, visibility: 'hidden' };
+  const isComplete = progress >= 1;
 
   return (
-    <div className="kit-sim" role="group" aria-label={`${brandName} site build simulation`}>
-      {/* browser chrome */}
-      <div className="kit-sim-chrome" aria-hidden="true">
-        <span className="kit-sim-dot" />
-        <span className="kit-sim-dot" />
-        <span className="kit-sim-dot" />
-        <span className="kit-sim-pill">{domain}</span>
+    <div
+      ref={simRootRef}
+      className="kit-sim"
+      role="group"
+      aria-label={`${activeSite.name} live HTML build simulation`}
+    >
+      {/* Browser chrome with 10-site dropdown selector */}
+      <div className="kit-sim-chrome">
+        <div className="kit-sim-dots" aria-hidden="true">
+          <span className="kit-sim-dot" />
+          <span className="kit-sim-dot" />
+          <span className="kit-sim-dot" />
+        </div>
+
+        <label className="kit-sim-picker-label">
+          <span className="kit-sr-only">Choose website to build</span>
+          <select
+            className="kit-sim-select"
+            value={selectedSlug}
+            onChange={(e) => setSelectedSlug(e.target.value)}
+            aria-label="Choose a website to watch being built"
+          >
+            {STUDIO_SITES.map((s, idx) => (
+              <option key={s.slug} value={s.slug}>
+                {String(idx + 1).padStart(2, '0')} · {s.name} — {s.subtitle}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <span className="kit-sim-pill" aria-hidden="true">
+          https://{activeSite.domain}
+        </span>
+
+        <div className="kit-sim-chrome-actions">
+          <button
+            type="button"
+            className="kit-mini-btn"
+            onClick={() => setShowCodePane((v) => !v)}
+            aria-pressed={showCodePane}
+          >
+            {showCodePane ? 'Hide HTML Stream' : 'Show HTML Stream'}
+          </button>
+          <a
+            href={activeSite.file}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="kit-mini-btn"
+          >
+            Open Full Site ↗
+          </a>
+        </div>
       </div>
 
-      {/* stage */}
-      <div className="kit-sim-stage" aria-hidden="true">
-        <svg className="kit-sim-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {entities.map((e) => {
-            if (e.kind === 'rect') {
-              return (
-                <g key={e.id} ref={setEl(e.id)} style={hidden}>
-                  <rect
-                    x={e.at.x}
-                    y={e.at.y}
-                    width={e.at.w}
-                    height={e.at.h}
-                    rx={1.1}
-                    vectorEffect="non-scaling-stroke"
-                    className={`kit-sim-rect--${e.rstyle}`}
-                  />
-                </g>
-              );
-            }
-            if (e.kind === 'stroke') {
-              return (
-                <path
-                  key={e.id}
-                  ref={setEl(e.id)}
-                  d={e.path}
-                  fill="none"
-                  className="kit-sim-stroke"
-                  vectorEffect="non-scaling-stroke"
-                  style={hidden}
-                />
-              );
-            }
-            return null;
-          })}
-        </svg>
-
-        {/* images */}
-        {entities.map((e) =>
-          e.kind === 'image' ? (
-            <div
-              key={e.id}
-              ref={setEl(e.id)}
-              className="kit-sim-img"
-              style={{
-                left: `${e.at.x}%`,
-                top: `${e.at.y}%`,
-                width: `${e.at.w}%`,
-                height: `${e.at.h}%`,
-                ...hidden,
-              }}
-            >
-              <GenerativeArt seed={e.seed} />
+      {/* Main split stage: streaming HTML source + live rendering iframe with agent cursors */}
+      <div className={`kit-sim-stage kit-sim-stage--live ${showCodePane ? 'is-split' : ''}`}>
+        {showCodePane && (
+          <div className="kit-sim-codepane" aria-label="Streaming HTML file source">
+            <div className="kit-sim-codepane__head">
+              <span>{activeSite.slug}.html</span>
+              <span>
+                {lineCount} lines · {Math.round(progress * 100)}%
+              </span>
             </div>
-          ) : null
+            <pre
+              ref={codePreRef}
+              onScroll={handleCodePaneScroll}
+              className="kit-sim-codepane__pre"
+            >
+              <code>{streamedCode}</code>
+              {!isComplete && <span className="kit-caret" />}
+            </pre>
+          </div>
         )}
 
-        {/* rect labels + typed text */}
-        {entities.map((e) => {
-          if (e.kind === 'rect' && e.label) {
-            return (
-              <div
-                key={`${e.id}__label`}
-                ref={setEl(`${e.id}__label`)}
-                className="kit-sim-rect-label"
-                style={{ left: `${e.at.x}%`, top: `${e.at.y + e.at.h}%`, ...hidden }}
-              >
-                {e.label}
-              </div>
-            );
-          }
-          if (e.kind === 'text') {
-            return (
-              <div
-                key={e.id}
-                ref={setEl(e.id)}
-                className={`kit-sim-text kit-sim-text--${e.tstyle}`}
-                style={{ left: `${e.at.x}%`, top: `${e.at.y}%`, ...hidden }}
-              >
-                <span ref={setText(e.id)} />
-                <span
-                  ref={setCaret(e.id)}
-                  className="kit-caret"
-                  style={{ background: agentColor(e.agent) }}
-                />
-              </div>
-            );
-          }
-          return null;
-        })}
+        <div className="kit-sim-renderpane">
+          <iframe
+            ref={iframeRef}
+            key={activeSite.slug}
+            src={activeSite.file}
+            onLoad={collectIframeTargets}
+            title={`${activeSite.name} rendered website`}
+            className="kit-sim-iframe"
+          />
 
-        {/* agent cursors */}
-        {agents.map((a, i) => (
-          <div
-            key={a.id}
-            ref={setCursor(a.id)}
-            className="kit-sim-cursor"
-            style={{ left: `${6 + i * 9}%`, top: '105%' }}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14">
-              <path d="M1 1 L12.2 6.2 L6.9 7.6 L5.1 13 Z" fill={a.color} stroke="#fff" strokeWidth="1" />
-            </svg>
-            <span className="kit-sim-chip" style={{ background: a.color }}>
-              {a.name}
-            </span>
-          </div>
-        ))}
+          {/* Live DOM bounding-box highlights + 4 agent cursors drawing directly over the rendering elements */}
+          {!isComplete && agentVisuals.length > 0 && (
+            <div className="kit-sim-overlay" aria-hidden="true">
+              {agentVisuals.map(
+                ({ agent, box }) =>
+                  box && (
+                    <div
+                      key={`box-${agent.id}`}
+                      className="kit-sim-target-box"
+                      style={
+                        {
+                          left: `${box.left}%`,
+                          top: `${box.top}%`,
+                          width: `${box.width}%`,
+                          height: `${box.height}%`,
+                          '--agent-color': agent.color,
+                        } as React.CSSProperties
+                      }
+                    >
+                      <span className="kit-sim-target-box__tag">{box.tag}</span>
+                    </div>
+                  )
+              )}
+              {agentVisuals.map(({ agent, x, y, task }) => (
+                <div
+                  key={agent.id}
+                  className="kit-sim-cursor"
+                  style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    transition:
+                      'left 0.28s cubic-bezier(0.22, 1, 0.36, 1), top 0.28s cubic-bezier(0.22, 1, 0.36, 1)',
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14">
+                    <path
+                      d="M1 1 L12.2 6.2 L6.9 7.6 L5.1 13 Z"
+                      fill={agent.color}
+                      stroke="#fff"
+                      strokeWidth="1"
+                    />
+                  </svg>
+                  <span className="kit-sim-chip" style={{ background: agent.color }}>
+                    {agent.name}
+                    <em className="kit-sim-chip__task">{task}</em>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* screen-reader summary of the visual simulation */}
-      <p className="kit-sr-only">
-        Animated simulation: {agents.map((a) => a.name).join(', ')} assemble a {brandName} landing
-        page block by block inside a browser frame.
-      </p>
-
-      {/* progress hairline */}
+      {/* Progress hairline */}
       <div className="kit-sim-bar" aria-hidden="true">
-        <div ref={barRef} />
+        <div ref={barFillRef} style={{ transform: `scaleX(${progress})` }} />
       </div>
 
-      {/* controls */}
+      {/* Controls & agent legend */}
       <div className="kit-sim-controls">
         <div className="kit-sim-legend">
           {agents.map((a) => (
@@ -694,29 +847,36 @@ export function StreamSimulator({
             </span>
           ))}
         </div>
-        {reduced ? (
-          <span className="kit-sim-note">Shown complete · reduced motion respected</span>
-        ) : (
-          <div className="kit-sim-btns">
+
+        <div className="kit-sim-btns">
+          <button
+            type="button"
+            className="kit-mini-btn"
+            onClick={togglePlay}
+            aria-label={playing ? 'Pause simulation' : 'Play simulation'}
+            aria-pressed={playing}
+          >
+            {playing ? 'Pause' : isComplete ? 'Rebuild' : 'Play'}
+          </button>
+          {!isComplete && (
             <button
               type="button"
               className="kit-mini-btn"
-              onClick={toggle}
-              aria-label={playing ? 'Pause simulation' : 'Play simulation'}
-              aria-pressed={playing}
+              onClick={finishImmediately}
+              aria-label="Finish build immediately"
             >
-              {playing ? 'Pause' : 'Play'}
+              Finish Build
             </button>
-            <button
-              type="button"
-              className="kit-mini-btn"
-              onClick={replay}
-              aria-label="Replay simulation"
-            >
-              Replay
-            </button>
-          </div>
-        )}
+          )}
+          <button
+            type="button"
+            className="kit-mini-btn"
+            onClick={replay}
+            aria-label="Replay simulation"
+          >
+            Replay
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,506 +3,418 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
-import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import SceneLightRig from '../../shared/SceneLightRig';
 import ParticleField from '../../shared/ParticleField';
-import { useHotspotReporter } from '../../../kit/ProximityType';
-import { GlassMaterial } from '../../../lib/materials';
 import { useQuality } from '../../../lib/quality';
-import { useBakedSimulation, type Rapier, type PhysicsWorld } from '../../../lib/physics-bake';
-import { getSectionProgress, sectionRange, smooth, pointer } from '../../../scroll-store';
-import { readDwell, clamp01, lerp, easeInOutSine, type DwellBeats } from './agents/signature';
+import CatoBody, { type CatoBodyHandle } from '../../../kit/cato/CatoBody';
+import { catoBus, setFallState } from '../../../kit/cato/bus';
+import { journeyStops } from '@/lib/content/agentJourney';
 
-/**
- * AiAgentSystemsScene — "The Relay".
- *
- * A spiral of glass dominoes stands on a pale disc. Above it hang four agent
- * nodes (the four specialisms) and a central hub. In the signature dwell a
- * glass orb (the request) tips the outermost domino and a real, baked Rapier
- * cascade runs inward along the spiral. Every fallen domino draws a filament
- * of light up to its agent; a node wakes as its quarter of the spiral falls,
- * and when the last domino drops at the centre the hub lights and the network
- * closes. One push, the whole system relays the work.
- *
- * Scroll: hero = standing spiral, stage-right · signature = glide to centre,
- * cascade scrubbed by progress (reversible) · after = the lit network retires
- * behind the persona section. Reduced motion: the completed, lit network.
- */
+/** Scene-only travel choreography; the original rig, tools, voice and music own Cato at every stop. */
 
-/* ---------------- spiral layout (shared by bake + rest pose) ---------------- */
-const HX = 0.05;
-const HY = 0.32;
-const HZ = 0.17;
-const GAP = 0.27;
-const R0 = 2.3;
-const R1 = 0.8;
-const TURNS = 1.35;
-const AGENTS = 4;
-const STEPS = 340;
+const N = journeyStops.length;
+const FALL_SECONDS = 6; // one fall, start to finish, on the clock
+/* fall phases (k = 0..1 through the fall) */
+const LEAP = 0.34;
+const FREE = 0.74;
+const TOUCH = 0.79; // Timmy's jump lands at t = 1.02s, reached at this k (see landT)
+/* transitions, not performances: never interrupt them */
+const TRANSIT = new Set(['home', 'turn', 'boot']);
 
-function spiralPoints() {
-  const fine: [number, number][] = [];
-  const M = 4000;
-  for (let i = 0; i <= M; i++) {
-    const u = i / M;
-    const th = u * TURNS * Math.PI * 2;
-    const r = R0 + (R1 - R0) * u;
-    fine.push([Math.cos(th) * r, Math.sin(th) * r]);
-  }
-  const pts: [number, number][] = [fine[0]];
-  let acc = 0;
-  for (let i = 1; i <= M; i++) {
-    acc += Math.hypot(fine[i][0] - fine[i - 1][0], fine[i][1] - fine[i - 1][1]);
-    if (acc >= GAP) {
-      pts.push(fine[i]);
-      acc = 0;
+const sat = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+type Point = [number, number, number];
+const stopPositions: Point[] = [
+  [0, 0, 0], [2, -12, -1], [-7, -9, 1], [9, -9, 1],
+  [17, -2, -2], [3, -2, -4], [-7, 6, -1], [8, 6, 2], [18, 14, -2],
+];
+const journeys = [
+  { kind: 'dive', leap: 'jump', free: 'flip', orbit: 1.8, lift: 2.2, wide: 3.2, bank: -0.08,
+    via: [[0.4, 2.2, 1.2], [1.2, 1.6, 2.8], [2, -4, 3], [2.3, -10.8, 0.5]] },
+  { kind: 'bungee', leap: 'jump', free: 'cheer', orbit: -2.5, lift: 1.2, wide: 4, bank: 0.1,
+    via: [[0.5, -10.5, 1.8], [-2, -19, 3], [-4.5, -13, 2.5], [-6, -15, 2], [-7.3, -8.5, 1]] },
+  { kind: 'run', leap: 'run', free: 'run', orbit: -1.7, lift: -0.2, wide: 1.2, bank: 0,
+    via: [[-4, -9, 1], [1, -9, 1], [6, -9, 1]] },
+  { kind: 'vault', leap: 'kungfu', free: 'flip', orbit: 2.8, lift: 1.5, wide: 3, bank: -0.12,
+    via: [[10, -6, 2], [12, 0, 3], [15, 1, 0], [16.5, -1, -1.5]] },
+  { kind: 'swing', leap: 'jump', free: 'spin', orbit: -3.2, lift: 0.8, wide: 2.8, bank: 0.12,
+    via: [[14, -1, 0], [10, -5, 3], [6, -4, 1], [3.5, -1.3, -2]] },
+  { kind: 'spiral', leap: 'spin', free: 'cheer', orbit: 3.5, lift: 1.8, wide: 3.2, bank: -0.1,
+    via: [[1, 0, -1], [-3, 2, 2], [-8, 3, 1], [-10, 5, -2], [-8, 7, -3]] },
+  { kind: 'slalom', leap: 'kungfu', free: 'spin', orbit: -2.8, lift: 0.4, wide: 2, bank: 0.1,
+    via: [[-4, 7, 2], [0, 6, -2], [4, 7, 4], [6.5, 6.5, 3]] },
+  { kind: 'bound', leap: 'flip', free: 'cheer', orbit: 2.5, lift: 1.6, wide: 3, bank: -0.08,
+    via: [[10, 8, 3], [13, 15, 4], [16, 17, 1], [17.5, 15, -1]] },
+].map((journey, i) => ({
+  ...journey,
+  path: new THREE.CatmullRomCurve3(
+    [stopPositions[i], ...journey.via, stopPositions[i + 1]].map((p) => new THREE.Vector3(p[0], p[1], p[2])),
+    false,
+    'centripetal',
+  ),
+}));
+
+const _look = new THREE.Vector3();
+const smoothstep = (t: number) => {
+  t = sat(t);
+  return t * t * (3 - 2 * t);
+};
+/* Timmy's jump: late air from t = .8, touchdown at 1.02, standing by 1.95 */
+const landT = (k: number) => 0.8 + ((k - FREE) / (1 - FREE)) * 1.15;
+const STREAKS = 70;
+const _m = new THREE.Matrix4();
+const _q = new THREE.Quaternion();
+const _p = new THREE.Vector3();
+const _s = new THREE.Vector3();
+const _travel = new THREE.Vector3();
+const _tangent = new THREE.Vector3();
+const _right = new THREE.Vector3();
+const _up = new THREE.Vector3(0, 1, 0);
+const _offset = new THREE.Vector3();
+const _cameraPosition = new THREE.Vector3();
+const _cameraLook = new THREE.Vector3();
+
+let cachedWidth = 0;
+let cachedNdcX = 0.58;
+
+function getDesktopNdcX(width: number): number {
+  if (width === cachedWidth) return cachedNdcX;
+  cachedWidth = width;
+  if (typeof document !== 'undefined') {
+    const hero = document.querySelector('.child-hero');
+    if (hero) {
+      const range = document.createRange();
+      let maxRight = 0;
+      const walker = document.createTreeWalker(hero, NodeFilter.SHOW_TEXT);
+      let node: Node | null;
+      while ((node = walker.nextNode())) {
+        if (node.textContent && node.textContent.trim()) {
+          range.selectNodeContents(node);
+          const rect = range.getBoundingClientRect();
+          if (rect.right > maxRight) maxRight = rect.right;
+        }
+      }
+      if (maxRight > 0 && maxRight < width - 80) {
+        const midPx = (maxRight + width) * 0.5;
+        cachedNdcX = Math.max(0.45, Math.min(0.78, (midPx / width) * 2 - 1));
+        return cachedNdcX;
+      }
     }
   }
-  return pts;
+  cachedNdcX = 0.58;
+  return cachedNdcX;
 }
 
-const PTS = spiralPoints();
-const N = PTS.length;
-/** yaw (about +y) that aligns local x with the spiral tangent at domino i */
-const YAW = PTS.map((_, i) => {
-  const b = PTS[Math.min(N - 1, i + 1)];
-  const c = PTS[Math.max(0, i - 1)];
-  const tx = b[0] - c[0];
-  const tz = b[1] - c[1];
-  return Math.atan2(-tz, tx);
-});
-const T0 = (() => {
-  const l = Math.hypot(PTS[1][0] - PTS[0][0], PTS[1][1] - PTS[0][1]);
-  return [(PTS[1][0] - PTS[0][0]) / l, (PTS[1][1] - PTS[0][1]) / l];
-})();
-const ORB_R = 0.085;
-const ORB_START: [number, number, number] = [PTS[0][0] - T0[0] * 0.55, 0.62, PTS[0][1] - T0[1] * 0.55];
-
-/** domino i belongs to agent floor(i / N * AGENTS) */
-const agentOf = (i: number) => Math.min(AGENTS - 1, Math.floor((i / N) * AGENTS));
-const AGENT_POS: THREE.Vector3[] = Array.from({ length: AGENTS }, (_, a) => {
-  /* place each agent above the mean of its spiral quarter, pulled outward */
-  let sx = 0;
-  let sz = 0;
-  let n = 0;
-  for (let i = 0; i < N; i++) {
-    if (agentOf(i) !== a) continue;
-    sx += PTS[i][0];
-    sz += PTS[i][1];
-    n++;
-  }
-  const v = new THREE.Vector3(sx / n, 0, sz / n);
-  const len = Math.max(0.001, Math.hypot(v.x, v.z));
-  v.multiplyScalar(1.55 / len);
-  v.y = 1.75 + a * 0.12;
-  return v;
-});
-const HUB_POS = new THREE.Vector3(0, 2.35, 0);
-
-function setupWorld(R: Rapier, world: PhysicsWorld) {
-  const g = world.createRigidBody(R.RigidBodyDesc.fixed());
-  world.createCollider(R.ColliderDesc.cuboid(10, 0.1, 10).setTranslation(0, -0.1, 0).setFriction(0.7), g);
-  const bodies = [];
-  for (let i = 0; i < N; i++) {
-    const y = YAW[i];
-    const d = R.RigidBodyDesc.dynamic()
-      .setTranslation(PTS[i][0], HY + 0.001, PTS[i][1])
-      .setRotation({ x: 0, y: Math.sin(y / 2), z: 0, w: Math.cos(y / 2) })
-      .setCanSleep(false);
-    const b = world.createRigidBody(d);
-    world.createCollider(
-      R.ColliderDesc.cuboid(HX, HY, HZ).setFriction(0.45).setRestitution(0.05).setDensity(1),
-      b,
-    );
-    bodies.push(b);
-  }
-  const orb = world.createRigidBody(
-    R.RigidBodyDesc.dynamic()
-      .setTranslation(ORB_START[0], ORB_START[1], ORB_START[2])
-      .setLinvel(T0[0] * 1.7, 0.6, T0[1] * 1.7)
-      .setCanSleep(false),
-  );
-  world.createCollider(R.ColliderDesc.ball(ORB_R).setDensity(3).setRestitution(0.2).setFriction(0.5), orb);
-  bodies.push(orb);
-  return bodies;
+function getCatoX(cam: THREE.PerspectiveCamera, width: number, height: number, narrow: boolean): number {
+  if (narrow) return 0;
+  const halfW = 9 * Math.tan(THREE.MathUtils.degToRad(cam.fov * 0.5)) * (width / Math.max(1, height));
+  return getDesktopNdcX(width) * halfW;
 }
-
-/* ---------------- shaders ---------------- */
-const groundFrag = /* glsl */ `
-  varying vec2 vUv;
-  uniform float uLit;
-  void main() {
-    vec2 p = vUv * 2.0 - 1.0;
-    float r = length(p);
-    float a = smoothstep(1.0, 0.15, r) * 0.55;
-    float ring = smoothstep(0.012, 0.0, abs(r - 0.93)) * 0.5;
-    vec3 col = mix(vec3(0.86, 0.9, 1.0), vec3(0.62, 0.7, 1.0), uLit * (1.0 - r));
-    gl_FragColor = vec4(col, a * (0.55 + uLit * 0.45) + ring * 0.6);
-  }
-`;
-const groundVert = /* glsl */ `
-  varying vec2 vUv;
-  void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
-`;
-
-/* ---------------- module temps (no per-frame allocation) ---------------- */
-const _p = new THREE.Vector3();
-const _q = new THREE.Quaternion();
-const _s = new THREE.Vector3(1, 1, 1);
-const _m = new THREE.Matrix4();
-const _up = new THREE.Vector3();
-const _look = new THREE.Vector3();
-const _c = new THREE.Color();
-const C_ICE = new THREE.Color('#e4ebff');
-const C_LIT = new THREE.Color('#5a74ff');
-const C_LINE = new THREE.Color('#2e4bff');
-const beats: DwellBeats = { arrive: 0, play: 0, leave: 0 };
 
 export default function AiAgentSystemsScene() {
   const q = useQuality();
-  const stage = useRef<THREE.Group>(null);
-  const dominoes = useRef<THREE.InstancedMesh>(null);
-  const orb = useRef<THREE.Mesh>(null);
-  const nodes = useRef<(THREE.Group | null)[]>([]);
-  const halos = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
-  const hub = useRef<THREE.Group>(null);
-  const hubHalo = useRef<THREE.MeshBasicMaterial>(null);
-  const report = useHotspotReporter('agents-robot');
-  const born = useRef(-1);
-  const fallReady = useRef(false);
-
-  const sim = useBakedSimulation({
-    key: 'aas-domino-relay-v1',
-    steps: STEPS,
-    dt: 1 / 60,
-    substeps: 3,
-    solverIterations: 12,
-    setup: setupWorld,
-  });
-
-  /* per-domino fall time (normalized sim t), filled once after the bake */
-  const fallT = useMemo(() => new Float32Array(N).fill(2), []);
-
-  const geo = useMemo(() => new RoundedBoxGeometry(HX * 2, HY * 2, HZ * 2, 3, 0.018), []);
-
-  /* filaments: domino → agent (N) + agent → hub (AGENTS) */
-  const lines = useMemo(() => {
-    const segs = N + AGENTS;
-    const g = new THREE.BufferGeometry();
-    const pos = new Float32Array(segs * 6);
-    const col = new Float32Array(segs * 8);
-    g.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
-    g.setAttribute('color', new THREE.BufferAttribute(col, 4).setUsage(THREE.DynamicDrawUsage));
-    const m = new THREE.LineBasicMaterial({
-      vertexColors: true,
-      transparent: true,
-      depthWrite: false,
-      toneMapped: false,
-    });
-    const obj = new THREE.LineSegments(g, m);
-    obj.frustumCulled = false;
-    return { obj, pos, col, g, m };
-  }, []);
-
-  const ground = useMemo(
+  const body = useRef<CatoBodyHandle>(null);
+  const cato = useRef<THREE.Group>(null);
+  const dust = useRef<THREE.Group>(null);
+  const streaks = useRef<THREE.InstancedMesh>(null);
+  const shock = useRef<THREE.Mesh>(null);
+  const tether = useRef<THREE.Mesh>(null);
+  const runway = useRef<THREE.Mesh>(null);
+  const streakSeeds = useMemo(
     () =>
-      new THREE.ShaderMaterial({
-        vertexShader: groundVert,
-        fragmentShader: groundFrag,
-        transparent: true,
-        depthWrite: false,
-        uniforms: { uLit: { value: 0 } },
-      }),
+      Array.from({ length: STREAKS }, (_, n) => ({
+        a: (n / STREAKS) * Math.PI * 2 + Math.sin(n * 12.9) * 0.3,
+        r: 0.9 + ((n * 37) % 23) / 15,
+        o: ((n * 53) % 97) / 97,
+        len: 0.8 + ((n * 29) % 13) / 8,
+      })),
     [],
   );
-
-  useEffect(
-    () => () => {
-      geo.dispose();
-      lines.g.dispose();
-      lines.m.dispose();
-      ground.dispose();
-    },
-    [geo, lines, ground],
-  );
-
-  /* rest pose: every domino standing — shown until the bake lands */
-  useEffect(() => {
-    const mesh = dominoes.current;
-    if (!mesh) return;
-    for (let i = 0; i < N; i++) {
-      _p.set(PTS[i][0], HY, PTS[i][1]);
-      _q.setFromAxisAngle(_up.set(0, 1, 0), YAW[i]);
-      mesh.setMatrixAt(i, _m.compose(_p, _q, _s));
-      mesh.setColorAt(i, C_ICE);
-    }
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  }, []);
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    if (born.current < 0) born.current = t;
-    const animate = q.animate;
-    const intro = animate ? smooth(clamp01((t - born.current) / 1.8)) : 1;
-    const baked = sim.current;
-
-    /* ---- beats ---- */
-    readDwell('signature', beats);
-    const play = animate ? beats.play : 1;
-    const arrive = animate ? easeInOutSine(beats.arrive) : 1;
-    const leave = animate ? smooth(beats.leave) : 0;
-    const persona = animate ? smooth(sectionRange(getSectionProgress('persona'), 0.1, 0.6)) : 0;
-
-    /* ---- one-time fall-time extraction from the recording ---- */
-    if (baked && !fallReady.current) {
-      const last = baked.frames - 1;
-      for (let i = 0; i < N; i++) {
-        for (let f = 0; f <= last; f++) {
-          const qi = (f * baked.count + i) * 4;
-          const qx = baked.quaternions[qi];
-          const qz = baked.quaternions[qi + 2];
-          const upY = 1 - 2 * (qx * qx + qz * qz);
-          if (upY < 0.82) {
-            fallT[i] = f / last;
-            break;
-          }
-        }
-      }
-      fallReady.current = true;
-    }
-
-    /* the cascade: whole recording across the pinned phase */
-    const simT = play;
-
-    /* ---- dominoes ---- */
-    const mesh = dominoes.current;
-    let fallen = 0;
-    if (mesh && baked) {
-      for (let i = 0; i < N; i++) {
-        baked.sample(i, simT, _p, _q);
-        mesh.setMatrixAt(i, _m.compose(_p, _q, _s));
-        const lit = clamp01((simT - fallT[i]) / 0.03);
-        if (lit > 0) fallen++;
-        _c.copy(C_ICE).lerp(C_LIT, lit);
-        mesh.setColorAt(i, _c);
-      }
-      mesh.instanceMatrix.needsUpdate = true;
-      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    }
-
-    /* ---- the request orb ---- */
-    if (orb.current) {
-      if (baked) {
-        baked.sample(N, simT, _p, _q);
-        orb.current.position.copy(_p);
-        orb.current.quaternion.copy(_q);
-      }
-      const idle = animate ? 1 - clamp01(play * 30) : 0;
-      orb.current.position.y += Math.sin(t * 1.4) * 0.05 * idle;
-      orb.current.scale.setScalar(Math.max(1e-4, intro));
-    }
-
-    /* ---- agents wake per quarter; hub when the spiral completes ---- */
-    let agentsLit = 0;
-    for (let a = 0; a < AGENTS; a++) {
-      let total = 0;
-      let lit = 0;
-      for (let i = 0; i < N; i++) {
-        if (agentOf(i) !== a) continue;
-        total++;
-        if (fallReady.current && simT >= fallT[i]) lit++;
-      }
-      const w = baked ? lit / total : animate ? 0 : 1;
-      const done = w >= 0.999 ? 1 : 0;
-      agentsLit += done;
-      const g = nodes.current[a];
-      if (g) {
-        const s = (0.55 + w * 0.45 + done * 0.15) * intro;
-        g.scale.setScalar(Math.max(1e-4, s));
-        g.position.y = AGENT_POS[a].y + (animate ? Math.sin(t * 0.8 + a * 1.7) * 0.04 : 0);
-      }
-      const h = halos.current[a];
-      if (h) h.opacity = (0.04 + w * 0.12 + done * 0.16) * intro;
-    }
-    const hubW = fallReady.current ? clamp01((simT - fallT[N - 1]) / 0.06) : animate ? 0 : 1;
-    if (hub.current) {
-      hub.current.scale.setScalar(Math.max(1e-4, (0.6 + hubW * 0.6) * intro));
-      hub.current.position.y = HUB_POS.y + (animate ? Math.sin(t * 0.6) * 0.05 : 0);
-      hub.current.rotation.y = animate ? t * 0.25 : 0.6;
-    }
-    if (hubHalo.current) hubHalo.current.opacity = (0.05 + hubW * 0.24) * intro;
-    ground.uniforms.uLit.value = fallen / N;
-
-    /* ---- filaments ---- */
-    const pos = lines.pos;
-    const col = lines.col;
-    for (let i = 0; i < N; i++) {
-      const a = agentOf(i);
-      const ng = nodes.current[a];
-      let bx = PTS[i][0];
-      let by = HY * 2;
-      let bz = PTS[i][1];
-      if (mesh && baked) {
-        mesh.getMatrixAt(i, _m);
-        _up.set(0, HY, 0).applyMatrix4(_m);
-        bx = _up.x;
-        by = _up.y;
-        bz = _up.z;
-      }
-      const o = i * 6;
-      pos[o] = bx;
-      pos[o + 1] = by;
-      pos[o + 2] = bz;
-      pos[o + 3] = AGENT_POS[a].x;
-      pos[o + 4] = ng ? ng.position.y : AGENT_POS[a].y;
-      pos[o + 5] = AGENT_POS[a].z;
-      /* flash on the fall, settle to a steady thread */
-      const since = fallReady.current ? simT - fallT[i] : animate ? -1 : 1;
-      const on = since >= 0 ? 1 : 0;
-      const flash = on * Math.exp(-Math.max(0, since) * 28);
-      const alpha = on * (0.16 + flash * 0.7);
-      const c = i * 8;
-      col[c] = C_LINE.r;
-      col[c + 1] = C_LINE.g;
-      col[c + 2] = C_LINE.b;
-      col[c + 3] = alpha * 0.35;
-      col[c + 4] = C_LINE.r;
-      col[c + 5] = C_LINE.g;
-      col[c + 6] = C_LINE.b;
-      col[c + 7] = alpha;
-    }
-    for (let a = 0; a < AGENTS; a++) {
-      const o = (N + a) * 6;
-      const ng = nodes.current[a];
-      pos[o] = AGENT_POS[a].x;
-      pos[o + 1] = ng ? ng.position.y : AGENT_POS[a].y;
-      pos[o + 2] = AGENT_POS[a].z;
-      pos[o + 3] = HUB_POS.x;
-      pos[o + 4] = hub.current ? hub.current.position.y : HUB_POS.y;
-      pos[o + 5] = HUB_POS.z;
-      const alpha = 0.06 + hubW * 0.5;
-      const c = (N + a) * 8;
-      col[c] = C_LINE.r;
-      col[c + 1] = C_LINE.g;
-      col[c + 2] = C_LINE.b;
-      col[c + 3] = alpha;
-      col[c + 4] = C_LINE.r;
-      col[c + 5] = C_LINE.g;
-      col[c + 6] = C_LINE.b;
-      col[c + 7] = alpha;
-    }
-    (lines.g.attributes.position as THREE.BufferAttribute).needsUpdate = true;
-    (lines.g.attributes.color as THREE.BufferAttribute).needsUpdate = true;
-
-    /* ---- stage placement: right in hero → centre for the relay → retire ---- */
-    const g = stage.current;
-    if (g) {
-      const heroX = q.compact ? 0 : 3.05;
-      const heroY = q.compact ? -2.1 : -1.55;
-      const restX = q.compact ? 0.2 : 2.6;
-      const cx = lerp(lerp(heroX, 0, arrive), restX, leave);
-      const cy = lerp(lerp(heroY, -0.75, arrive), -0.9, leave) + (1 - intro) * -0.6;
-      const cz = lerp(lerp(-1.2, 0, arrive), -2.4 - persona * 0.8, leave);
-      g.position.set(cx, cy, cz);
-      const s = (q.compact ? 0.62 : 0.92) * lerp(lerp(0.7, 1, arrive), 0.85, leave);
-      g.scale.setScalar(s);
-      /* the spiral turns a quarter as it arrives; pointer tilts the table */
-      const px = animate ? pointer.x : 0;
-      const py = animate ? pointer.y : 0;
-      g.rotation.y += (-0.5 + arrive * 0.5 + leave * 0.4 + (animate ? t * 0.012 * (1 - arrive + leave) : 0) + px * 0.12 - g.rotation.y) * 0.05;
-      g.rotation.x += (-py * 0.05 - g.rotation.x) * 0.05;
-    }
-
-    /* ---- hotspot (hub) → ProximityType headlines ---- */
-    if (hub.current) report(hub.current, state.camera, 0.45 + hubW * 0.5);
-
-    /* ---- camera: lift during the relay so the spiral reads ---- */
-    const cam = state.camera;
-    const camY = lerp(lerp(1.1, 3.6, arrive), 1.4, leave);
-    const camZ = lerp(lerp(9, 8.4, arrive), 9, leave) + (q.compact ? 3.2 : 0);
-    const px = animate ? pointer.x * 0.25 : 0;
-    const py = animate ? pointer.y * 0.18 : 0;
-    if (animate) {
-      cam.position.x += (px - cam.position.x) * 0.05;
-      cam.position.y += (camY + py - cam.position.y) * 0.05;
-      cam.position.z += (camZ - cam.position.z) * 0.05;
-    } else {
-      cam.position.set(0, 2.4, 9 + (q.compact ? 3.2 : 0));
-    }
-    _look.set(lerp(q.compact ? 0 : 1.1, 0, arrive) * (1 - leave) + (q.compact ? 0 : 1.2) * leave, lerp(-0.3, -0.4, arrive), 0);
-    cam.lookAt(_look);
+  const st = useRef({
+    scrubbing: false, running: false, wind: 0, stop: -1, k: 0, wasSpeaking: false,
+    camera: new THREE.Vector3(0, 1.35, 9), look: new THREE.Vector3(0, 1, 0), bank: 0,
   });
 
+  useEffect(() => {
+    catoBus.stopIndex = 0;
+    catoBus.targetStop = 0;
+    setFallState(0, false);
+  }, []);
+
+  useFrame((state, delta) => {
+    const core = body.current?.core;
+    if (!core) return;
+    const dt = Math.min(delta, 0.05);
+    const S = st.current;
+    const cam = state.camera as THREE.PerspectiveCamera;
+    const narrow = state.size.width < 760;
+
+    /* destination stop is set ONLY by goToStop (Next/Previous button or voice agent tool) */
+    const goal = Math.max(0, Math.min(N - 1, catoBus.targetStop));
+    const snapCamera = S.stop < 0 || !q.animate || (S.k === 0 && S.stop !== catoBus.stopIndex);
+    if (S.k === 0 && S.stop >= 0 && S.stop !== catoBus.stopIndex) {
+      S.stop = catoBus.stopIndex;
+    }
+
+    if (S.stop < 0 || !q.animate) {
+      S.stop = goal;
+      S.k = 0;
+      setFallState(S.stop, false);
+    } else {
+      const step = dt / FALL_SECONDS;
+      if (S.k > 0) {
+        S.k += goal > S.stop ? step : -step;
+      } else if (goal > S.stop) {
+        S.k = step;
+        setFallState(S.stop, true);
+      } else if (goal < S.stop) {
+        S.stop -= 1;
+        S.k = 1 - step;
+        setFallState(S.stop, true);
+      }
+      if (S.k >= 1) {
+        S.stop += 1;
+        S.k = 0;
+        setFallState(S.stop, S.stop !== goal);
+      } else if (S.k < 0) {
+        S.k = 0;
+        setFallState(S.stop, S.stop !== goal);
+      }
+    }
+    const i = S.stop;
+    const trickOn = S.k > 0;
+    const k = S.k;
+    const journey = journeys[Math.min(i, journeys.length - 1)];
+    const forward = goal > i;
+
+    /* ---- what Cato is doing ---- */
+    if (trickOn && journey.kind === 'run') {
+      const progress = forward ? k : 1 - k;
+      if (progress < 0.68 && !S.running) {
+        core.release();
+        core.play('run');
+        S.running = true;
+      } else if (progress >= 0.68 && S.running) {
+        core.play('home');
+        S.running = false;
+      }
+      S.scrubbing = false;
+    } else if (trickOn) {
+      const { leap, free } = journey;
+      if (k < LEAP) core.scrub(leap, (k / LEAP) * core.duration(leap));
+      else if (journey.kind === 'dive' && k < FREE) core.scrub('jump', 0.65);
+      else if (k < FREE) core.scrub(free, ((k - LEAP) / (FREE - LEAP)) * core.duration(free));
+      else core.scrub('jump', landT(k));
+      S.scrubbing = true;
+    } else {
+      if (S.running) {
+        core.play('home');
+        S.running = false;
+      }
+      if (S.scrubbing) {
+        core.release();
+        S.scrubbing = false;
+      }
+      /* only a real event moves him: a tool in use, a track playing, a tool being built */
+      const want = catoBus.toolMove ?? 'idle';
+      const mode = core.mode();
+      if (q.animate && mode !== want && !TRANSIT.has(mode)) core.play(want);
+    }
+
+    /* ---- a playing DJ track drives Timmy's beat clock ---- */
+    const music = catoBus.music;
+    if (music && !music.audio.paused) core.beat(music.bpm, (music.audio.currentTime * music.bpm) / 60);
+
+    /* ---- voice: output frequency bands & level drive the viseme mouth ---- */
+    const speakingNow =
+      catoBus.activity === 'speaking' &&
+      performance.now() - catoBus.mouthAt < 250 &&
+      catoBus.mouth > 0.008;
+    if (speakingNow) {
+      core.viseme('aa', catoBus.visemes.aa);
+      core.viseme('O', catoBus.visemes.O);
+      core.viseme('E', catoBus.visemes.E);
+      core.viseme('SS', catoBus.visemes.SS);
+      S.wasSpeaking = true;
+    } else if (S.wasSpeaking) {
+      core.viseme('aa', 0);
+      core.viseme('O', 0);
+      core.viseme('E', 0);
+      core.viseme('SS', 0);
+      S.wasSpeaking = false;
+    }
+
+    /* The same curve is sampled in either direction; stops keep their original composition. */
+    const x0 = getCatoX(cam, state.size.width, state.size.height, narrow);
+    const scale = narrow ? 0.8 : 1.15;
+    _travel.fromArray(stopPositions[i]);
+    _tangent.set(0, -1, 0);
+    let roll = 0;
+    let pitch = 0;
+    let fallV = 0;
+    const envelope = trickOn ? Math.sin(Math.PI * sat(k / TOUCH)) ** 2 : 0;
+    if (trickOn) {
+      const t = smoothstep(k / TOUCH);
+      journey.path.getPoint(t, _travel);
+      journey.path.getTangent(t, _tangent);
+      if (!forward) _tangent.negate();
+      fallV = envelope;
+      if (journey.kind === 'dive') {
+        pitch = Math.PI * smoothstep((k - 0.18) / 0.18) * (1 - smoothstep((k - 0.6) / (FREE - 0.6)));
+      } else if (journey.kind === 'bungee') {
+        roll = -0.65 * Math.sin(k * Math.PI * 4) * envelope;
+      } else if (journey.kind !== 'run') {
+        roll = journey.bank * 3 * envelope;
+      }
+    }
+    const x = _travel.x + x0;
+    const y = _travel.y;
+    const z = _travel.z;
+    if (cato.current) {
+      cato.current.rotation.set(pitch, 0, roll);
+      _offset.set(0, scale, 0).applyQuaternion(cato.current.quaternion);
+      cato.current.position.set(x - _offset.x, y + scale - _offset.y, z - _offset.z);
+      cato.current.scale.setScalar(scale);
+    }
+
+    const orbit = journey.orbit * envelope * (narrow ? 0.55 : 1);
+    const distance = 9 + journey.wide * envelope;
+    const frameY = narrow ? -0.95 : 1;
+    _cameraLook.set(x, y + frameY, z);
+    _cameraPosition.set(x + orbit, y + frameY + 0.35 + journey.lift * envelope, z + distance);
+    _offset.subVectors(_cameraPosition, _cameraLook);
+    _right.crossVectors(_up, _offset).normalize();
+    const framing = x0 * _offset.length() / Math.hypot(9, 0.35);
+    _cameraPosition.addScaledVector(_right, -framing);
+    _cameraLook.addScaledVector(_right, -framing);
+    const kd = q.animate ? 1 - Math.exp(-dt * (trickOn ? 14 : 7)) : 1;
+    S.camera.lerp(_cameraPosition, snapCamera ? 1 : kd);
+    S.look.lerp(_cameraLook, snapCamera ? 1 : kd);
+    S.bank += (journey.bank * envelope * (narrow ? 0.4 : 1) - S.bank) * (snapCamera ? 1 : kd);
+    const impact = trickOn && journey.kind !== 'run' && k > TOUCH ? Math.max(0, 1 - (k - TOUCH) / 0.08) : 0;
+    const shake = impact * 0.18 * Math.sin(k * 520);
+    cam.position.copy(S.camera);
+    cam.position.x += shake * 0.5;
+    cam.position.y += shake;
+    _look.copy(S.look);
+    _look.y += shake * 0.6;
+    cam.lookAt(_look);
+    cam.rotateZ(S.bank);
+    cam.updateMatrixWorld();
+    cato.current?.updateWorldMatrix(true, true);
+
+    if (tether.current) {
+      tether.current.visible = trickOn && journey.kind === 'bungee' && k < TOUCH;
+      if (tether.current.visible) {
+        _p.fromArray(stopPositions[i]);
+        _p.x += x0;
+        _p.y += 3;
+        _offset.set(x, y + scale, z).sub(_p);
+        tether.current.position.copy(_p).addScaledVector(_offset, 0.5);
+        tether.current.scale.set(1, _offset.length(), 1);
+        tether.current.quaternion.setFromUnitVectors(_up, _offset.normalize());
+        (tether.current.material as THREE.MeshBasicMaterial).opacity = 0.55 * Math.min(1, envelope * 5);
+      }
+    }
+    if (runway.current) {
+      runway.current.visible = trickOn && journey.kind === 'run';
+      if (runway.current.visible) {
+        runway.current.position.set(x0 + 1, -9.08, 1);
+        (runway.current.material as THREE.MeshPhysicalMaterial).opacity = 0.55 * Math.min(1, envelope * 5);
+      }
+    }
+
+    /* Travel direction also drives the existing streaks, including horizontal and upward shots. */
+    S.wind = Math.max(fallV, S.wind - dt * 2.5);
+    const sm = streaks.current;
+    if (sm) {
+      sm.visible = S.wind > 0.02;
+      if (sm.visible) {
+        const mat = sm.material as THREE.MeshBasicMaterial;
+        mat.opacity = 0.45 * S.wind;
+        _q.setFromUnitVectors(_up, _tangent);
+        for (let n = 0; n < STREAKS; n++) {
+          const sd = streakSeeds[n];
+          const cyc = (sd.o + state.clock.elapsedTime * (1.2 + 2.4 * S.wind)) % 1;
+          _p.set(Math.cos(sd.a) * sd.r, 3.5 - cyc * 7, Math.sin(sd.a) * sd.r).applyQuaternion(_q);
+          _p.x += x; _p.y += y + 1; _p.z += z;
+          _s.set(1, sd.len * (0.4 + 1.6 * S.wind), 1);
+          sm.setMatrixAt(n, _m.compose(_p, _q, _s));
+        }
+        sm.instanceMatrix.needsUpdate = true;
+      }
+    }
+
+    /* ---- shockwave ring on the landing ledge ---- */
+    const sh = shock.current;
+    if (sh) {
+      const w = trickOn && k > TOUCH ? (k - TOUCH) / (1 - TOUCH) : -1;
+      sh.visible = w >= 0 && w < 1 && journey.kind !== 'run';
+      if (sh.visible) {
+        sh.position.fromArray(stopPositions[i + 1]);
+        sh.position.x += x0;
+        sh.position.y += 0.02;
+        sh.scale.setScalar(scale * (1 + 3.2 * Math.sqrt(w)));
+        (sh.material as THREE.MeshBasicMaterial).opacity = 0.85 * (1 - w) ** 1.5;
+      }
+    }
+    if (dust.current) dust.current.position.copy(S.look);
+  }, -1);
+
   return (
-    <group>
+    <>
       <SceneLightRig />
-      <ParticleField count={Math.floor(1300 * q.particles)} drift={q.animate ? 0.1 : 0} opacity={0.32} />
-
-      <group ref={stage} position={[2.3, -0.9, -1.2]} scale={0.8}>
-        {/* the table */}
-        <mesh rotation-x={-Math.PI / 2} position={[0, 0.002, 0]} material={ground}>
-          <planeGeometry args={[6.4, 6.4]} />
-        </mesh>
-
-        {/* the dominoes */}
-        <instancedMesh ref={dominoes} args={[geo, undefined, N]} frustumCulled={false}>
-          <GlassMaterial kind="ice" thickness={0.4} />
-        </instancedMesh>
-
-        {/* the request */}
-        <mesh ref={orb} position={ORB_START}>
-          <sphereGeometry args={[ORB_R, 32, 32]} />
-          <GlassMaterial kind="deep" />
-        </mesh>
-
-        {/* the network */}
-        <primitive object={lines.obj} />
-        {AGENT_POS.map((p, a) => (
-          <group
-            key={a}
-            position={p}
-            ref={(el) => {
-              nodes.current[a] = el;
-            }}
-          >
-            <mesh>
-              <sphereGeometry args={[0.11, 32, 32]} />
-              <GlassMaterial kind="core" />
-            </mesh>
-            <mesh>
-              <sphereGeometry args={[0.17, 24, 24]} />
-              <meshBasicMaterial
-                ref={(el) => {
-                  halos.current[a] = el;
-                }}
-                color="#93a9ff"
-                transparent
-                opacity={0.1}
-                depthWrite={false}
-                toneMapped={false}
-              />
-            </mesh>
-          </group>
-        ))}
-        <group ref={hub} position={HUB_POS}>
-          <mesh>
-            <octahedronGeometry args={[0.2, 0]} />
-            <GlassMaterial kind="deep" flatShading />
-          </mesh>
-          <mesh>
-            <sphereGeometry args={[0.28, 24, 24]} />
-            <meshBasicMaterial
-              ref={hubHalo}
-              color="#93a9ff"
-              transparent
-              opacity={0.1}
-              depthWrite={false}
-              toneMapped={false}
-            />
-          </mesh>
-        </group>
+      <group ref={dust}>
+        <ParticleField count={Math.floor(1100 * q.particles)} drift={q.animate ? 0.1 : 0} opacity={0.3} />
       </group>
+      {journeyStops.map((stop, j) => (
+        <Ledge key={stop.id} position={stopPositions[j]} />
+      ))}
+      <mesh ref={tether} visible={false}>
+        <cylinderGeometry args={[0.018, 0.018, 1, 8]} />
+        <meshBasicMaterial color="#7f97ff" transparent depthWrite={false} toneMapped={false} />
+      </mesh>
+      <mesh ref={runway} visible={false}>
+        <boxGeometry args={[16, 0.08, 1.5]} />
+        <meshPhysicalMaterial color="#f4f6ff" roughness={0.15} clearcoat={1} transparent depthWrite={false} />
+      </mesh>
+      <instancedMesh ref={streaks} args={[undefined, undefined, STREAKS]} frustumCulled={false}>
+        <planeGeometry args={[0.018, 1]} />
+        <meshBasicMaterial color="#9fb2ff" transparent depthWrite={false} toneMapped={false} side={THREE.DoubleSide} />
+      </instancedMesh>
+      <mesh ref={shock} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
+        <ringGeometry args={[1.0, 1.12, 96]} />
+        <meshBasicMaterial color="#7f97ff" transparent depthWrite={false} toneMapped={false} />
+      </mesh>
+      <group ref={cato}>
+        <CatoBody ref={body} paused={!q.animate} />
+      </group>
+    </>
+  );
+}
+
+const ledgeMats = {
+  glass: new THREE.MeshPhysicalMaterial({ color: '#f4f6ff', roughness: 0.15, clearcoat: 1, transparent: true, opacity: 0.7 }),
+  glow: new THREE.MeshBasicMaterial({ color: '#7f97ff', toneMapped: false }),
+};
+
+/** a glass ledge under Cato's x, matching his scale */
+function Ledge({ position }: { position: Point }) {
+  const g = useRef<THREE.Group>(null);
+  useFrame((state) => {
+    if (!g.current) return;
+    const narrow = state.size.width < 760;
+    const cam = state.camera as THREE.PerspectiveCamera;
+    g.current.position.x = position[0] + getCatoX(cam, state.size.width, state.size.height, narrow);
+    g.current.scale.setScalar(narrow ? 0.8 : 1.15);
+  });
+  return (
+    <group ref={g} position={position}>
+      <mesh position={[0, -0.05, 0]} material={ledgeMats.glass}>
+        <cylinderGeometry args={[1.2, 1.05, 0.1, 64]} />
+      </mesh>
+      <mesh position={[0, 0.003, 0]} rotation={[-Math.PI / 2, 0, 0]} material={ledgeMats.glow}>
+        <ringGeometry args={[1.1, 1.17, 72]} />
+      </mesh>
     </group>
   );
 }

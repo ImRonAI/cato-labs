@@ -14,6 +14,7 @@ type LiveCanvasProps = {
   onMetrics?: (metrics: CanvasMetrics) => void;
   onNavigate?: (href: string) => void;
   onRenderError?: (message: string) => void;
+  onCaptureAttempt?: () => void;
   previousChatResponseId?: string;
   onChatResponseId?: (id: string) => void;
   previousPendingChatResponseId?: string;
@@ -21,16 +22,16 @@ type LiveCanvasProps = {
   initialFragment?: string;
 };
 
-export default function LiveCanvas({ html, streaming, agentId, agentName, onMetrics, onNavigate, onRenderError, previousChatResponseId, onChatResponseId, previousPendingChatResponseId, onChatPendingResponseId, initialFragment }: LiveCanvasProps) {
+export default function LiveCanvas({ html, streaming, agentId, agentName, onMetrics, onNavigate, onRenderError, onCaptureAttempt, previousChatResponseId, onChatResponseId, previousPendingChatResponseId, onChatPendingResponseId, initialFragment }: LiveCanvasProps) {
   const channel = useId();
   const iframe = useRef<HTMLIFrameElement>(null);
   const chatRequests = useRef(new Map<string, AbortController>());
-  const latest = useRef({ html, streaming, agentId, agentName, onMetrics, onNavigate, onRenderError, previousChatResponseId, onChatResponseId, previousPendingChatResponseId, onChatPendingResponseId, initialFragment });
+  const latest = useRef({ html, streaming, agentId, agentName, onMetrics, onNavigate, onRenderError, onCaptureAttempt, previousChatResponseId, onChatResponseId, previousPendingChatResponseId, onChatPendingResponseId, initialFragment });
   const document = useMemo(() => createCanvasDocument(channel), [channel]);
 
   useEffect(() => {
-    latest.current = { html, streaming, agentId, agentName, onMetrics, onNavigate, onRenderError, previousChatResponseId, onChatResponseId, previousPendingChatResponseId, onChatPendingResponseId, initialFragment };
-  }, [html, streaming, agentId, agentName, onMetrics, onNavigate, onRenderError, previousChatResponseId, onChatResponseId, previousPendingChatResponseId, onChatPendingResponseId, initialFragment]);
+    latest.current = { html, streaming, agentId, agentName, onMetrics, onNavigate, onRenderError, onCaptureAttempt, previousChatResponseId, onChatResponseId, previousPendingChatResponseId, onChatPendingResponseId, initialFragment };
+  }, [html, streaming, agentId, agentName, onMetrics, onNavigate, onRenderError, onCaptureAttempt, previousChatResponseId, onChatResponseId, previousPendingChatResponseId, onChatPendingResponseId, initialFragment]);
 
   useEffect(() => {
     iframe.current?.contentWindow?.postMessage({ type: "render", channel, html, streaming, agentId, agentName, fragment: initialFragment }, "*");
@@ -120,7 +121,7 @@ export default function LiveCanvas({ html, streaming, agentId, agentName, onMetr
       if (event.source !== iframe.current?.contentWindow) return;
       if (event.data?.type === 'cato:chat') {
         const { requestId, input } = event.data;
-        if (typeof requestId !== 'string' || !requestId || requestId.length > 128 || typeof input !== 'string' || !input.trim() || input.length > 4000) return;
+        if (typeof requestId !== 'string' || !requestId || typeof input !== 'string' || !input.trim()) return;
         void chat(requestId, input);
         return;
       }
@@ -130,6 +131,7 @@ export default function LiveCanvas({ html, streaming, agentId, agentName, onMetr
         else latest.current.onNavigate?.(event.data.href);
       }
       if (event.data.type === 'render-error' && typeof event.data.message === 'string') latest.current.onRenderError?.(event.data.message);
+      if (event.data.type === 'capture-attempt') latest.current.onCaptureAttempt?.();
       if (event.data.type === "ready") {
         const { html, streaming, agentId, agentName, initialFragment } = latest.current;
         iframe.current?.contentWindow?.postMessage({ type: "render", channel, html, streaming, agentId, agentName, fragment: initialFragment }, "*");

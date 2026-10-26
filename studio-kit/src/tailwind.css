@@ -1,0 +1,70 @@
+/* Tailwind v4 build for the Studio Concierge widget (AI Elements + shadcn primitives).
+   Compiled by scripts/build-studio-concierge.mjs and scoped to #concierge-root so it never
+   touches the host site. Theme tokens map shadcn's names onto each site's --concierge-* vars. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "tw-animate-css";
+
+@source "./";
+@source "../vendor";
+@source "../../components/mcp-app";
+@source "../../node_modules/streamdown/dist/*.js";
+
+@custom-variant dark (&:where(#concierge-root[data-scheme="dark"], #concierge-root[data-scheme="dark"] *));
+
+#concierge-root {
+  --background: var(--concierge-bg, #111113);
+  --foreground: var(--concierge-fg, #f2f0ea);
+  --card: var(--concierge-bg, #111113);
+  --card-foreground: var(--concierge-fg, #f2f0ea);
+  --popover: var(--concierge-bg, #111113);
+  --popover-foreground: var(--concierge-fg, #f2f0ea);
+  --primary: var(--concierge-accent, #d4af37);
+  --primary-foreground: var(--concierge-accent-fg, #0d0d0f);
+  --secondary: var(--concierge-muted, color-mix(in oklab, var(--foreground) 8%, var(--background)));
+  --secondary-foreground: var(--concierge-fg, #f2f0ea);
+  --muted: var(--concierge-muted, color-mix(in oklab, var(--foreground) 8%, var(--background)));
+  --muted-foreground: var(--concierge-muted-fg, color-mix(in oklab, var(--foreground) 58%, var(--background)));
+  --accent: color-mix(in oklab, var(--concierge-accent, #d4af37) 14%, transparent);
+  --accent-foreground: var(--concierge-fg, #f2f0ea);
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+  --border: var(--concierge-border, color-mix(in oklab, var(--foreground) 12%, transparent));
+  --input: var(--concierge-border, color-mix(in oklab, var(--foreground) 14%, transparent));
+  --ring: var(--concierge-accent, #d4af37);
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* shadcn base, scoped */
+#concierge-root *,
+#concierge-root *::before,
+#concierge-root *::after {
+  border-color: var(--border);
+  outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+}

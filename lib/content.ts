@@ -10,7 +10,7 @@ export const site = {
   legalName: 'Cato Labs',
   url: 'https://catolabs.com',
   tagline: 'Build beyond ordinary.',
-  email: 'hello@catolabs.com',
+  email: 'hi@cato-labs.com',
   description:
     'Cato Labs is an AI-native strategy and implementation consultancy. We fuse strategy, design, engineering, AI agents, growth and operations into one integrated practice — moving ambitious companies from diagnosis to done.',
   keywords: [

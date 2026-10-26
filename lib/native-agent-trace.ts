@@ -200,6 +200,8 @@ function stepDetails(entries: NativeTraceEntry[], scope: string, step: NativeRec
   return next;
 }
 
+const resultUrls = (raw: NativeRecord) => records(raw.results).map((r) => string(r.url)).filter(Boolean).join('\n');
+
 function outputItem(entries: NativeTraceEntry[], scope: string, rawItem: NativeRecord, envelope: NativeRecord, done: boolean): NativeTraceEntry[] {
   // UnknownOutputItem: { type: 'unknown', item_name, payload }
   const item = rawItem.type === 'unknown' && typeof rawItem.item_name === 'string'
@@ -210,11 +212,13 @@ function outputItem(entries: NativeTraceEntry[], scope: string, rawItem: NativeR
   const callId = string(item.call_id) || undefined;
   const itemId = type === 'function_call' || type === 'mcp_call' || type === 'tool_search_output' ? string(item.id) || undefined : undefined;
   const inScope = entries.filter((entry) => entry.scope === scope);
+  const urls = SEARCH_ITEMS.includes(type) ? resultUrls(item) : '';
   const previous = (outputIndex !== undefined ? inScope.find((entry) => entry.outputIndex === outputIndex) : undefined)
     ?? (callId ? entries.find((entry) => entry.callId === callId) : undefined)
     ?? (itemId ? entries.find((entry) => entry.itemId === itemId) : undefined)
     // a detail event that arrived before its item was announced
-    ?? inScope.find((entry) => entry.outputIndex === undefined && entry.ordinal === undefined && !entry.done && entry.nativeType === type && (!callId || !entry.callId));
+    ?? inScope.find((entry) => entry.outputIndex === undefined && entry.ordinal === undefined && !entry.done && entry.nativeType === type && (!callId || !entry.callId))
+    ?? (urls ? entries.find((entry) => entry.nativeType === type && resultUrls(entry.raw) === urls) : undefined);
   const ordinal = previous?.ordinal ?? inScope.filter((entry) => entry.nativeType === type && entry.ordinal !== undefined).length;
   const id = `${scope}:output:${outputIndex ?? `${type}#${ordinal}`}`;
   return upsert(entries, previous, { id, scope, nativeType: type, callId, itemId, outputIndex, ordinal,
@@ -253,9 +257,11 @@ export function hydrateNativeTrace(entries: NativeTraceEntry[], response: unknow
     ordinals.set(type, ordinal + 1);
     const callId = string(output.call_id) || undefined;
     const itemId = string(output.id) || undefined;
+    const urls = SEARCH_ITEMS.includes(type) ? resultUrls(output) : '';
     const previous = (callId ? next.find((entry) => entry.callId === callId) : undefined)
       ?? (itemId ? next.find((entry) => entry.itemId === itemId) : undefined)
-      ?? next.find((entry) => entry.scope === scope && entry.nativeType === type && entry.ordinal === ordinal);
+      ?? next.find((entry) => entry.scope === scope && entry.nativeType === type && entry.ordinal === ordinal)
+      ?? (urls ? next.find((entry) => entry.nativeType === type && resultUrls(entry.raw) === urls) : undefined);
     next = upsert(next, previous, { id: `${scope}:snapshot:${index}`, scope, nativeType: type, callId, itemId: type === 'function_call' ? itemId : undefined,
       ordinal, done, raw: {} }, output, true);
   });

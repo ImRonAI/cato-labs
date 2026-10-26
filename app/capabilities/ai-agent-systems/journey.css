@@ -1,0 +1,207 @@
+/* ============================================================
+   Cato's journey: nine stops (aas-* prefix only).
+   Each stop is a normal 100vh section — no sticky scroll tunnel.
+   Cato's 6s fall to the next ledge is triggered by each stop's
+   "Next stop" button or by the voice agent's `next_stop` tool,
+   which scrolls the page to the next stop's copy with him.
+   ============================================================ */
+
+.aas-stop {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-block: 64px;
+}
+.aas-stop-copy {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+}
+.aas-stop-copy > * {
+  max-width: min(36rem, 44vw);
+}
+.aas-stop-title {
+  max-width: 14ch;
+}
+.aas-stop-body {
+  color: var(--ink-2, inherit);
+}
+.aas-stop-tags {
+  margin-top: 6px;
+}
+.aas-stop-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* narrow: Cato stands in the top half, the copy sits in a card below him */
+@media (max-width: 759px) {
+  .aas-stop {
+    align-items: flex-end;
+    padding-block: 0;
+  }
+  .aas-stop-copy {
+    min-height: 100vh;
+    justify-content: flex-end;
+    padding-bottom: 28px;
+    background: linear-gradient(to bottom, transparent 42%, rgba(255, 255, 255, 0.86) 58%);
+  }
+  .aas-stop-copy > * {
+    max-width: none;
+  }
+  .aas-stop-body {
+    font-size: 15px;
+  }
+}
+
+/* ---------- Cato voice dock ---------- */
+.cato-dock {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+  max-width: min(340px, calc(100vw - 32px));
+}
+.cato-dock > * {
+  pointer-events: auto;
+}
+/* the classic thought cloud: a puffy bubble with two trailing puffs */
+.cato-cloud {
+  position: relative;
+  background: #fff;
+  color: #0b1033;
+  border-radius: 28px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 40px rgba(46, 75, 255, 0.16), 0 0 0 1px rgba(46, 75, 255, 0.12);
+  font-size: 15px;
+  line-height: 1.45;
+  margin-bottom: 26px;
+  animation: cato-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.cato-cloud::before,
+.cato-cloud::after {
+  content: '';
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(46, 75, 255, 0.12);
+}
+.cato-cloud::before {
+  width: 18px;
+  height: 18px;
+  right: 34px;
+  bottom: -14px;
+}
+.cato-cloud::after {
+  width: 10px;
+  height: 10px;
+  right: 22px;
+  bottom: -28px;
+}
+.cato-cloud p {
+  margin: 0 0 12px;
+}
+.cato-cloud-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cato-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font: 600 14px/1 var(--font-sans);
+  cursor: pointer;
+  background: var(--blue, #2e4bff);
+  color: #fff;
+}
+.cato-btn:hover {
+  background: var(--blue-deep, #1226c8);
+}
+.cato-btn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+.cato-btn--ghost {
+  background: transparent;
+  color: var(--blue, #2e4bff);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.cato-btn--ghost:hover {
+  background: var(--blue-ice, #eef2ff);
+}
+.cato-btn:focus-visible {
+  outline: 2px solid var(--blue, #2e4bff);
+  outline-offset: 2px;
+}
+.cato-status {
+  font: 500 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.04em;
+  color: #56607a;
+}
+.cato-approval h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.cato-approval code {
+  font-size: 12px;
+  word-break: break-all;
+}
+@keyframes cato-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cato-cloud {
+    animation: none;
+  }
+}
+
+/* ---------- DJ stop: ask Cato for a track ---------- */
+.aas-dj {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aas-dj-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- tooling stop: a Prefab tool Cato builds, as an MCP App ---------- */
+.aas-tooling {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.prefab-view {
+  width: 100%;
+}
+.prefab-frame {
+  display: block;
+  width: 100%;
+  min-height: 160px;
+  border: 0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 40px rgba(46, 75, 255, 0.12), 0 0 0 1px rgba(46, 75, 255, 0.12);
+}
+.cato-prefab {
+  width: min(380px, calc(100vw - 32px));
+}

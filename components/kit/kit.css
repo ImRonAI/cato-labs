@@ -77,9 +77,16 @@
 .kit-sim-chrome {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--line-soft);
+  flex-wrap: wrap;
+}
+.kit-sim-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
 }
 .kit-sim-dot {
   width: 10px;
@@ -90,9 +97,39 @@
 .kit-sim-dot:nth-child(1) { background: var(--blue-200); }
 .kit-sim-dot:nth-child(2) { background: var(--blue-400); }
 .kit-sim-dot:nth-child(3) { background: var(--blue-600); }
+.kit-sim-picker-label {
+  display: inline-flex;
+  align-items: center;
+  flex: 1 1 260px;
+  max-width: 380px;
+}
+.kit-sim-select {
+  width: 100%;
+  appearance: none;
+  padding: 7px 30px 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--blue-200);
+  background-color: #ffffff;
+  background-image: linear-gradient(45deg, transparent 50%, var(--blue-600) 50%),
+    linear-gradient(135deg, var(--blue-600) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 560;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.kit-sim-select:hover,
+.kit-sim-select:focus-visible {
+  border-color: var(--blue-600);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(46, 75, 255, 0.12);
+}
 .kit-sim-pill {
-  flex: 1;
-  max-width: 320px;
+  flex: 0 1 220px;
   margin-inline: auto;
   text-align: center;
   padding: 5px 14px;
@@ -106,6 +143,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.kit-sim-chrome-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
 .kit-sim-stage {
   position: relative;
   width: 100%;
@@ -118,6 +161,120 @@
     var(--blue-050) 58%,
     var(--blue-100) 100%
   );
+}
+.kit-sim-stage--live {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 560px;
+  aspect-ratio: 16 / 9.5;
+}
+.kit-sim-stage--live.is-split {
+  grid-template-columns: minmax(240px, 31%) 1fr;
+}
+@media (max-width: 860px) {
+  .kit-sim-stage--live.is-split {
+    grid-template-columns: 1fr;
+    grid-template-rows: 180px 1fr;
+  }
+}
+.kit-sim-codepane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: #0b1021;
+  color: #dbe4ff;
+  border-right: 1px solid rgba(147, 169, 255, 0.18);
+  font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+}
+.kit-sim-codepane__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #93a9ff;
+  border-bottom: 1px solid rgba(147, 169, 255, 0.14);
+  background: rgba(15, 23, 46, 0.9);
+  flex-shrink: 0;
+}
+.kit-sim-codepane__pre {
+  margin: 0;
+  padding: 12px 14px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  contain: layout style paint;
+  font-size: 10.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #d0dcff;
+}
+.kit-sim-renderpane {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #0e1017;
+}
+.kit-sim-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #ffffff;
+}
+.kit-sim-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.kit-sim-frontier {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(46, 75, 255, 0.55) 25%, rgba(147, 169, 255, 0.75) 50%, rgba(46, 75, 255, 0.55) 75%, transparent 100%);
+  box-shadow: 0 0 14px rgba(46, 75, 255, 0.45);
+}
+.kit-sim-target-box {
+  position: absolute;
+  border: 1.5px dashed var(--agent-color, #2e4bff);
+  background: rgba(46, 75, 255, 0.06);
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 4;
+  transition: left 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+}
+.kit-sim-target-box__tag {
+  position: absolute;
+  top: -18px;
+  left: -1px;
+  padding: 1px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: var(--agent-color, #2e4bff);
+  border-radius: 2px 2px 2px 0;
+  white-space: nowrap;
+}
+.kit-sim-chip__task {
+  font-style: normal;
+  opacity: 0.82;
+  font-weight: 450;
+  margin-left: 4px;
 }
 .kit-sim-layer {
   position: absolute;

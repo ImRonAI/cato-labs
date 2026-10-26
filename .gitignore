@@ -13,3 +13,9 @@ out/
 output/
 .codegraph
 tsconfig.tsbuildinfo
+.vercel
+
+# python bytecode / editor
+__pycache__/
+*.pyc
+.vscode/

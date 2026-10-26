@@ -7,6 +7,11 @@ const nextConfig = {
   /* pin the workspace root — a stray package-lock.json in the home dir was
      making Next resolve .next one directory too high */
   outputFileTracingRoot: path.resolve(process.cwd()),
+  /* the MCP Apps sandbox page is read from disk by its route */
+  outputFileTracingIncludes: {
+    '/mcp-sandbox': ['./lib/mcp-app/sandbox.html'],
+    '/api/studio-agent': ['./lib/studio-kb/*.md'],
+  },
   async headers() {
     return [
       {

@@ -10,23 +10,6 @@ export const maxDuration = 800;
 const MODEL = 'anthropic/claude-haiku-5-5';
 const responseIdPattern = /^resp_[\w-]{1,128}$/;
 
-/* ---- a polite per-IP drip: 24 messages / 10 minutes ------------------- */
-const RATE_WINDOW_MS = 10 * 60 * 1000;
-const RATE_MAX = 24;
-const hits = new Map<string, { count: number; reset: number }>();
-function allowed(ip: string): boolean {
-  const now = Date.now();
-  const rec = hits.get(ip);
-  if (!rec || rec.reset < now) {
-    hits.set(ip, { count: 1, reset: now + RATE_WINDOW_MS });
-    if (hits.size > 5000) hits.clear();
-    return true;
-  }
-  if (rec.count >= RATE_MAX) return false;
-  rec.count += 1;
-  return true;
-}
-
 const CHAT_REQUIREMENTS = `Represent Cato Labs as its AI assistant for AI implementation and web design. Proactively learn the visitor's name, business and project, ask for their phone number when offering a call, and offer a Telnyx-powered AI voice call explaining how Cato Labs can help. Clearly disclose that the caller is AI and obtain explicit permission to call that specific number before any outbound call. A shared number or interest alone is not consent. Respect dismissal or refusal and continue helping in chat. Never invent calling resources or claim a call or follow-up happened without a successful tool result.`;
 
 function instructions(telnyxOn: boolean): string {
@@ -64,16 +47,14 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: { message: 'A chat message is required.' } }, { status: 400 });
   }
   const { input, previous_response_id } = body as Record<string, unknown>;
-  if (typeof input !== 'string' || !input.trim() || input.trim().length > 4000) {
-    return Response.json({ error: { message: 'The chat message must contain 1–4000 characters.' } }, { status: 400 });
+  if (typeof input !== 'string' || !input.trim()) {
+    return Response.json({ error: { message: 'A chat message is required.' } }, { status: 400 });
   }
   if (previous_response_id !== undefined && (typeof previous_response_id !== 'string' || !responseIdPattern.test(previous_response_id))) {
     return Response.json({ error: { message: 'Invalid previous response ID.' } }, { status: 400 });
   }
   const key = process.env.VIBE_PPLX_KEY || process.env.PERPLEXITY_API_KEY;
   if (!key) return Response.json({ error: { message: 'Studio API key is not configured.' } }, { status: 503 });
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
-  if (!allowed(ip)) return Response.json({ error: { message: 'Please wait before sending another message.' } }, { status: 429 });
   const telnyxKey = process.env.TELNYX_API_KEY;
   try {
     if (typeof previous_response_id === 'string') {
@@ -86,6 +67,8 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         ...BUILD_CONFIG,
         model: MODEL,
+        max_output_tokens: 16_000,
+        reasoning: { effort: 'low' },
         tools: [
           ...BUILD_CONFIG.tools,
           ...(telnyxKey ? [{
@@ -98,7 +81,7 @@ export async function POST(req: NextRequest) {
           }] : []),
         ],
         instructions: instructions(Boolean(telnyxKey)),
-        input: [{ role: 'user', content: [{ type: 'input_text', text: `${CHAT_REQUIREMENTS}\n\nRespond to the following visitor message (JSON string), subject to the system instructions:\n${JSON.stringify(input.trim())}` }] }],
+        input: [{ type: 'message', role: 'user', content: [{ type: 'input_text', text: `${CHAT_REQUIREMENTS}\n\nRespond to the following visitor message (JSON string), subject to the system instructions:\n${JSON.stringify(input.trim())}` }] }],
         ...(previous_response_id ? { previous_response_id } : {}),
       }),
       cache: 'no-store',

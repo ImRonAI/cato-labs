@@ -14,14 +14,18 @@ let lenisInstance: Lenis | null = null;
    (pinned/scrubbed DOM choreography) must survive route re-scans */
 let sectionTriggers: ScrollTrigger[] = [];
 
-/** Smooth-scroll to a target (used by nav anchors, back-to-top). */
-export function scrollToTarget(target: string | number) {
+/** Smooth-scroll to a target (used by nav anchors, back-to-top, and Cato's journey stops). */
+export function scrollToTarget(
+  target: string | number,
+  options?: { offset?: number; duration?: number; easing?: (t: number) => number },
+) {
+  const offset = options?.offset ?? (typeof target === 'string' ? -90 : 0);
+  const duration = options?.duration ?? 1.6;
+  const easing = options?.easing ?? ((t: number) => 1 - Math.pow(1 - t, 4));
   if (lenisInstance) {
-    lenisInstance.scrollTo(target as never, {
-      offset: typeof target === 'string' ? -90 : 0,
-      duration: 1.6,
-      easing: (t: number) => 1 - Math.pow(1 - t, 4),
-    });
+    lenisInstance.scrollTo(target as never, { offset, duration, easing });
+  } else if (typeof document !== 'undefined' && typeof target === 'string') {
+    document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
@@ -110,6 +114,13 @@ export default function ScrollDirector() {
       } else if (lenisInstance) {
         lenisInstance.scrollTo(0, { immediate: true });
       }
+
+      /* onUpdate only fires on change, so seed every section's current state
+         (sections below the fold would otherwise stay unset until scrolled to) */
+      sectionTriggers.forEach((t) => {
+        const id = (t.trigger as HTMLElement).dataset.sceneSection!;
+        useScrollStore.getState().setSection(id, { progress: t.progress, active: t.isActive });
+      });
     };
 
     /* wait one frame so the new page's DOM is committed */

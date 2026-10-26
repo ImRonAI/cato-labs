@@ -103,8 +103,9 @@ export default function DigitalProductsPage() {
             </Reveal>
             <Reveal className="lede" delay={0.16}>
               This is how a Cato flagship is built: strategy, design, engineering and
-              discoverability working the same canvas at the same time. Watch four agents
-              assemble AURELLE — an alpine fragrance house — from wireframe to launch.
+              discoverability working the same canvas at the same time. Choose from ten
+              bespoke HTML flagships below and watch four agents stream the source and render
+              the live site in real time.
             </Reveal>
           </div>
           <Reveal delay={0.2}>

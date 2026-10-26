@@ -35,7 +35,9 @@ export const useScrollStore = create<ScrollStore>((set) => ({
   velocity: 0,
   sections: {},
   hotspots: {},
-  setRoute: (route) => set({ route }),
+  /* a new route starts clean: stale progress from the previous page would
+     make its set pieces render "already played" */
+  setRoute: (route) => set({ route, sections: {}, hotspots: {} }),
   setScroll: (scrollY, velocity) => set({ scrollY, velocity }),
   setSection: (id, state) =>
     set((s) => ({ sections: { ...s.sections, [id]: state } })),

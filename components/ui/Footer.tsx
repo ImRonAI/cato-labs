@@ -123,7 +123,7 @@ export default function Footer() {
             <h4>Signal</h4>
             <ul>
               <li>
-                <a href="mailto:hello@catolabs.com">hello@catolabs.com</a>
+                <a href="mailto:hi@cato-labs.com">hi@cato-labs.com</a>
               </li>
               <li>
                 <Link href="/llms.txt" prefetch={false}>

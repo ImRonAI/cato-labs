@@ -2,8 +2,8 @@ type NativeResponse = Record<string, unknown>;
 
 export async function verifyNativeResponse(
   id: string,
-  model: string,
-  key: string,
+  model?: string,
+  key = '',
   signal?: AbortSignal,
   requireCompleted = false,
 ): Promise<{ snapshot: NativeResponse; error?: never } | { snapshot?: never; error: Response }> {
@@ -21,7 +21,8 @@ export async function verifyNativeResponse(
     }
     const snapshot: unknown = await upstream.json();
     if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)
-      || !('model' in snapshot) || snapshot.model !== model || !('id' in snapshot) || snapshot.id !== id) {
+      || !('id' in snapshot) || snapshot.id !== id
+      || (model && (!('model' in snapshot) || snapshot.model !== model))) {
       return { error: Response.json({ error: { message: 'This response is not available through this endpoint.' } }, { status: 404, headers: { 'Cache-Control': 'no-store' } }) };
     }
     if (requireCompleted && (!('status' in snapshot) || snapshot.status !== 'completed')) {

@@ -14,6 +14,7 @@ import type { ComponentProps } from "react";
 import { memo } from "react";
 
 import { CodeBlock } from "./code-block";
+import { MessageResponse } from "./message";
 
 export type AgentProps = ComponentProps<"div">;
 
@@ -70,7 +71,7 @@ export const AgentInstructions = memo(
         Instructions
       </span>
       <div className="rounded-md bg-muted/50 p-3 text-muted-foreground text-sm">
-        <p>{children}</p>
+        <MessageResponse>{children}</MessageResponse>
       </div>
     </div>
   )

@@ -14,7 +14,13 @@ the AI SDK, streamdown, shadcn/radix and the Perplexity SDK have since been adde
 - `npm run lint` — wired to `next lint`, but ESLint is not installed; don't rely on it
 - No unit-test framework exists. Verify changes in the real running UI (Playwright artifacts land in `.playwright-cli/`, `output/playwright/`).
 
-Env (`.env.local`): `PERPLEXITY_API_KEY` (or `VIBE_PPLX_KEY`, which takes precedence) for all `/api/vibe-*` routes; `TELNYX_API_KEY` enables the Telnyx Remote MCP voice-call tool in chat.
+Env (`.env.local`): `PERPLEXITY_API_KEY` (or `VIBE_PPLX_KEY`, which takes precedence) for all `/api/vibe-*` routes; `TELNYX_API_KEY` enables the Telnyx Remote MCP voice-call tool in chat; `ELEVENLABS_API_KEY` (Cato voice agent, Eleven Music); `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` (public agent the Cato voice dock connects to; without it the dock says voice is not configured); `HORIZON_API_KEY` + `OUBLIAI_MCP_URL` (server-side MCP connection for drawing Prefab tools, `/api/mcp-app`); `NEXT_PUBLIC_MCP_SANDBOX_URL` (production MCP Apps sandbox on a separate origin; dev defaults to the 127.0.0.1 twin of the page origin). Sandbox page: `node scripts/build-mcp-sandbox.mjs` rebuilds `lib/mcp-app/sandbox.html` from ~/TelnyxMCP.
+
+## Active upgrade work
+`UPGRADE_PLAN.md` holds the active "next level" plan and the owner's decisions. `research/` holds the SEO briefs. Read both before touching `/capabilities/ai-agent-systems` (Cato) or the region pages.
+- Cato in 3D: `components/webgl/kit/cato/`. `timmy-core.js` is GENERATED from the owner's Timmy.html rig (geometry, rig, moves, props, decals verbatim; recoloured, renamed); don't hand-edit it. `CatoBody.tsx` draws it in three.js with a port of Timmy's own shading; `bus.ts` = voice→body channel. The journey copy is `lib/content/agentJourney.ts`; stop height `lib/content/journeyLayout.ts` must match `journey.css`.
+- ElevenLabs REST shapes: check `elevenlabs.json`, the official OpenAPI spec in the repo root (3.8 MB, so query it with a script; don't read it whole).
+- The Telnyx tools come from the owner's own FastMCP server, `https://oubli-catolabs.fastmcp.app/mcp` (repo `~/TelnyxMCP`). Headless clients such as the ElevenLabs agent authenticate with a Horizon API key held in an ElevenLabs auth connection. They don't use `TELNYX_API_KEY`.
 
 ## Architecture
 

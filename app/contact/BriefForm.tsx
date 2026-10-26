@@ -5,7 +5,7 @@ import { contactPage, site } from '@/lib/content';
 
 /**
  * BriefForm — the "start a build" brief.
- * No backend: on submit we compose a mailto: to hello@catolabs.com with
+ * No backend: on submit we compose a mailto: to hi@cato-labs.com with
  * the brief baked into subject + body, and let the visitor's mail client
  * carry it. The page stays a server component; this is the tiny client
  * island that owns the form.

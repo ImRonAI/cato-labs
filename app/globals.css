@@ -41,6 +41,12 @@
 html {
   scroll-behavior: auto;
 }
+/* macOS trackpads: a sideways two-finger swipe otherwise triggers browser
+   back/forward navigation (Lenis only handles the vertical axis) */
+html,
+body {
+  overscroll-behavior-x: none;
+}
 
 html.lenis,
 html.lenis body {
