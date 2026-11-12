@@ -4,6 +4,11 @@
    Uses the design tokens from app/globals.css.
    ============================================================ */
 
+.child-hero h1,
+.child-hero .lede {
+  text-shadow: 0 2px 28px rgba(250, 251, 254, 0.95);
+}
+
 /* ---------- stats — the market in numbers, three sourced figures ---------- */
 .pd-stats {
   padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.25);
@@ -14,6 +19,9 @@
   grid-template-columns: repeat(3, 1fr);
   column-gap: clamp(32px, 4.5vw, 64px);
   border-bottom: 1px solid var(--line);
+  background: rgba(250, 251, 254, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .pd-stat {
   border-top: 1px solid var(--line);
@@ -35,7 +43,7 @@
   max-width: 30ch;
 }
 
-/* ---------- angles — the local read, alternating editorial blocks ---------- */
+/* ---------- angles — the local read, left-aligned editorial blocks ---------- */
 .pd-angles {
   padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.3);
 }
@@ -43,15 +51,20 @@
   margin-top: clamp(56px, 8vw, 100px);
   display: flex;
   flex-direction: column;
-  gap: clamp(72px, 10vw, 140px);
+  gap: clamp(64px, 8vw, 112px);
 }
 .pd-angle {
-  max-width: 560px;
+  max-width: 520px;
   border-top: 1px solid var(--line);
-  padding-top: 28px;
-}
-.pd-angle:nth-child(even) {
-  align-self: flex-end;
+  padding: 28px 28px 24px 0;
+  background: linear-gradient(
+    90deg,
+    rgba(250, 251, 254, 0.9) 0%,
+    rgba(250, 251, 254, 0.78) 78%,
+    rgba(250, 251, 254, 0) 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .pd-angle .index-no {
   display: block;
@@ -76,11 +89,15 @@
   margin-top: clamp(48px, 7vw, 84px);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  column-gap: clamp(32px, 5vw, 72px);
+  column-gap: clamp(28px, 4vw, 56px);
 }
 .pd-feature {
   border-top: 1px solid var(--line);
-  padding-top: 28px;
+  padding: 28px 24px 28px 0;
+  background: rgba(250, 251, 254, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 0 0 12px 12px;
 }
 .pd-feature .index-no {
   display: block;
@@ -106,7 +123,15 @@
   max-width: 20ch;
 }
 .pd-detail__body {
-  max-width: 44rem;
+  max-width: 40rem;
+  background: linear-gradient(
+    90deg,
+    rgba(250, 251, 254, 0.9) 0%,
+    rgba(250, 251, 254, 0.78) 82%,
+    rgba(250, 251, 254, 0) 100%
+  );
+  padding: 8px 20px 8px 0;
+  border-radius: 8px;
 }
 .pd-detail__bullets {
   margin-top: clamp(48px, 7vw, 84px);
@@ -115,6 +140,9 @@
   grid-template-columns: 1fr 1fr;
   column-gap: clamp(32px, 5vw, 72px);
   border-bottom: 1px solid var(--line);
+  background: rgba(250, 251, 254, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .pd-detail__bullets li {
   border-top: 1px solid var(--line);
@@ -150,10 +178,13 @@
   grid-template-columns: 1fr 1fr;
   column-gap: clamp(32px, 5vw, 72px);
   border-bottom: 1px solid var(--line);
+  background: rgba(250, 251, 254, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .pd-build__row {
   border-top: 1px solid var(--line);
-  padding: 24px 0 28px;
+  padding: 24px 16px 28px 0;
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: 18px;
@@ -181,8 +212,7 @@
     grid-template-columns: 1fr;
     border-bottom: 0;
   }
-  .pd-angle,
-  .pd-angle:nth-child(even) {
+  .pd-angle {
     align-self: stretch;
     max-width: none;
   }

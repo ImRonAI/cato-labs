@@ -8,10 +8,23 @@ import SceneLightRig from '../../shared/SceneLightRig';
 import ParticleField from '../../shared/ParticleField';
 import { GlassMaterial } from '../../../lib/materials';
 import { useQuality } from '../../../lib/quality';
-import { pointer } from '../../../scroll-store';
+import {
+  getSectionProgress,
+  sectionRange,
+  smooth,
+  pointer,
+} from '../../../scroll-store';
 import { useBakedSimulation } from '../../../lib/physics-bake';
 import { useHotspotReporter } from '../../../kit/ProximityType';
-import { beat, damp, introAt, newMoment, readMoment, useLensShift } from '../lib-b/stage';
+import {
+  beat,
+  damp,
+  introAt,
+  newMoment,
+  readMoment,
+  useLensShift,
+} from '../lib-b/stage';
+import ShockRing, { useShockMaterial } from '../lib-b/ShockRing';
 import {
   COINS,
   COIN_HH,
@@ -29,26 +42,27 @@ import {
 } from '../lib-b/coinBake';
 
 /**
- * FinancialServicesScene — "Coin Stacks".
+ * FinancialServicesScene — "The Compound Curve".
  *
- * A clean glass ledger with a single row of coins. Through the `moment` dwell
- * coins condense out of the light above each column and rain down — a real,
- * baked Rapier simulation, so every coin lands, rocks and settles — and the
- * columns compound left to right. Once the last coin settles, a line draws
- * itself across the column tops and the stacks read as what they are: a
- * rising chart. Plain, trustworthy, compounding. Scroll up and the coins fly
- * back into the air in exact reverse.
+ * A clean frosted-glass ledger with a baseline row of azure coins. Through the
+ * `moment` dwell coins condense out of light above each column and rain down —
+ * a baked Rapier simulation where every coin lands, rocks and settles — and
+ * the columns compound left to right. Once the last coin settles, an electric-
+ * blue curve draws itself across the column tops, crowning the rightmost stack
+ * with a prism halo and a soft ripple across the ledger.
  *
- * Reduced motion: the finished chart with the trend line drawn.
+ * Continues choreographing across `market-truth`, `feature`, `detail`, and
+ * `cta`. Reduced motion: the finished compounding chart with trend line drawn.
  */
 
 const COLS = COLUMN_HEIGHTS.length;
 const N = COINS.length;
-/** moment → recording time */
 const SIM_FROM = 0.03;
 const SIM_TO = 0.74;
 const LINE_FROM = 0.72;
 const LINE_TO = 0.93;
+const PEAK_AT = 0.89;
+const TAU_RATE = 5.2;
 const CURVE_POINTS = 96;
 
 const _pos = new THREE.Vector3();
@@ -68,12 +82,15 @@ export default function FinancialServicesScene() {
   const q = useQuality();
   const lens = useLensShift();
   const moment = useRef(newMoment());
+  const startAt = useRef<number | null>(null);
+
   const group = useRef<THREE.Group>(null);
   const rig = useRef<THREE.Group>(null);
   const coins = useRef<THREE.InstancedMesh>(null);
   const ledger = useRef<THREE.Mesh>(null);
-  const peak = useRef<THREE.Mesh>(null);
+  const peak = useRef<THREE.Group>(null);
   const peakMat = useRef<THREE.MeshBasicMaterial>(null);
+  const peakHaloRef = useRef<THREE.Mesh>(null);
   const tilt = useRef({ x: 0, y: 0 });
   const report = useHotspotReporter('fin-peak');
 
@@ -86,12 +103,28 @@ export default function FinancialServicesScene() {
     beforeStep: coinsBeforeStep,
   });
 
+  const peakRipple = useShockMaterial({
+    speed: 1.05,
+    width: 0.028,
+    color: '#2e4bff',
+    hot: '#dce4ff',
+  });
+
   /* the chart line through the column tops — drawn in one call */
   const line = useMemo(() => {
-    const tops = Array.from({ length: COLS }, (_, c) => new THREE.Vector3(columnX(c), topY(c) + 0.1, 0));
+    const tops = Array.from(
+      { length: COLS },
+      (_, c) => new THREE.Vector3(columnX(c), topY(c) + 0.1, 0),
+    );
     const curve = new THREE.CatmullRomCurve3(tops, false, 'catmullrom', 0.4);
     const pts = curve.getPoints(CURVE_POINTS);
-    const geom = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), CURVE_POINTS * 2, 0.012, 6, false);
+    const geom = new THREE.TubeGeometry(
+      new THREE.CatmullRomCurve3(pts),
+      CURVE_POINTS * 2,
+      0.013,
+      6,
+      false,
+    );
     geom.setDrawRange(0, 0);
     return geom;
   }, []);
@@ -104,19 +137,38 @@ export default function FinancialServicesScene() {
     if (!m) return;
     for (let i = 0; i < N; i++) {
       const c = COINS[i];
-      _col.set(c.col === COLS - 1 ? '#7f97ff' : c.col >= COLS - 3 ? '#c5d3ff' : '#ffffff');
+      _col.set(
+        c.col === COLS - 1
+          ? '#7f97ff'
+          : c.col >= COLS - 3
+            ? '#c5d3ff'
+            : '#ffffff',
+      );
       m.setColorAt(i, _col);
     }
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
   }, []);
 
   useFrame((state, delta) => {
-    const el = state.clock.elapsedTime;
+    if (startAt.current === null) startAt.current = state.clock.elapsedTime;
+    const el = state.clock.elapsedTime - startAt.current;
     const anim = q.animate;
     const dt = Math.min(delta, 0.05);
+
     const mo = readMoment(moment.current, anim);
     const t = mo.t;
-    const simT = anim ? Math.min(Math.max((t - SIM_FROM) / (SIM_TO - SIM_FROM), 0), 1) : 1;
+    const simT = anim
+      ? Math.min(Math.max((t - SIM_FROM) / (SIM_TO - SIM_FROM), 0), 1)
+      : 1;
+
+    const truth = anim ? getSectionProgress('market-truth') : 0;
+    const feature = anim ? getSectionProgress('feature') : 0;
+    const detail = anim ? getSectionProgress('detail') : 0;
+    const cta = anim ? getSectionProgress('cta') : 0;
+    const detailOpen = smooth(sectionRange(detail, 0.08, 0.78));
+    const ctaCalm = smooth(sectionRange(cta, 0.08, 0.8));
+
+    /* mount-relative intro */
     const intro = anim ? introAt(el, 0, 1.6) : 1;
     if (group.current) group.current.position.y = -0.7 * (1 - intro);
 
@@ -125,17 +177,19 @@ export default function FinancialServicesScene() {
     if (m) {
       for (let i = 0; i < N; i++) {
         const c = COINS[i];
-        /* condense out of the light just before release */
-        const appear = c.level === 0 ? 1 : Math.min(Math.max((simT - c.releaseT + 0.035) / 0.035, 0), 1);
+        const appear =
+          c.level === 0
+            ? 1
+            : Math.min(Math.max((simT - c.releaseT + 0.035) / 0.035, 0), 1);
         if (baked) {
           baked.sample(i, simT, _pos, _quat);
         } else {
-          /* still baking: analytic stand-in (drop with ease, no rocking) */
-          const fall = c.level === 0 ? 1 : beat(simT, c.releaseT, c.releaseT + 0.05);
+          const fall =
+            c.level === 0 ? 1 : beat(simT, c.releaseT, c.releaseT + 0.05);
           _pos.set(c.x, coinRestY(c.level) + DROP * (1 - fall), 0);
           _quat.identity();
         }
-        const pop = anim ? introAt(el, 0.25 + c.col * 0.06, 0.7) : 1;
+        const pop = anim ? introAt(el, 0.22 + c.col * 0.055, 0.7) : 1;
         const s = Math.max(appear * (c.level === 0 ? pop : 1), 0.0001);
         _scale.set(s, s, s);
         _m.compose(_pos, _quat, _scale);
@@ -146,81 +200,157 @@ export default function FinancialServicesScene() {
 
     if (ledger.current) {
       const pop = anim ? introAt(el, 0, 0.7) : 1;
-      ledger.current.scale.set(Math.max(pop, 0.001), 1, 1);
+      ledger.current.scale.set(Math.max(pop, 0.001), 1, Math.max(pop, 0.001));
     }
 
-    /* the chart line */
+    /* the compounding chart curve */
     const draw = anim ? beat(t, LINE_FROM, LINE_TO) : 1;
     const segs = Math.floor(draw * CURVE_POINTS * 2);
-    line.setDrawRange(0, Math.floor((segs / (CURVE_POINTS * 2)) * lineIndexCount / 6) * 6);
+    line.setDrawRange(
+      0,
+      Math.floor(((segs / (CURVE_POINTS * 2)) * lineIndexCount) / 6) * 6,
+    );
 
-    /* the peak marker lands with the line */
+    /* peak marker + prism halo + ledger ripple */
+    const arrive = beat(draw, 0.84, 1);
+    const tau = t > PEAK_AT ? (t - PEAK_AT) * TAU_RATE : 0;
+    peakRipple.uniforms.uTau.value = tau;
+
     const pk = peak.current;
     if (pk) {
-      const arrive = beat(draw, 0.86, 1);
       pk.position.set(columnX(COLS - 1), topY(COLS - 1) + 0.1, 0);
-      pk.scale.setScalar(Math.max(arrive, 0.0001) * (1 + (anim ? Math.sin(el * 2.2) * 0.08 : 0)));
+      pk.scale.setScalar(
+        Math.max(arrive, 0.0001) * (1 + (anim ? Math.sin(el * 2.2) * 0.06 : 0)),
+      );
       if (peakMat.current) peakMat.current.opacity = arrive;
-      report(pk, state.camera, 0.4 + 0.5 * arrive);
+      if (peakHaloRef.current && anim) {
+        peakHaloRef.current.rotation.y = el * 0.55;
+        peakHaloRef.current.rotation.x = Math.PI / 3 + Math.sin(el * 0.8) * 0.12;
+      }
+      report(pk, state.camera, 0.42 + 0.52 * arrive);
     }
 
-    /* pointer tilt */
+    /* pointer tilt + downstream yaw across truth / feature / detail / cta */
     const r = rig.current;
     if (r) {
       tilt.current.x = damp(tilt.current.x, anim ? pointer.y * 0.04 : 0, 3, dt);
       tilt.current.y = damp(tilt.current.y, anim ? pointer.x * 0.1 : 0, 3, dt);
-      r.rotation.x = tilt.current.x;
-      r.rotation.y = tilt.current.y - 0.22;
+      r.rotation.x = tilt.current.x + detailOpen * 0.06;
+      r.rotation.y =
+        tilt.current.y -
+        0.22 +
+        truth * 0.08 +
+        feature * 0.16 -
+        detailOpen * 0.2 +
+        ctaCalm * 0.1;
     }
 
-    /* camera: low three-quarter, rising with the chart */
+    /* camera: low three-quarter rising with the chart, evolving down-page */
     const focus = anim ? beat(t, 0.0, 0.25) * (1 - mo.leave) : 0;
     const rise = anim ? simT : 1;
-    const radius = (q.compact ? 14.5 : 9.6) - focus * 0.9;
-    const orbit = (anim ? Math.sin(el * 0.05) * 0.05 : 0) + 0.06;
+    const radius =
+      (q.compact ? 14.5 : 9.6) -
+      focus * 0.9 -
+      detailOpen * 0.35 +
+      ctaCalm * 0.6;
+    const orbit =
+      (anim ? Math.sin(el * 0.05) * 0.05 : 0) +
+      0.06 +
+      feature * 0.12 -
+      detailOpen * 0.16 +
+      ctaCalm * 0.06;
+    const camY =
+      1.8 -
+      focus * 0.5 +
+      rise * 0.35 +
+      truth * 0.12 +
+      detailOpen * 0.42 -
+      ctaCalm * 0.2 +
+      (anim ? pointer.y * 0.2 : 0);
+
     _cam.set(
       Math.sin(orbit) * radius + (anim ? pointer.x * 0.3 : 0),
-      1.8 - focus * 0.5 + rise * 0.35 + (anim ? pointer.y * 0.2 : 0),
+      camY,
       Math.cos(orbit) * radius,
     );
-    state.camera.position.lerp(_cam, 0.05);
-    _look.set(0, FLOOR_Y + 0.55 + rise * 0.12, 0);
+    if (anim) state.camera.position.lerp(_cam, 0.05);
+    else state.camera.position.copy(_cam);
+
+    _look.set(
+      detailOpen * 0.35,
+      FLOOR_Y + 0.55 + rise * 0.12 + detailOpen * 0.08,
+      0,
+    );
     state.camera.lookAt(_look);
 
-    const centre = anim ? mo.enter * (1 - mo.leave) : 0;
-    if (q.compact) lens(0, -0.08 + centre * 0.08);
-    else lens(0.22 * (1 - centre), -0.04 * (1 - centre));
+    const centre = anim ? Math.max(mo.enter * (1 - mo.leave), 0) : 0;
+    const k = anim ? 0.05 : 1;
+    if (q.compact) lens(0, -0.08 + centre * 0.08, k);
+    else lens(0.22 * (1 - centre), -0.04 * (1 - centre), k);
   });
 
   return (
     <group ref={group}>
       <SceneLightRig />
       <group ref={rig}>
-        {/* the ledger */}
-        <RoundedBox ref={ledger} args={[6.6, 0.06, 1.5]} radius={0.025} smoothness={4} position={[0, FLOOR_Y - 0.03, 0]}>
+        {/* frosted glass ledger */}
+        <RoundedBox
+          ref={ledger}
+          args={[6.6, 0.06, 1.5]}
+          radius={0.025}
+          smoothness={4}
+          position={[0, FLOOR_Y - 0.03, 0]}
+        >
           <GlassMaterial kind="pane" />
         </RoundedBox>
 
+        {/* compounding climax ripple under the peak column */}
+        <ShockRing
+          material={peakRipple}
+          radius={1.55}
+          position={[columnX(COLS - 1), FLOOR_Y + 0.004, 0]}
+        />
+
         {/* coins — one instanced draw call */}
-        <instancedMesh ref={coins} args={[undefined, undefined, N]} frustumCulled={false}>
-          <cylinderGeometry args={[COIN_R, COIN_R, COIN_PITCH * 0.96, 48, 1]} />
+        <instancedMesh
+          ref={coins}
+          args={[undefined, undefined, N]}
+          frustumCulled={false}
+        >
+          <cylinderGeometry
+            args={[COIN_R, COIN_R, COIN_PITCH * 0.96, 48, 1]}
+          />
           <GlassMaterial kind="azure" />
         </instancedMesh>
 
-        {/* the chart line */}
+        {/* compounding chart curve */}
         <mesh geometry={line} frustumCulled={false}>
           <meshBasicMaterial color="#2e4bff" toneMapped={false} />
         </mesh>
 
-        {/* peak marker */}
-        <mesh ref={peak}>
-          <sphereGeometry args={[0.05, 20, 20]} />
-          <meshBasicMaterial ref={peakMat} color={_hot} transparent toneMapped={false} />
-        </mesh>
+        {/* peak marker + refractive prism halo */}
+        <group ref={peak}>
+          <mesh>
+            <sphereGeometry args={[0.052, 20, 20]} />
+            <meshBasicMaterial
+              ref={peakMat}
+              color={_hot}
+              transparent
+              toneMapped={false}
+            />
+          </mesh>
+          <mesh ref={peakHaloRef} rotation={[Math.PI / 3, 0, 0]}>
+            <torusGeometry args={[0.16, 0.018, 16, 48]} />
+            <GlassMaterial kind="prism" />
+          </mesh>
+        </group>
       </group>
 
-      <ParticleField count={Math.floor(1000 * q.particles)} drift={q.animate ? 0.1 : 0} opacity={0.26} />
+      <ParticleField
+        count={Math.floor(1000 * q.particles)}
+        drift={q.animate ? 0.1 : 0}
+        opacity={0.26}
+      />
     </group>
   );
 }
-

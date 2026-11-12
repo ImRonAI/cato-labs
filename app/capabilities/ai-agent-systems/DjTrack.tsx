@@ -3,18 +3,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { catoBus, setToolMove } from '@/components/webgl/kit/cato/bus';
 import { MUSIC_BPM } from '@/lib/content/journeyLayout';
+import { journeyCopy } from '@/lib/content/agentJourney';
 
 /**
- * DjTrack: on the entertainment stop, the visitor asks Cato for a track.
+ * DjTrack: on the music stop, the visitor asks Cato for a track.
  * /api/music streams an original instrumental from ElevenLabs Music; while it
  * plays, Cato steps up to the DJ booth and locks to its tempo (catoBus.music).
  */
-const PRESETS = [
-  { id: 'lobby', label: 'Lobby loop' },
-  { id: 'pool', label: 'Pool-deck set' },
-  { id: 'jingle', label: 'Weekend jingle' },
-];
-
 export default function DjTrack() {
   const audio = useRef<HTMLAudioElement | null>(null);
   const [state, setState] = useState<'idle' | 'loading' | 'playing'>('idle');
@@ -77,18 +72,18 @@ export default function DjTrack() {
   return (
     <div className="aas-dj">
       <div className="aas-dj-row">
-        {PRESETS.map((p) => (
+        {journeyCopy.djPresets.map((p) => (
           <button key={p.id} type="button" className="cato-btn cato-btn--ghost" disabled={state === 'loading'} onClick={() => play(p.id)}>
             {p.label}
           </button>
         ))}
         {state === 'playing' && (
           <button type="button" className="cato-btn" onClick={stop}>
-            Stop
+            {journeyCopy.stopAudio}
           </button>
         )}
       </div>
-      {state === 'loading' && <span className="cato-status">Cato is composing…</span>}
+      {state === 'loading' && <span className="cato-status">{journeyCopy.composing}</span>}
       {error && <span className="cato-status">{error}</span>}
     </div>
   );

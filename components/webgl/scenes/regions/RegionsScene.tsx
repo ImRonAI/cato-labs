@@ -7,28 +7,32 @@ import SceneLightRig from '../shared/SceneLightRig';
 import ParticleField from '../shared/ParticleField';
 import { GlassMaterial } from '../../lib/materials';
 import { useQuality } from '../../lib/quality';
-import { pointer, smooth } from '../../scroll-store';
+import { getSectionProgress, pointer, sectionRange, smooth } from '../../scroll-store';
 import { useHotspotReporter } from '../../kit/ProximityType';
 import { createStageState, readStage, damp } from './lib-a/dwell';
 
 /**
- * RegionsScene — "Pin drop".
+ * RegionsScene — "Pin drop & Beachhead Geodesics".
  *
- * A paper-white relief map drawn only in blue contour lines lies beneath
- * eleven glass pins, one per market, in the deck's order. In the hero the
- * pins hang high over a grazing map like a constellation. As the `moment`
- * dwell is pinned, the map tilts up toward the viewer and the pins fall one
- * by one (Palm Springs first, the beachhead), strike their true geographic
- * position, bounce, and send a ripple through the contours. Scrolling up
- * lifts every pin back out of the map.
+ * A paper-white relief map drawn in electric-blue contour lines lies beneath
+ * eleven refractive glass pins, one per market, in the deck's order. In the
+ * hero the pins hang high over a grazing map like a constellation. As the
+ * `moment` dwell is pinned, the map tilts up toward the viewer and the pins
+ * fall one by one (Palm Springs first, the beachhead), strike their true
+ * geographic position, bounce, send concentric ripples through the contours,
+ * and ignite luminous geodesic arc filaments radiating from Palm Springs to
+ * every planted market. Post-moment, the relief map and glowing network settle
+ * into an angled cartographic backdrop behind the editorial index and beachhead
+ * logic cards.
  *
  * Pointer: the map leans toward the cursor and a soft light follows it
- * across the contours. Reduced motion: the map at rest, every pin planted.
+ * across the contours. Reduced motion: the map at rest, every pin planted
+ * and every geodesic arc illuminated.
  */
 
 /* the deck's order, true lon/lat (scene data, not copy) */
 const PLACES: readonly [number, number][] = [
-  [-116.55, 33.83], // palm springs
+  [-116.55, 33.83], // palm springs (beachhead)
   [-116.37, 33.72], // palm desert
   [-116.22, 33.72], // indio
   [-117.29, 34.11], // san bernardino
@@ -48,6 +52,7 @@ const LON0 = -117.15;
 const LAT0 = 37.1;
 const NEEDLE = 0.36;
 const HEAD_R = 0.062;
+const ARC_SEGMENTS = 28;
 
 /* ---------- relief — identical in JS and GLSL so pins land on the surface ---------- */
 const RELIEF_GLSL = /* glsl */ `
@@ -171,8 +176,52 @@ const mapFragment = /* glsl */ `
   }
 `;
 
+const arcVertex = /* glsl */ `
+  attribute float aArcU;
+  attribute float aDestIdx;
+  uniform vec4 uPins[${N}];
+  varying float vU;
+  varying float vReveal;
+  varying float vIdx;
+  void main() {
+    vU = aArcU;
+    vIdx = aDestIdx;
+    int idx = int(aDestIdx + 0.5);
+    float age = 0.0;
+    for (int i = 1; i < ${N}; i++) {
+      if (i == idx) {
+        age = uPins[i].z;
+      }
+    }
+    vReveal = clamp(age * 1.45, 0.0, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const arcFragment = /* glsl */ `
+  uniform float uTime;
+  uniform float uOpacity;
+  varying float vU;
+  varying float vReveal;
+  varying float vIdx;
+  void main() {
+    if (vReveal <= 0.005 || vU > vReveal) discard;
+    float head = smoothstep(vReveal - 0.18, vReveal, vU);
+    float pulse = smoothstep(0.14, 0.0, abs(fract(vU - uTime * 0.26 - vIdx * 0.13) - 0.5));
+    vec3 baseCol = vec3(0.36, 0.50, 1.0);
+    vec3 hotCol = vec3(0.11, 0.22, 0.96);
+    vec3 sparkCol = vec3(0.88, 0.93, 1.0);
+    vec3 col = mix(baseCol, hotCol, 0.5 + 0.5 * pulse);
+    col = mix(col, sparkCol, head * 0.75);
+    float endFade = smoothstep(0.0, 0.06, vU) * smoothstep(1.0, 0.93, vU);
+    float alpha = (0.34 + 0.42 * pulse + 0.24 * head) * endFade * uOpacity;
+    gl_FragColor = vec4(col, alpha);
+  }
+`;
+
 /* module-scope temps — zero allocation per frame */
 const _cam = new THREE.Vector3();
+const _look = new THREE.Vector3();
 
 interface PinSpec {
   x: number;
@@ -191,7 +240,17 @@ export default function RegionsScene() {
   const headMats = useRef<(THREE.MeshPhysicalMaterial | null)[]>([]);
   const headRef0 = useRef<THREE.Mesh>(null);
   const stage = useMemo(createStageState, []);
-  const live = useRef({ tilt: 0.22, lean: 0, leanY: 0, lx: 0, lz: 0 });
+  const live = useRef({
+    tilt: 0.22,
+    lean: 0,
+    leanY: 0,
+    lx: 0,
+    lz: 0,
+    rx: 0,
+    ry: -2.05,
+    rz: 0,
+    rs: 0.9,
+  });
   const report = useHotspotReporter('regions-map');
 
   const pins = useMemo<PinSpec[]>(
@@ -211,6 +270,11 @@ export default function RegionsScene() {
     [],
   );
 
+  const sharedPinsUniform = useMemo(
+    () => ({ value: Array.from({ length: N }, () => new THREE.Vector4(0, 0, 0, 9)) }),
+    [],
+  );
+
   const seg = q.compact ? [110, 80] : [190, 136];
   const geometry = useMemo(
     () => new THREE.PlaneGeometry(MAP_W, MAP_D, seg[0], seg[1]),
@@ -225,24 +289,99 @@ export default function RegionsScene() {
         depthWrite: false,
         side: THREE.DoubleSide,
         uniforms: {
-          uPins: { value: Array.from({ length: N }, () => new THREE.Vector4(0, 0, 0, 9)) },
+          uPins: sharedPinsUniform,
           uRipple: { value: 1 },
           uLight: { value: new THREE.Vector2(0, 0) },
           uOpacity: { value: 1 },
           uHalf: { value: new THREE.Vector2(MAP_W / 2, MAP_D / 2) },
         },
       }),
-    [],
+    [sharedPinsUniform],
   );
+
+  /* Geodesic beachhead filaments from Palm Springs (pins[0]) to pins[1..10] */
+  const { arcGeo, arcMat } = useMemo(() => {
+    const origin = pins[0];
+    const totalSegments = (N - 1) * ARC_SEGMENTS;
+    const pos = new Float32Array(totalSegments * 2 * 3);
+    const arcU = new Float32Array(totalSegments * 2);
+    const destIdx = new Float32Array(totalSegments * 2);
+
+    let ptr = 0;
+    let attrPtr = 0;
+    for (let i = 1; i < N; i++) {
+      const target = pins[i];
+      const dist = Math.hypot(target.x - origin.x, target.z - origin.z);
+      const apex = 0.14 + dist * 0.16;
+
+      for (let s = 0; s < ARC_SEGMENTS; s++) {
+        const u0 = s / ARC_SEGMENTS;
+        const u1 = (s + 1) / ARC_SEGMENTS;
+
+        const x0 = origin.x + (target.x - origin.x) * u0;
+        const z0 = origin.z + (target.z - origin.z) * u0;
+        const y0 =
+          origin.ground * (1 - u0) +
+          target.ground * u0 +
+          Math.sin(u0 * Math.PI) * apex +
+          0.018;
+
+        const x1 = origin.x + (target.x - origin.x) * u1;
+        const z1 = origin.z + (target.z - origin.z) * u1;
+        const y1 =
+          origin.ground * (1 - u1) +
+          target.ground * u1 +
+          Math.sin(u1 * Math.PI) * apex +
+          0.018;
+
+        pos[ptr++] = x0;
+        pos[ptr++] = y0;
+        pos[ptr++] = z0;
+        pos[ptr++] = x1;
+        pos[ptr++] = y1;
+        pos[ptr++] = z1;
+
+        arcU[attrPtr] = u0;
+        destIdx[attrPtr] = i;
+        attrPtr++;
+        arcU[attrPtr] = u1;
+        destIdx[attrPtr] = i;
+        attrPtr++;
+      }
+    }
+
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setAttribute('aArcU', new THREE.BufferAttribute(arcU, 1));
+    g.setAttribute('aDestIdx', new THREE.BufferAttribute(destIdx, 1));
+
+    const m = new THREE.ShaderMaterial({
+      vertexShader: arcVertex,
+      fragmentShader: arcFragment,
+      transparent: true,
+      depthWrite: false,
+      uniforms: {
+        uPins: sharedPinsUniform,
+        uTime: { value: 0 },
+        uOpacity: { value: 1 },
+      },
+    });
+
+    return { arcGeo: g, arcMat: m };
+  }, [pins, sharedPinsUniform]);
+
   useEffect(
     () => () => {
       geometry.dispose();
       material.dispose();
+      arcGeo.dispose();
+      arcMat.dispose();
     },
-    [geometry, material],
+    [geometry, material, arcGeo, arcMat],
   );
 
   useFrame((state, delta) => {
+    const dt = Math.min(delta, 0.1);
     const el = state.clock.elapsedTime;
     const anim = q.animate;
     readStage(stage, q);
@@ -250,34 +389,67 @@ export default function RegionsScene() {
     const t = stage.t;
     const L = live.current;
 
-    /* the map rises from grazing to facing the viewer as the dwell pins */
-    const tiltTarget = anim ? 0.16 + 0.56 * stage.into : 0.66;
-    L.tilt = anim ? damp(L.tilt, tiltTarget, 6, delta) : tiltTarget;
-    L.lean = anim ? damp(L.lean, pointer.y * 0.05, 2.5, delta) : 0;
-    L.leanY = anim ? damp(L.leanY, pointer.x * 0.08, 2.5, delta) : 0;
+    const pFeature = smooth(sectionRange(getSectionProgress('feature'), 0.04, 0.92));
+    const pDetail = smooth(sectionRange(getSectionProgress('detail'), 0.05, 0.88));
+    const pCta = smooth(sectionRange(getSectionProgress('cta'), 0.05, 0.82));
+    const out = stage.out;
+
+    /* the map rises from grazing to facing the viewer in moment, then angles gently as a cartographic backdrop */
+    const preTilt = 0.16 + 0.56 * stage.into;
+    const postTilt = 0.52 - 0.10 * pDetail + 0.08 * pCta;
+    const tiltTarget = anim ? preTilt * (1 - out) + postTilt * out : 0.66;
+
+    const postYaw = q.compact ? -0.08 : -0.22 * (1 - pCta * 0.7);
+    const yawTarget = anim ? pointer.x * 0.08 + postYaw * out : 0;
+
+    L.tilt = anim ? damp(L.tilt, tiltTarget, 5.5, dt) : tiltTarget;
+    L.lean = anim ? damp(L.lean, pointer.y * 0.05, 2.5, dt) : 0;
+    L.leanY = anim ? damp(L.leanY, yawTarget, 3.2, dt) : 0;
 
     const g = map.current;
     if (g) {
       g.rotation.x = L.tilt + L.lean;
       g.rotation.y = L.leanY;
     }
+
     const r = rig.current;
     if (r) {
-      const s = q.compact ? 0.34 + 0.03 * stage.into : 0.9 + 0.12 * stage.into;
+      const preS = q.compact ? 0.34 + 0.04 * stage.into : 0.90 + 0.13 * stage.into;
+      const postS = q.compact ? 0.33 : 0.76 - 0.04 * pDetail + 0.06 * pCta;
+      const wantS = anim ? preS * (1 - out) + postS * out : q.compact ? 0.36 : 0.92;
+
       const baseY = q.compact ? -1.75 : -2.05;
-      const midY = q.compact ? -0.25 : -0.35;
-      const y = anim ? baseY + (midY - baseY) * stage.into + stage.out * 7 : q.compact ? -0.4 : -0.5;
-      r.position.set(0, y - (1 - intro) * 0.8, 0);
-      r.scale.setScalar(s * (0.94 + 0.06 * intro));
+      const midY = q.compact ? -0.22 : -0.32;
+      const preY = baseY + (midY - baseY) * stage.into;
+      const postY = q.compact
+        ? -0.65 + 0.25 * pCta
+        : 0.52 - 0.18 * pFeature + 0.12 * pDetail - 0.38 * pCta;
+      const wantY = anim ? preY * (1 - out) + postY * out : q.compact ? -0.4 : -0.5;
+
+      const wantX = anim && !q.compact ? out * (1.08 * (1 - pCta * 0.85)) : 0;
+      const wantZ = anim ? out * (-1.35 + 0.35 * pCta) : 0;
+
+      L.rx = anim ? damp(L.rx, wantX, 4.8, dt) : 0;
+      L.ry = anim ? damp(L.ry, wantY - (1 - intro) * 0.8, 4.8, dt) : wantY;
+      L.rz = anim ? damp(L.rz, wantZ, 4.8, dt) : 0;
+      L.rs = anim ? damp(L.rs, wantS * (0.94 + 0.06 * intro), 4.8, dt) : wantS;
+
+      r.position.set(L.rx, L.ry, L.rz);
+      r.scale.setScalar(L.rs);
     }
 
     /* light follows the cursor across the contours */
-    L.lx = anim ? damp(L.lx, pointer.x * MAP_W * 0.42, 3, delta) : -1.2;
-    L.lz = anim ? damp(L.lz, -pointer.y * MAP_D * 0.4, 3, delta) : 0.4;
+    L.lx = anim ? damp(L.lx, pointer.x * MAP_W * 0.42, 3, dt) : -1.2;
+    L.lz = anim ? damp(L.lz, -pointer.y * MAP_D * 0.4, 3, dt) : 0.4;
     material.uniforms.uLight.value.set(L.lx, L.lz);
-    material.uniforms.uOpacity.value = intro;
 
-    const uPins = material.uniforms.uPins.value as THREE.Vector4[];
+    /* soften map & arc opacity slightly behind the editorial index so copy stays razor-sharp */
+    const backdropFade = anim ? 1 - out * (0.34 - 0.12 * pCta) : 1;
+    material.uniforms.uOpacity.value = intro * backdropFade;
+    arcMat.uniforms.uOpacity.value = intro * backdropFade;
+    arcMat.uniforms.uTime.value = anim ? el : 1.5;
+
+    const uPins = sharedPinsUniform.value;
     for (let i = 0; i < N; i++) {
       const s = pins[i];
       const grp = pinRefs.current[i];
@@ -286,7 +458,10 @@ export default function RegionsScene() {
       let age = -1;
       if (!anim) {
         h = 0;
-        age = 0.55 + s.seed * 0.3;
+        age = 0.72 + s.seed * 0.25;
+      } else if (out > 0.5 && t >= 0.95) {
+        h = 0;
+        age = 1.2;
       } else if (t < s.start) {
         h = s.hover + Math.sin(el * 0.7 + s.seed * 6.28) * 0.06;
       } else if (t < impact) {
@@ -309,17 +484,20 @@ export default function RegionsScene() {
       const m = headMats.current[i];
       if (m) {
         const flash = age >= 0 && age <= 1 ? Math.exp(-age * 6) * 1.6 : 0;
-        const settled = age >= 0 ? 0.3 : 0.04;
+        const settled = age >= 0 ? 0.34 : 0.04;
         m.emissiveIntensity = settled + flash;
       }
     }
 
     if (headRef0.current) report(headRef0.current, state.camera, 0.55 + 0.35 * stage.focus);
 
-    /* camera — still, a breath of parallax */
-    _cam.set(anim ? pointer.x * 0.35 : 0, anim ? pointer.y * 0.2 : 0, 9);
-    state.camera.position.lerp(_cam, 0.05);
-    state.camera.lookAt(0, 0, 0);
+    /* camera — subtle dolly into the moment dwell, smooth handoff into index & cta */
+    const camZ = anim ? 9.05 - 0.55 * stage.focus + 0.25 * out : 9.0;
+    const camY = anim ? pointer.y * 0.2 + 0.16 * stage.focus : 0;
+    _cam.set(anim ? pointer.x * 0.35 : 0, camY, camZ);
+    state.camera.position.lerp(_cam, 0.055);
+    _look.set(0, -0.06 * stage.focus, 0);
+    state.camera.lookAt(_look);
   });
 
   return (
@@ -328,6 +506,7 @@ export default function RegionsScene() {
       <group ref={rig}>
         <group ref={map}>
           <mesh geometry={geometry} material={material} rotation={[-Math.PI / 2, 0, 0]} renderOrder={-1} />
+          <lineSegments geometry={arcGeo} material={arcMat} frustumCulled={false} />
           {pins.map((s, i) => (
             <group
               key={i}

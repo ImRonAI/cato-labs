@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ConversationProvider, useConversation } from '@elevenlabs/react';
+import type { MCPToolApprovalHandler } from '@elevenlabs/client';
 import type { CallToolResult } from '@modelcontextprotocol/client';
 import {
   catoBus,
@@ -9,10 +11,11 @@ import {
   setActivity,
   setMouth,
   setToolMove,
+  setStory,
   subscribeCato,
   toolMoveFor,
 } from '@/components/webgl/kit/cato/bus';
-import { journeyStops } from '@/lib/content/agentJourney';
+import { journeyCopy, journeyStops, type JourneyStory } from '@/lib/content/agentJourney';
 import { MUSIC_BPM } from '@/lib/content/journeyLayout';
 import PrefabView, { callPrefabTool, type PrefabRun } from '@/components/mcp-app/PrefabView';
 
@@ -26,14 +29,13 @@ import PrefabView, { callPrefabTool, type PrefabRun } from '@/components/mcp-app
  * - SDK events drive Cato's body through catoBus: onModeChange → speaking /
  *   listening; onMCPToolCall → working / success / error plus the matching
  *   Timmy scene (phone, texting, email, fax, video, desk), and its
- *   "awaiting_approval" state raises the Approve / Deny card, answered with
- *   sendMCPToolApprovalResult (@elevenlabs/react 1.18 has no approval-handler
- *   option on the hook, so this is the path its types expose).
+ *   native onMCPToolApprovalRequest raises the existing Approve / Deny card.
+ *   The SDK sends the visitor's decision and dismisses stale requests.
  * - Lip-sync: getOutputVolume() sampled every frame while connected.
  * - The tour:
  *   1. Client tool `next_stop` (plus `previous_stop` and `go_to_stop`): when the
  *      visitor asks to move on, the voice agent calls `next_stop`, which starts
- *      Cato's 6s fall to the next ledge, scrolls the page to that stop's copy,
+ *      Cato's queued journey to the next ledge, scrolls to that stop's copy,
  *      and returns the new stop's copy to the agent.
  *   2. When the visitor clicks a stop's "Next stop" / "Previous stop" button on
  *      the page, the agent is notified via sendContextualUpdate.
@@ -63,7 +65,7 @@ function resolveStopParam(raw: unknown): number | null {
 
 function stopSummary(idx: number): string {
   const s = journeyStops[idx];
-  return `Successfully navigated to stop ${idx + 1} of ${journeyStops.length} (${s.id}): "${s.eyebrow}: ${s.titleLines.join(' ')}". On screen: ${s.body}`;
+  return `${catoBus.queuedStop === idx ? 'Queued navigation to' : catoBus.falling ? 'Travelling to' : 'Arrived at'} stop ${idx + 1} of ${journeyStops.length} (${s.id}): "${s.eyebrow}: ${s.titleLines.join(' ')}". ${s.body} ${s.illustrativeLabel}. ${s.stories[catoBus.story]}`;
 }
 
 /*
@@ -96,6 +98,7 @@ interface PendingApproval {
   tool: string;
   description?: string;
   parameters: Record<string, unknown>;
+  decide: (approved: boolean) => void;
 }
 
 export default function CatoVoice() {
@@ -112,9 +115,12 @@ function Dock() {
   const [pending, setPending] = useState<PendingApproval | null>(null);
   const [note, setNote] = useState('');
   const [prefab, setPrefab] = useState<PrefabRun | null>(null);
+  const [finaleSlot, setFinaleSlot] = useState<HTMLElement | null>(null);
   const voiceAudio = useRef<HTMLAudioElement | null>(null);
   const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastReportedStop = useRef<number>(-1);
+  const lastReportedStory = useRef('');
+  const navigationWaits = useRef(new Set<() => void>());
 
   const playGeneratedMusic = useCallback(async (params?: Record<string, unknown>) => {
     try {
@@ -157,17 +163,48 @@ function Dock() {
     }, 4000);
   }, []);
 
-  const moveStopFromAgent = useCallback((targetIdx: number) => {
+  const moveStopFromAgent = useCallback(async (targetIdx: number) => {
     const idx = goToStop(targetIdx);
-    lastReportedStop.current = idx;
-    return stopSummary(idx);
+    if (!catoBus.falling && catoBus.stopIndex === idx && catoBus.arrivedAt) return stopSummary(idx);
+    return new Promise<string>((resolve) => {
+      const cancel = () => {
+        unsubscribe();
+        navigationWaits.current.delete(cancel);
+        resolve(stopSummary(catoBus.stopIndex));
+      };
+      const unsubscribe = subscribeCato(() => {
+        if (catoBus.targetStop !== idx && catoBus.queuedStop !== idx) { cancel(); return; }
+        if (catoBus.falling || catoBus.stopIndex !== idx || !catoBus.arrivedAt) return;
+        cancel();
+      });
+      navigationWaits.current.add(cancel);
+    });
   }, []);
+
+  const requestApproval = useCallback<MCPToolApprovalHandler>((call, { signal }) => new Promise<boolean>((resolve) => {
+    const decide = (approved: boolean) => {
+      signal.removeEventListener('abort', abort);
+      setPending((current) => current?.id === call.tool_call_id ? null : current);
+      if (signal.aborted) setActivity('listening');
+      resolve(approved);
+    };
+    const abort = () => decide(false);
+    if (signal.aborted) { resolve(false); return; }
+    signal.addEventListener('abort', abort, { once: true });
+    setActivity('approval');
+    setPending({ id: call.tool_call_id, tool: call.tool_name, description: call.tool_description, parameters: call.parameters, decide });
+  }), []);
 
   const conv = useConversation({
     clientTools: {
+      set_story: async ({ story }: { story: JourneyStory }) => {
+        if (!Object.hasOwn(journeyCopy.stories, story)) return 'Choose enterprise, startup, family, or solo.';
+        setStory(story);
+        return `Selected ${story}. ${journeyCopy.illustrative}. All nine stops remain in the tour.`;
+      },
       next_stop: async (params?: { stop?: string | number; index?: string | number; id?: string }) => {
         const explicit = resolveStopParam(params?.stop ?? params?.index ?? params?.id);
-        const target = explicit !== null ? explicit : Math.min(journeyStops.length - 1, catoBus.targetStop + 1);
+        const target = explicit !== null ? explicit : catoBus.tourStarted ? Math.min(journeyStops.length - 1, catoBus.targetStop + 1) : 0;
         return moveStopFromAgent(target);
       },
       previous_stop: async () => {
@@ -207,12 +244,6 @@ function Dock() {
         }
         case 'awaiting_approval':
           setActivity('approval');
-          setPending({
-            id: call.tool_call_id,
-            tool: call.tool_name,
-            description: call.tool_description,
-            parameters: call.parameters,
-          });
           break;
         case 'success':
           setPending((p) => (p?.id === call.tool_call_id ? null : p));
@@ -237,8 +268,12 @@ function Dock() {
 
   /* offer to talk after 3s */
   useEffect(() => {
-    const t = setTimeout(() => setOffer(true), 3000);
-    return () => clearTimeout(t);
+    setFinaleSlot(document.getElementById('aas-finale-voice-slot'));
+    const t = setTimeout(() => { if (!catoBus.tourStarted) setOffer(true); }, 3000);
+    const unsubscribe = subscribeCato(() => {
+      if (catoBus.tourStarted) { setOffer(false); setDismissed(true); }
+    });
+    return () => { clearTimeout(t); unsubscribe(); };
   }, []);
 
   /*
@@ -352,17 +387,35 @@ function Dock() {
   useEffect(() => {
     if (!connected) return;
     const report = () => {
-      const idx = catoBus.targetStop;
-      if (idx === lastReportedStop.current) return;
+      if (catoBus.falling) return;
+      const idx = catoBus.stopIndex;
+      if (idx === lastReportedStop.current && catoBus.story === lastReportedStory.current) return;
       lastReportedStop.current = idx;
+      lastReportedStory.current = catoBus.story;
       sendContext(stopSummary(idx));
     };
     report();
     return subscribeCato(report);
   }, [connected, sendContext]);
 
+  const prefabDone = useCallback((ok: boolean, result?: CallToolResult) => {
+    if (!ok || !connected) return;
+    const state = (result?.structuredContent as Record<string, unknown> | undefined)?.state;
+    sendContext(state && Object.keys(state).length > 0
+      ? `Tool loaded and active on screen. Initial state: ${JSON.stringify(state)}`
+      : 'Tool loaded and active on screen.');
+  }, [connected, sendContext]);
+  const prefabContext = useCallback((text: string) => {
+    if (connected) sendContext(`Live tool update: ${text}`);
+  }, [connected, sendContext]);
+  const sendUserMessage = conv.sendUserMessage;
+  const prefabMessage = useCallback((text: string) => {
+    if (connected) sendUserMessage(text);
+  }, [connected, sendUserMessage]);
+
   useEffect(
     () => () => {
+      for (const cancel of navigationWaits.current) cancel();
       if (settle.current) clearTimeout(settle.current);
       setActivity('idle');
     },
@@ -377,46 +430,37 @@ function Dock() {
       setNote('Cato needs your microphone to talk. Allow it in the browser and try again.');
       return;
     }
-    conv.startSession({ agentId: AGENT_ID, connectionType: 'webrtc' });
-  }, [conv]);
+    lastReportedStop.current = -1;
+    lastReportedStory.current = '';
+    // The client supports this native session option; React 1.18's HookOptions omits its type.
+    const session = { agentId: AGENT_ID, connectionType: 'webrtc' as const, onMCPToolApprovalRequest: requestApproval };
+    conv.startSession(session);
+  }, [conv, requestApproval]);
 
   const answer = useCallback(
     (ok: boolean) => {
       if (!pending) return;
-      conv.sendMCPToolApprovalResult(pending.id, ok);
-      setPending(null);
+      pending.decide(ok);
       setActivity(ok ? 'working' : 'listening');
       if (!ok) setNote('Declined. Nothing was sent.');
     },
-    [conv, pending],
+    [pending],
   );
 
   return (
     <div className="cato-dock" aria-live="polite">
-      {prefab && (
-        <div className="cato-cloud cato-prefab">
+      {prefab && finaleSlot && createPortal(
+        <div className="aas-voice-prefab">
           <PrefabView
             run={prefab}
-            onDone={(ok, result) => {
-              if (!ok || !connected) return;
-              const state = (result?.structuredContent as Record<string, unknown> | undefined)?.state;
-              if (state && Object.keys(state).length > 0) {
-                sendContext(`Tool loaded and active on screen. Initial state: ${JSON.stringify(state)}`);
-              } else {
-                sendContext('Tool loaded and active on screen.');
-              }
-            }}
-            onContextUpdate={(text) => {
-              if (connected) sendContext(`Live tool update: ${text}`);
-            }}
-            onSendMessage={(text) => {
-              if (connected) conv.sendUserMessage(text);
-            }}
+            onDone={prefabDone}
+            onContextUpdate={prefabContext}
+            onSendMessage={prefabMessage}
           />
           <button type="button" className="cato-btn cato-btn--ghost" onClick={() => setPrefab(null)}>
-            Close
+            {journeyCopy.close}
           </button>
-        </div>
+        </div>, finaleSlot
       )}
       {pending && (
         <div className="cato-cloud cato-approval" role="alertdialog" aria-labelledby="cato-approval-title">
@@ -439,7 +483,7 @@ function Dock() {
       {!pending && offer && !dismissed && !connected && (
         <div className="cato-cloud">
           <p>
-            Hi, I&apos;m Cato. I can call you, text you, or build you a tool while we talk. Want to try?
+            {journeyCopy.voiceOffer}
           </p>
           <div className="cato-cloud-actions">
             {AGENT_ID ? (

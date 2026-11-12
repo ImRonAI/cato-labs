@@ -3,11 +3,10 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { capabilityChildren } from '@/lib/content/capabilities';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
-import StreamSimulator from '@/components/kit/StreamSimulator';
 import ProactiveBubble from '@/components/kit/ProactiveBubble';
 import ProximityType from '@/components/webgl/kit/ProximityType';
-import { aurelleScript, studioAgents, aurelleBrand } from './buildScript';
-import VibeCoder from './VibeCoder';
+import { studioSection } from '@/lib/content/studio';
+import BuildSession from './_studio/BuildSession';
 import './page.css';
 
 const copy = capabilityChildren['digital-products'];
@@ -42,9 +41,10 @@ export const metadata = pageMetadata({
 
 /**
  * /capabilities/digital-products — the flagship child page.
- * Studio section: four agents build AURELLE live (StreamSimulator).
- * Vibe section: three questions → a generated sketch of the visitor's own.
- * Section ids beyond the generic set: `studio`, `vibe` (owned by this page).
+ * Studio section: a Cato agent builds oubliai.com from one brief, writing the site's real
+ * source, then opens the live site in the window (_studio/BuildSession).
+ * The ten-flagship StreamSimulator lives on the homepage.
+ * Section ids beyond the generic set: `studio` (owned by this page).
  */
 export default function DigitalProductsPage() {
   return (
@@ -83,15 +83,16 @@ export default function DigitalProductsPage() {
           </div>
         </section>
 
-        {/* ---------- the studio: watch a site being born ---------- */}
+        {/* ---------- the studio: one brief becomes oubliai.com ---------- */}
         <section
           data-scene-section="studio"
+          id="studio"
           className="container-x section-y"
-          aria-label="The Studio — watch a site being born"
+          aria-label={studioSection.title}
         >
           <div className="dp-blockhead">
             <Reveal className="micro-label" delay={0}>
-              The Studio
+              {studioSection.eyebrow}
             </Reveal>
             <Reveal
               as="h2"
@@ -99,51 +100,15 @@ export default function DigitalProductsPage() {
               delay={0.08}
               style={{ marginBlock: '18px 22px' }}
             >
-              <ProximityType>Watch a site being born.</ProximityType>
+              <ProximityType>{studioSection.title}</ProximityType>
             </Reveal>
             <Reveal className="lede" delay={0.16}>
-              This is how a Cato flagship is built: strategy, design, engineering and
-              discoverability working the same canvas at the same time. Choose from ten
-              bespoke HTML flagships below and watch four agents stream the source and render
-              the live site in real time.
+              {studioSection.lede}
             </Reveal>
           </div>
           <Reveal delay={0.2}>
-            <StreamSimulator
-              script={aurelleScript}
-              agents={studioAgents}
-              brand={aurelleBrand}
-              loop={false}
-            />
+            <BuildSession />
           </Reveal>
-        </section>
-
-        {/* ---------- the sketch engine: vibe-code yours ---------- */}
-        <section
-          data-scene-section="vibe"
-          id="vibe"
-          className="container-x section-y"
-          aria-label="Vibe-code yours"
-        >
-          <div className="dp-blockhead">
-            <Reveal className="micro-label" delay={0}>
-              The Sketch Engine
-            </Reveal>
-            <Reveal
-              as="h2"
-              className="h2"
-              delay={0.08}
-              style={{ marginBlock: '18px 22px' }}
-            >
-              <ProximityType>Vibe-code yours.</ProximityType>
-            </Reveal>
-            <Reveal className="lede" delay={0.16}>
-              Describe what you&rsquo;re building. Your agent researches, designs
-              and writes the website on a live canvas. Follow each element as it
-              takes shape, then download the files or start another build.
-            </Reveal>
-          </div>
-          <VibeCoder />
         </section>
 
         {/* ---------- the work ---------- */}
@@ -180,13 +145,13 @@ export default function DigitalProductsPage() {
         </section>
       </ChildPageShell>
 
-      {/* the agent that speaks first — invites visitors to the sketch engine */}
+      {/* the agent that speaks first — invites visitors to watch the oubliai.com build */}
       <ProactiveBubble
         agentName="Azure"
-        message="I design the flagships. One brief — your own words, as long as you like — and I will research your market and sketch yours live, right here on the page."
-        ctaLabel="Sketch my site"
-        ctaHref="#vibe"
-        triggerSection="studio"
+        message="I design the flagships. Just below, watch one brief become oubliai.com: the plan, the 3D world, the code and the deploy. Then step inside the live site."
+        ctaLabel="Watch the build"
+        ctaHref="#studio"
+        triggerSection="feature"
         avatarHue="#2e4bff"
       />
     </>

@@ -14,7 +14,9 @@ import './kit.css';
 /*  when `triggerSection` (a data-scene-section id) crosses the        */
 /*  viewport middle — read transiently from the scroll store with a    */
 /*  single subscription. Dismissal is remembered per pathname in       */
-/*  sessionStorage; navigating re-arms the bubble.                     */
+/*  sessionStorage; navigating re-arms the bubble. When the CTA points */
+/*  to a section on the page (#id), the bubble bows out once that      */
+/*  section is on screen: its invitation has been taken up.            */
 /* ------------------------------------------------------------------ */
 
 function prefersReduced(): boolean {
@@ -118,11 +120,14 @@ export function ProactiveBubble({
     };
   }, [phase]);
 
-  const dismiss = () => {
-    try {
-      sessionStorage.setItem(storageKey, '1');
-    } catch {
-      /* ignore */
+  /* fade away; `remember` keeps it closed for this path for the session */
+  const leave = (remember: boolean) => {
+    if (remember) {
+      try {
+        sessionStorage.setItem(storageKey, '1');
+      } catch {
+        /* ignore */
+      }
     }
     const el = cardRef.current;
     if (el && !prefersReduced()) {
@@ -131,12 +136,32 @@ export function ProactiveBubble({
         autoAlpha: 0,
         duration: 0.35,
         ease: 'power2.in',
+        overwrite: 'auto',
         onComplete: () => setPhase('dismissed'),
       });
     } else {
       setPhase('dismissed');
     }
   };
+  const dismiss = () => leave(true);
+
+  /* the CTA's own section is on screen: step aside so it can be seen */
+  useEffect(() => {
+    if (phase !== 'open' || !ctaHref.startsWith('#')) return;
+    const target = document.getElementById(ctaHref.slice(1));
+    if (!target) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        leave(false);
+      },
+      { rootMargin: '-30% 0px -30% 0px' },
+    );
+    io.observe(target);
+    return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- leave reads refs and stable setters only
+  }, [phase, ctaHref]);
 
   if (phase !== 'open') return null;
 

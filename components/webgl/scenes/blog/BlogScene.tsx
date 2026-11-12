@@ -8,52 +8,53 @@ import SceneLightRig from '../shared/SceneLightRig';
 import ParticleField from '../shared/ParticleField';
 import { GlassMaterial } from '../../lib/materials';
 import { useQuality } from '../../lib/quality';
-import { getSectionProgress, sectionRange, smooth, pointer } from '../../scroll-store';
+import {
+  getSectionProgress,
+  sectionRange,
+  smooth,
+  pointer,
+} from '../../scroll-store';
 import { useHotspotReporter } from '../../kit/ProximityType';
 import { COVER_WINDOW, PAGE_DUR, pageStart } from './pages';
 
 /**
  * BlogScene — "Pages Turning".
  *
- * A glass-bound journal lies open on the light. Through the pinned `pages`
- * dwell its deep-glass cover swings open and the leaves turn one after
- * another — each one lifting at the corner first, bending through the turn
- * and settling flat on the growing left-hand stack. Scrubbed by section
- * progress, so scrolling up turns the pages back.
+ * A glass-bound journal lies open on the light. Through `hero` the front board
+ * breathes slightly ajar; through the pinned `pages` dwell its deep-glass
+ * cover swings open and the leaves turn one after another — each lifting at
+ * the corner first, curling analytically through the turn and settling flat on
+ * the growing left-hand stack. Across `feature` the open journal recedes softly
+ * behind the index, then re-poises as a calm open volume across `cta`.
  *
- * The leaves are one shader: the bend is computed analytically in the vertex
- * shader (the leaf is integrated along a curve whose angle falls off from the
- * spine, so it really curls rather than hinging), with a corner lead along
- * the spine. The fragment prints hairline text on both faces, a gutter shadow
- * and a soft sheen that follows the cursor. Covers are real refractive glass
- * (the printed leaves read through the closed cover). Reduced motion leaves
- * the book open mid-volume. Zero allocations in useFrame.
+ * Zero allocations in useFrame; mount-relative intro; reduced motion renders
+ * the open mid-volume immediately.
  */
 
-const PW = 1.32; // leaf width (spine → fore-edge)
-const PH = 1.82; // leaf height
-const R_REST = 0.2; // resting angle of the right-hand stack (rad from +x)
+const PW = 1.32;
+const PH = 1.82;
+const R_REST = 0.2;
 const L_REST = Math.PI - 0.2;
-const FAN = 0.011; // angular spacing in the stacks
+const FAN = 0.011;
 
-/** pinned window of a 300vh dwell with a 100vh sticky stage */
 const PIN_FROM = 0.25;
 const PIN_TO = 0.75;
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeInOut = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 const leafVertex = /* glsl */ `
-  uniform float uTheta;   // spine angle of the leaf (rad, in the xz plane)
-  uniform float uBend;    // curl (rad per unit along the leaf)
-  uniform float uLead;    // corner lead along the spine (rad at the top edge)
+  uniform float uTheta;
+  uniform float uBend;
+  uniform float uLead;
   varying vec2 vUv;
   varying vec3 vNormalV;
   varying vec3 vViewPos;
   varying float vS;
   void main() {
     vUv = uv;
-    float s = position.x;                 // 0 at the spine … PW at the fore-edge
+    float s = position.x;
     float y = position.y;
     float th = uTheta + uLead * (y / ${PH.toFixed(3)} + 0.5) * (s / ${PW.toFixed(3)});
     float c = uBend;
@@ -87,7 +88,6 @@ const leafFragment = /* glsl */ `
 
   float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
-  /* hairline text block: a heading on some leaves, then ruled lines */
   float print(vec2 uv, float seed) {
     vec2 m = vec2(0.16, 0.12);
     if (uv.x < m.x || uv.x > 1.0 - m.x * 0.8 || uv.y < m.y || uv.y > 1.0 - m.y) return 0.0;
@@ -100,8 +100,8 @@ const leafFragment = /* glsl */ `
     float len = mix(0.72, 1.0, hash(vec2(seed, r)));
     if (headed > 0.5 && r < 2.0) { bar = 0.46; len = r < 1.0 ? 0.82 : 0.5; }
     if (headed > 0.5 && r == 2.0) return 0.0;
-    if (mod(r + floor(seed * 3.0), 9.0) == 8.0) len *= 0.42;   // paragraph ends
-    if (mod(r + floor(seed * 3.0), 9.0) == 0.0 && r > 2.0) return 0.0; // paragraph gap
+    if (mod(r + floor(seed * 3.0), 9.0) == 8.0) len *= 0.42;
+    if (mod(r + floor(seed * 3.0), 9.0) == 0.0 && r > 2.0) return 0.0;
     float line = step(abs(f - 0.5), bar * 0.5) * step(q.x, len);
     return line * (headed > 0.5 && r < 2.0 ? 1.0 : 0.55);
   }
@@ -116,19 +116,16 @@ const leafFragment = /* glsl */ `
     float ink = print(uv, seed);
     vec3 col = mix(uPaper, uInk, ink * 0.9);
 
-    /* soft studio light + a sheen that follows the cursor */
     vec3 L = normalize(vec3(uLight * 0.8, 1.0));
     float diff = 0.82 + 0.18 * max(dot(N, L), 0.0);
     vec3 H = normalize(L + V);
     float spec = pow(max(dot(N, H), 0.0), 48.0) * 0.22;
     col = col * diff + vec3(0.92, 0.95, 1.0) * spec;
 
-    /* gutter shadow near the spine, fresnel ice rim toward grazing */
     col *= mix(0.86, 1.0, smoothstep(0.0, 0.16, vS));
     float fres = pow(1.0 - abs(dot(N, V)), 2.4);
     col = mix(col, uRim, fres * 0.55);
 
-    /* a hairline fore-edge */
     float edge = 1.0 - smoothstep(0.0, 0.008, min(min(uv.y, 1.0 - uv.y), 1.0 - uv.x));
     col = mix(col, uRim, edge * 0.7);
 
@@ -143,6 +140,7 @@ const _look = new THREE.Vector3();
 export default function BlogScene() {
   const q = useQuality();
   const leaves = q.compact ? 7 : 9;
+  const startAt = useRef<number | null>(null);
   const book = useRef<THREE.Group>(null);
   const coverPivot = useRef<THREE.Group>(null);
   const report = useHotspotReporter('blog-cards');
@@ -150,23 +148,25 @@ export default function BlogScene() {
   const { geometry, materials } = useMemo(() => {
     const geometry = new THREE.PlaneGeometry(PW, PH, 36, 6);
     geometry.translate(PW / 2, 0, 0);
-    const materials = Array.from({ length: leaves }, (_, i) =>
-      new THREE.ShaderMaterial({
-        vertexShader: leafVertex,
-        fragmentShader: leafFragment,
-        side: THREE.DoubleSide,
-        uniforms: {
-          uTheta: { value: R_REST },
-          uBend: { value: 0 },
-          uLead: { value: 0 },
-          uSeed: { value: 0.137 + i * 0.731 },
-          uPaper: { value: new THREE.Color('#f3f6ff') },
-          uInk: { value: new THREE.Color(i === 0 ? '#2e4bff' : '#8fa5ff') },
-          uRim: { value: new THREE.Color('#a9bbff') },
-          uLight: { value: new THREE.Vector2() },
-          uFade: { value: 1 },
-        },
-      }),
+    const materials = Array.from(
+      { length: leaves },
+      (_, i) =>
+        new THREE.ShaderMaterial({
+          vertexShader: leafVertex,
+          fragmentShader: leafFragment,
+          side: THREE.DoubleSide,
+          uniforms: {
+            uTheta: { value: R_REST },
+            uBend: { value: 0 },
+            uLead: { value: 0 },
+            uSeed: { value: 0.137 + i * 0.731 },
+            uPaper: { value: new THREE.Color('#f3f6ff') },
+            uInk: { value: new THREE.Color(i === 0 ? '#2e4bff' : '#8fa5ff') },
+            uRim: { value: new THREE.Color('#a9bbff') },
+            uLight: { value: new THREE.Vector2() },
+            uFade: { value: 1 },
+          },
+        }),
     );
     return { geometry, materials };
   }, [leaves]);
@@ -179,35 +179,59 @@ export default function BlogScene() {
   );
 
   useFrame((state) => {
-    const el = state.clock.elapsedTime;
+    if (startAt.current === null) startAt.current = state.clock.elapsedTime;
+    const el = state.clock.elapsedTime - startAt.current;
     const anim = q.animate;
     const g = book.current;
     if (!g) return;
 
-    const p = anim ? sectionRange(getSectionProgress('pages'), PIN_FROM, PIN_TO) : 0.55;
-    const recede = anim ? smooth(sectionRange(getSectionProgress('feature'), 0.02, 0.42)) : 0;
-    const intro = anim ? smooth(Math.min(el / 2.0, 1)) : 1;
+    const hero = anim ? getSectionProgress('hero') : 1;
+    const p = anim
+      ? sectionRange(getSectionProgress('pages'), PIN_FROM, PIN_TO)
+      : 0.55;
+    const feature = anim ? getSectionProgress('feature') : 0;
+    const cta = anim ? getSectionProgress('cta') : 0;
+
+    const heroLead = smooth(sectionRange(hero, 0.45, 0.98));
+    const recedeIn = smooth(sectionRange(feature, 0.02, 0.42));
+    const ctaReturn = smooth(sectionRange(cta, 0.08, 0.75));
+    const recede = anim ? recedeIn * (1 - ctaReturn * 0.55) : 0;
+
+    const intro = anim ? smooth(Math.min(el / 1.9, 1)) : 1;
     const compact = q.compact;
 
-    /* the book: right of the copy, lying back on the light; it slides to
-       centre as it opens (an open book is twice as wide) */
-    const open = smooth(clamp01((p - COVER_WINDOW[0]) / (COVER_WINDOW[1] - COVER_WINDOW[0])));
-    const tx = compact ? -0.66 * open + 0.1 : 2.05 - open * 1.05 + recede * 0.6;
-    g.position.x += (tx - g.position.x) * 0.06;
-    g.position.y = (compact ? -1.0 : -0.25) + recede * 1.2 - (1 - intro) * 1.0;
+    const open = smooth(
+      clamp01((p - COVER_WINDOW[0]) / (COVER_WINDOW[1] - COVER_WINDOW[0])),
+    );
+    const tx = compact
+      ? -0.66 * open + 0.1
+      : 2.05 - open * 1.05 + recede * 0.6 + ctaReturn * 0.2;
+    const tiltX = -1.02 + ctaReturn * 0.08 + (anim ? pointer.y * 0.06 : 0);
+    const tiltZ = 0.07 - ctaReturn * 0.03 + (anim ? -pointer.x * 0.05 : 0);
+
+    if (anim) {
+      g.position.x += (tx - g.position.x) * 0.06;
+      g.rotation.x += (tiltX - g.rotation.x) * 0.05;
+      g.rotation.z += (tiltZ - g.rotation.z) * 0.05;
+    } else {
+      g.position.x = tx;
+      g.rotation.x = tiltX;
+      g.rotation.z = tiltZ;
+    }
+    g.position.y =
+      (compact ? -1.0 : -0.25) + recede * 1.2 - (1 - intro) * 0.95;
     g.position.z = -recede * 4;
     g.scale.setScalar(compact ? 0.62 : 1);
-    const tiltX = -1.02 + (anim ? pointer.y * 0.06 : 0);
-    const tiltZ = 0.07 + (anim ? -pointer.x * 0.05 : 0);
-    g.rotation.x += (tiltX - g.rotation.x) * 0.05;
-    g.rotation.z += (tiltZ - g.rotation.z) * 0.05;
 
-    /* the cover */
+    /* the front cover */
     const cover = coverPivot.current;
     if (cover) {
       const closed = R_REST + FAN * (leaves + 1.5);
-      const u = easeInOut(clamp01((p - COVER_WINDOW[0]) / (COVER_WINDOW[1] - COVER_WINDOW[0])));
-      const phi = closed + (L_REST + 0.03 - closed) * u;
+      const u = easeInOut(
+        clamp01((p - COVER_WINDOW[0]) / (COVER_WINDOW[1] - COVER_WINDOW[0])),
+      );
+      const heroCrack = heroLead * 0.07 * (1 - u);
+      const phi = closed + heroCrack + (L_REST + 0.03 - closed) * u;
       cover.rotation.y = -phi;
       cover.scale.setScalar(Math.max(intro, 0.001));
     }
@@ -230,15 +254,23 @@ export default function BlogScene() {
       m.uniforms.uFade.value = intro;
     }
 
-    if (cover) report(cover, state.camera, (0.45 + 0.35 * open) * intro * (1 - recede * 0.7));
+    if (cover) {
+      report(
+        cover,
+        state.camera,
+        (0.45 + 0.35 * open) * intro * (1 - recede * 0.7),
+      );
+    }
 
-    /* camera: quiet, the barest push as the book opens */
+    /* camera: quiet push as the book opens, gentle poise on cta */
     _cam.set(
       anim ? pointer.x * 0.35 : 0,
-      0.35 + (anim ? pointer.y * 0.2 : 0),
-      (compact ? 11 : 9.3) - open * 0.5 - intro * 0.3,
+      0.35 + ctaReturn * 0.1 + (anim ? pointer.y * 0.2 : 0),
+      (compact ? 11 : 9.3) - open * 0.5 + ctaReturn * 0.35 - intro * 0.3,
     );
-    state.camera.position.lerp(_cam, 0.05);
+    if (anim) state.camera.position.lerp(_cam, 0.05);
+    else state.camera.position.copy(_cam);
+
     _look.set(compact ? 0 : 0.75, compact ? -0.7 : -0.15, 0);
     state.camera.lookAt(_look);
   });
@@ -278,7 +310,12 @@ export default function BlogScene() {
           </RoundedBox>
         </group>
         {materials.map((m, i) => (
-          <mesh key={i} geometry={geometry} material={m} frustumCulled={false} />
+          <mesh
+            key={i}
+            geometry={geometry}
+            material={m}
+            frustumCulled={false}
+          />
         ))}
       </group>
       <ParticleField

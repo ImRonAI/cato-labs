@@ -1,8 +1,10 @@
 import { childPageJsonLd, pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { capabilityChildren } from '@/lib/content/capabilities';
+import { growthEngineCopy } from '@/lib/content/overhaul/cap-growth';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
+import ProximityType from '@/components/webgl/kit/ProximityType';
 import GrowthLevers, { LeverGrid } from './GrowthLevers';
 import SocialTabs from './SocialTabs';
 import './page.css';
@@ -39,8 +41,9 @@ export const metadata = pageMetadata({
 
 /**
  * /capabilities/growth-distribution — the flagship growth page.
- * Server component; interactive islands (GrowthLevers chart, SocialTabs
- * particle stage) are client components filled from the same copy deck.
+ * Server component; interactive islands (GrowthLevers / GrowthEngine cohort
+ * simulator, SocialTabs particle stage) are client components filled from
+ * the copy deck.
  * Scene sections: hero · feature · chart · levers · social · detail · faq · cta.
  */
 export default function GrowthDistributionPage() {
@@ -74,18 +77,18 @@ export default function GrowthDistributionPage() {
         </div>
       </section>
 
-      {/* ---------- chart — the curve we engineer ---------- */}
+      {/* ---------- chart — THE GROWTH ENGINE interactive cohort studio ---------- */}
       <section
         data-scene-section="chart"
         id="growth-chart"
         className="container-x section-y"
-        aria-label="The curve we engineer"
+        aria-label="The Growth Engine"
       >
         <Reveal className="micro-label" delay={0}>
-          The evidence
+          {growthEngineCopy.eyebrow}
         </Reveal>
-        <Reveal as="h2" className="h2" delay={0.08} style={{ marginBlock: '16px 40px' }}>
-          The curve we engineer.
+        <Reveal as="h2" className="h2" delay={0.08} style={{ marginBlock: '16px 26px' }}>
+          <ProximityType>{growthEngineCopy.title}</ProximityType>
         </Reveal>
         <GrowthLevers />
       </section>

@@ -1,9 +1,11 @@
-import { childPageJsonLd, pageMetadata } from '@/lib/seo';
+import { pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { regions, type RegionCopy } from '@/lib/content/regions';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
+import RegionMoment from '@/components/webgl/scenes/regions/lib-a/RegionMomentPage';
+import { regionChildJsonLd, regionGeoMeta } from '../_geo';
 import './page.css';
 
 function regionCopy(slug: string): RegionCopy {
@@ -14,13 +16,7 @@ function regionCopy(slug: string): RegionCopy {
 
 const copy = regionCopy('phoenix');
 
-const jsonLd = childPageJsonLd({
-  crumbs: [
-    { name: 'Regions', path: '/regions' },
-    { name: copy.crumbLabel, path: `/regions/${copy.slug}` },
-  ],
-  faq: copy.faq,
-});
+const jsonLd = regionChildJsonLd(copy);
 
 /* The local angles are numbered structurally — the deck carries no index. */
 const angles = copy.localAngles.map((a, i) => ({
@@ -32,6 +28,7 @@ export const metadata = pageMetadata({
   title: `AI-native consulting in ${copy.city}`,
   description: copy.lede,
   path: '/regions/phoenix',
+  geo: regionGeoMeta(copy),
   keywords: [
     'AI consulting Phoenix',
     'AI-native consulting Arizona',
@@ -46,12 +43,13 @@ export const metadata = pageMetadata({
 
 /**
  * /regions/phoenix — the Valley of the Sun.
- * Scene: PhoenixScene — the Camelback skyline assembles out of light; a
- * deep-blue sun disc climbs as `angles` scrolls while a heat shimmer
- * rising off the valley floor intensifies the nearer it gets to the sun.
- * Hotspot 'phx-skyline' rides the Camelback head.
- * Section ids are CONTRACT: hero (shell), stats, angles, feature, build,
- * detail, faq/cta (shell).
+ * Scene: PhoenixScene ("Heat Shimmer to Monsoon Grid") — sculpted faceted
+ * Camelback & saguaro desert ridge monoliths in crystal glass; during
+ * `moment`, shimmering heat-haze gives way to electric-blue monsoon arc
+ * filaments that illuminate a crisp metropolitan grid of instanced light
+ * nodes across the Valley floor. Hotspot 'phx-skyline' rides Camelback Head.
+ * Section ids are CONTRACT: hero (shell), stats, moment, angles, feature,
+ * build, detail, faq/cta (shell).
  */
 export default function PhoenixRegionPage() {
   return (
@@ -91,6 +89,9 @@ export default function PhoenixRegionPage() {
           </div>
         </section>
       )}
+
+      {/* ---------- moment — the signature scroll moment (dwell) ---------- */}
+      <RegionMoment copy={copy} />
 
       {/* ---------- angles — the local read ---------- */}
       <section

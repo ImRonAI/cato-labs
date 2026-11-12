@@ -1,6 +1,7 @@
 import { childPageJsonLd, pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { capabilityChildren } from '@/lib/content/capabilities';
+import { ENGINE_COPY } from '@/lib/content/overhaul/cap-brand';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
@@ -38,7 +39,7 @@ export const metadata = pageMetadata({
 /**
  * /capabilities/brand-creative — "Brand is infrastructure."
  * Section ids are CONTRACT: hero (shell), feature, machine, detail,
- * faq + cta (shell). The scene reads `machine` to open the prism's fan.
+ * faq + cta (shell). The scene + Identity Engine synchronize via brandBus.
  */
 export default function BrandCreativePage() {
   const { features, detail, faq, cta } = copy;
@@ -74,21 +75,25 @@ export default function BrandCreativePage() {
         </div>
       </section>
 
-      {/* ---------- the spectrum machine ---------- */}
+      {/* ---------- the identity engine ---------- */}
       <section
         data-scene-section="machine"
+        id="identity-engine"
         className="bc-machine container-x section-y"
-        aria-label="The Spectrum Machine — identity as a system of dials"
+        aria-label="The Identity Engine — identity as a system of dials"
       >
-        <Reveal className="micro-label">The Spectrum Machine</Reveal>
-        <Reveal as="h2" className="h2 bc-machine__title" delay={0.08}>
-          <ProximityType>Identity is a system of dials.</ProximityType>
-        </Reveal>
-        <Reveal className="lede bc-machine__lede" delay={0.16}>
-          Turn them. Every Cato identity is a point in this space — archetype,
-          voice and structure, set deliberately and held everywhere. The mark
-          redraws itself; the sentence follows.
-        </Reveal>
+        <div className="bc-machine__head">
+          <Reveal className="micro-label">{ENGINE_COPY.eyebrow}</Reveal>
+          <Reveal as="h2" className="h2 bc-machine__title" delay={0.08}>
+            <ProximityType>{ENGINE_COPY.title}</ProximityType>
+          </Reveal>
+          <Reveal className="lede bc-machine__lede" delay={0.16}>
+            {ENGINE_COPY.lede}
+          </Reveal>
+          <Reveal className="bc-machine__note" delay={0.2}>
+            {ENGINE_COPY.assumptionNote}
+          </Reveal>
+        </div>
         <Reveal delay={0.24}>
           <SpectrumMachine />
         </Reveal>

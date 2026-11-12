@@ -5,14 +5,17 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import SceneLightRig from '../../shared/SceneLightRig';
 import ParticleField from '../../shared/ParticleField';
-import ParticleSculpture from '../../../kit/ParticleSculpture';
-import { skylinePoints } from '../../../kit/lib/skylines';
+import { GlassMaterial } from '../../../lib/materials';
 import { hashString, mulberry32 } from '../../../kit/lib/samplePath';
 import { useHotspotReporter } from '../../../kit/ProximityType';
 import { useQuality } from '../../../lib/quality';
+import CatoBody, { type CatoBodyHandle } from '../../../kit/cato/CatoBody';
 import Clapperboard from '../lib-b/Clapperboard';
 import { fadeTree } from '../lib-b/fade';
+import { damp } from '../lib-b/moment';
 import { driveCamera, makeStage, refreshMoment } from '../lib-b/stage';
+import { contactShadowTexture } from '../lib-a/place';
+import { buildLosAngelesArchitecture } from './los-angeles/geometries';
 import {
   getSectionProgress,
   sectionRange,
@@ -21,25 +24,27 @@ import {
 } from '../../../scroll-store';
 
 /**
- * LosAngelesScene — "The Basin of Light".
+ * LosAngelesScene — "The Basin of Light & Director's Soundstage".
  *
- * The downtown tower-cluster skyline (skylinePoints('los-angeles')) assembles
- * out of a scattered shell on mount; beneath it a sparse glowing grid of tiny
- * points — the city lights of the basin at night, in the strict blue spectrum
- * — spreads WIDER than the skyline itself and breathes gently. A tilted
- * search-beacon beam sweeps the basin in a slow premiere-night loop. As the
- * `angles` section travels the viewport, the camera pulls back and rises
- * slightly so the sprawl's scale reads against the towers. The whole city
- * group swings a slow ±10° with pointer parallax; the water-cursor ripples
- * the towers.
+ * A crafted porcelain, frosted-crystal, and electric-blue architectural miniature
+ * spanning the Los Angeles Basin:
+ *   1. Hollywood Hills stepped topographic ridge + Griffith Observatory (three
+ *      sapphire glass domes, Beaux-Arts wings, Astronomers Monument obelisk)
+ *   2. Downtown Los Angeles (DTLA) skyline: U.S. Bank Tower, Wilshire Grand Center
+ *      (curved diagonal sail crown + spire), LA City Hall stepped pyramid beacon,
+ *      777 Tower, Aon Center, Gas Company Tower, and Disney Hall curved sails
+ *   3. Sixth Street Viaduct ("Ribbon of Light") canted parabolic arches on the east
+ *      and Santa Monica Pier extending over a Pacific Ocean cove on the west
+ *   4. Sparse neighborhood BasinLights grid breathing across the avenues + twin
+ *      counter-sweeping Premiere Searchlight beams rising from studio pedestals
+ *   5. Foreground Director's Soundstage Terrace with a 3D 35mm Cinema Camera on
+ *      dolly track, Fresnel key light, and Cato the robot directing the shot
+ *   6. Signature `moment` dwell (`Clapperboard`): camera glides to the refractive
+ *      glass clapperboard slate (which snaps shut with a shock ring) and 35mm
+ *      projector rig throwing skyline frames onto a screen while the Basin glows
+ *      softly behind it, then hands the camera back for the `angles` wide reveal.
  *
- * Hotspot 'la-skyline' rides an anchor just under the spire tip.
- * Signature moment (`moment` dwell, lib-b/Clapperboard): the city dims, the
- * camera turns to a glass slate whose clapper snaps shut, then film runs
- * through a projector and the beam throws each frame onto a screen.
- *
- * Reduced motion: everything assembled, breathing frozen, camera settled.
- * All per-frame animation runs in shaders or on refs — zero allocations.
+ * Hotspot `'la-skyline'` rides the Wilshire Grand spire anchor.
  */
 
 const basinVertex = /* glsl */ `
@@ -57,12 +62,10 @@ const basinVertex = /* glsl */ `
   void main() {
     vSeed = aSeed;
     vec3 p = position;
-    /* assemble: each light rises into the grid on a seeded stagger */
     float stag = smoothstep(aSeed * 0.55, aSeed * 0.55 + 0.45, uIntro);
-    p.y -= (1.0 - stag) * (0.4 + aSeed * 0.5);
+    p.y -= (1.0 - stag) * (0.18 + aSeed * 0.25);
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
-    /* gentle breathing — frozen when uMotion is 0 */
     float breath = 0.68 + 0.32 * sin(uTime * (0.4 + aSeed * 0.55) * uMotion + aSeed * 43.0);
     vGlow = breath * stag;
     gl_PointSize = uSize * aScale * (0.7 + 0.3 * breath) * uPixelRatio * (14.0 / -mv.z);
@@ -89,48 +92,38 @@ const basinFragment = /* glsl */ `
   }
 `;
 
-/* module-scope temps — reused every frame, never allocated per-frame */
+/* module-scope temps — reused every frame, zero allocations */
 const _camTarget = new THREE.Vector3();
 const _lookTarget = new THREE.Vector3();
-const STAGE = makeStage([0.75, 0.35, 9.6], [0.75, 0.15, 0.4]);
-
-/* the search beacon — a premiere-night sweep over the basin,
-   in the city group's local space (basin lights sit at y ≈ -0.68) */
-const BEACON_POS: [number, number, number] = [-0.9, -0.64, 0.25];
-const BEACON_TILT = 0.62;
+const STAGE = makeStage([0.75, 0.35, 9.5], [0.75, 0.15, 0.4]);
 
 /**
- * BasinLights — the city-lights grid. A seeded, sparsely-occupied street
- * grid on a flat plane beneath (and wider than) the skyline; breathing and
- * the assemble stagger run entirely in the vertex shader.
+ * BasinLights — seeded neighborhood street-light grid across the miniature basin plinth.
  */
 function BasinLights({ count }: { count: number }) {
   const q = useQuality();
 
   const sim = useMemo(() => {
-    const rand = mulberry32(hashString('la-basin-grid'));
-    /* candidate cells on a jittered grid, ~54% dark lots → the sprawl reads
-       as neighborhoods, not as a uniform sheet */
+    const rand = mulberry32(hashString('la-basin-grid-v2'));
     const cells: number[] = [];
-    const NX = 56;
-    const NZ = 16;
+    const NX = 52;
+    const NZ = 26;
     for (let gz = 0; gz < NZ; gz++) {
       for (let gx = 0; gx < NX; gx++) {
-        if (rand() < 0.46) continue;
-        const x = -1.5 + (gx / (NX - 1)) * 3.0 + (rand() - 0.5) * 0.045;
-        const z = -1.05 + (gz / (NZ - 1)) * 1.65 + (rand() - 0.5) * 0.06;
+        if (rand() < 0.44) continue;
+        const x = -1.18 + (gx / (NX - 1)) * 3.35 + (rand() - 0.5) * 0.04;
+        const z = -0.82 + (gz / (NZ - 1)) * 2.18 + (rand() - 0.5) * 0.05;
         cells.push(x, z);
       }
     }
     const total = cells.length / 2;
-    /* seeded shuffle so any prefix of the array is an even sprinkle */
     const order = new Uint32Array(total);
     for (let i = 0; i < total; i++) order[i] = i;
     for (let i = total - 1; i > 0; i--) {
       const j = Math.floor(rand() * (i + 1));
-      const t = order[i];
+      const tmp = order[i];
       order[i] = order[j];
-      order[j] = t;
+      order[j] = tmp;
     }
     const n = Math.max(48, Math.min(total, count));
     const positions = new Float32Array(n * 3);
@@ -139,9 +132,9 @@ function BasinLights({ count }: { count: number }) {
     for (let i = 0; i < n; i++) {
       const c = order[i];
       positions[i * 3] = cells[c * 2];
-      positions[i * 3 + 1] = -0.68 + (rand() - 0.5) * 0.02;
+      positions[i * 3 + 1] = 0.014 + rand() * 0.012;
       positions[i * 3 + 2] = cells[c * 2 + 1];
-      scales[i] = 0.5 + rand() * 1.1;
+      scales[i] = 0.55 + rand() * 1.15;
       seeds[i] = rand();
     }
     const geometry = new THREE.BufferGeometry();
@@ -157,19 +150,18 @@ function BasinLights({ count }: { count: number }) {
       depthTest: true,
       uniforms: {
         uTime: { value: 0 },
-        uSize: { value: 3.0 },
+        uSize: { value: 2.8 },
         uPixelRatio: { value: 1 },
         uIntro: { value: 0 },
         uMotion: { value: 1 },
         uColorA: { value: new THREE.Color('#2e4bff') },
         uColorB: { value: new THREE.Color('#b9ccff') },
-        uOpacity: { value: 0.6 },
+        uOpacity: { value: 0.72 },
       },
     });
     return { geometry, material };
   }, [count]);
 
-  /* free GPU resources on unmount / rebuild */
   useEffect(() => {
     return () => {
       sim.geometry.dispose();
@@ -182,11 +174,11 @@ function BasinLights({ count }: { count: number }) {
     const m = sim.material;
     const el = state.clock.elapsedTime;
     if (start.current < 0) start.current = el;
-    m.uniforms.uTime.value = q.animate ? el : 3.7; // frozen shimmer otherwise
+    m.uniforms.uTime.value = q.animate ? el : 3.7;
     m.uniforms.uPixelRatio.value = state.gl.getPixelRatio();
     m.uniforms.uMotion.value = q.animate ? 1 : 0;
     m.uniforms.uIntro.value = q.animate
-      ? smooth(Math.min(Math.max((el - start.current - 0.35) / 1.4, 0), 1))
+      ? smooth(Math.min(Math.max((el - start.current - 0.25) / 1.35, 0), 1))
       : 1;
   });
 
@@ -195,125 +187,304 @@ function BasinLights({ count }: { count: number }) {
 
 export default function LosAngelesScene() {
   const q = useQuality();
-  const city = useRef<THREE.Group>(null);
+  const basinRig = useRef<THREE.Group>(null);
+  const fadeGroup = useRef<THREE.Group>(null);
+  const beaconWest = useRef<THREE.Group>(null);
+  const beaconEast = useRef<THREE.Group>(null);
+  const beamMatWest = useRef<THREE.MeshBasicMaterial>(null);
+  const beamMatEast = useRef<THREE.MeshBasicMaterial>(null);
+  const catoGroup = useRef<THREE.Group>(null);
+  const catoBodyRef = useRef<CatoBodyHandle>(null);
   const anchor = useRef<THREE.Group>(null);
-  const beacon = useRef<THREE.Group>(null);
-  const beamMat = useRef<THREE.MeshBasicMaterial>(null);
   const report = useHotspotReporter('la-skyline');
 
-  /* skyline target, scaled by quality (≈2600 at full) */
-  const target = Math.max(256, Math.round(2600 * q.particles));
-  const skyline = useMemo(() => skylinePoints('los-angeles', target), [target]);
-  const basinCount = Math.round(880 * q.particles);
+  const live = useRef({
+    rx: 1.55,
+    ry: -0.62,
+    rz: 0.15,
+    rs: 0.92,
+    rotY: -0.24,
+    rotX: 0.16,
+    svgHidden: false,
+  });
 
-  useFrame((state) => {
+  const arch = useMemo(() => buildLosAngelesArchitecture(), []);
+  const basinCount = Math.round(920 * q.particles);
+
+  const mats = useMemo(() => {
+    const shadowTex = typeof document !== 'undefined' ? contactShadowTexture() : null;
+    return {
+      porcelain: new THREE.MeshPhysicalMaterial({
+        color: '#eef3ff',
+        roughness: 0.22,
+        metalness: 0.04,
+        clearcoat: 0.68,
+        clearcoatRoughness: 0.16,
+        transparent: true,
+        opacity: 1,
+      }),
+      enamel: new THREE.MeshPhysicalMaterial({
+        color: '#1e38db',
+        emissive: '#0c1ba6',
+        emissiveIntensity: 0.24,
+        roughness: 0.18,
+        metalness: 0.26,
+        clearcoat: 0.88,
+        transparent: true,
+        opacity: 1,
+      }),
+      lines: new THREE.LineBasicMaterial({
+        color: '#4f6eff',
+        transparent: true,
+        opacity: 0.44,
+      }),
+      shadow: new THREE.MeshBasicMaterial({
+        map: shadowTex,
+        transparent: true,
+        opacity: 0.5,
+        depthWrite: false,
+      }),
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      arch.porcelainGeo.dispose();
+      arch.crystalGlassGeo.dispose();
+      arch.coreGlassGeo.dispose();
+      arch.paneGlassGeo.dispose();
+      arch.enamelGeo.dispose();
+      arch.liquidGeo.dispose();
+      arch.lineGeo.dispose();
+      Object.values(mats).forEach((m) => m.dispose());
+    };
+  }, [arch, mats]);
+
+  useFrame((state, delta) => {
+    const dt = Math.min(delta, 0.1);
     const el = state.clock.elapsedTime;
     const anim = q.animate;
-    /* angles progress → the pull-back that reveals the basin's scale */
-    const angles = anim
-      ? smooth(sectionRange(getSectionProgress('angles'), 0.12, 0.9))
-      : 0.4;
-    const intro = anim ? smooth(Math.min(el / 1.7, 1)) : 1;
+    const compact = q.compact;
 
-    /* the whole city swings a slow ±10° with a whisper of pointer parallax */
-    const g = city.current;
-    if (g) {
-      g.rotation.y =
-        (anim ? Math.sin(el * 0.05) * (Math.PI / 18) : Math.PI / 18) +
-        (anim ? pointer.x * 0.045 : 0);
-      g.position.y = -0.35 - (1 - intro) * 0.5;
+    const core = catoBodyRef.current?.core;
+    if (core && !live.current.svgHidden) {
+      core.svg.style.display = 'none';
+      live.current.svgHidden = true;
     }
 
-    /* the search beacon — a premiere-night sweep across the basin */
-    const bc = beacon.current;
-    if (bc) {
-      bc.rotation.y = anim ? el * 0.42 : 0.9;
-      const bm = beamMat.current;
-      if (bm) bm.opacity = anim ? 0.13 + 0.05 * Math.sin(el * 0.9) : 0.15;
+    const pStats = smooth(sectionRange(getSectionProgress('stats'), 0.08, 0.78));
+    const pAngles = smooth(sectionRange(getSectionProgress('angles'), 0.08, 0.88));
+    const pFeature = getSectionProgress('feature');
+    const pBuild = smooth(sectionRange(getSectionProgress('build'), 0.06, 0.85));
+    const pDetail = smooth(sectionRange(getSectionProgress('detail'), 0.06, 0.85));
+    const pFaq = smooth(sectionRange(getSectionProgress('faq'), 0.06, 0.85));
+    const pCta = smooth(sectionRange(getSectionProgress('cta'), 0.06, 0.82));
+
+    /* Feature 02 is right-aligned in la-feature:nth-child(even) -> sway scene left */
+    const featureMidSway =
+      smooth(sectionRange(pFeature, 0.34, 0.48)) *
+      (1 - smooth(sectionRange(pFeature, 0.64, 0.78)));
+
+    const intro = anim ? smooth(Math.min(el / 1.65, 1)) : 1;
+    const m = refreshMoment();
+    const w = m.w;
+    const L = live.current;
+
+    /* ------------------------------------------------------------------
+       1. MULTI-BEAT BASIN DIORAMA PLACEMENT
+       ------------------------------------------------------------------ */
+    let wantX = compact ? 0.04 : 1.56 - 0.16 * pStats - 0.55 * pAngles - 3.1 * featureMidSway + 0.18 * pCta;
+    let wantY = compact ? -1.12 : -0.66 + 0.14 * pStats - 0.12 * pAngles + 0.12 * pBuild + 0.15 * pCta;
+    let wantZ = compact ? -0.65 : 0.12 - 0.55 * pAngles + 0.25 * pDetail - 1.25 * w;
+    let wantS = compact ? 0.48 : 0.94 - 0.06 * pAngles + 0.04 * pDetail - 0.08 * pCta;
+    let wantRotY =
+      (compact ? -0.2 : -0.26) +
+      0.16 * pAngles +
+      0.52 * featureMidSway -
+      0.12 * pDetail +
+      (anim ? Math.sin(el * 0.05) * 0.05 + pointer.x * 0.08 : 0);
+    let wantRotX = 0.16 + 0.08 * pAngles - (anim ? pointer.y * 0.04 : 0);
+
+    if (!anim) {
+      wantX = compact ? 0.04 : 1.48;
+      wantY = compact ? -1.08 : -0.64;
+      wantZ = compact ? -0.6 : 0.08;
+      wantS = compact ? 0.48 : 0.92;
+      wantRotY = -0.22;
+      wantRotX = 0.18;
     }
 
-    /* hotspot: the anchor just under the spire tip */
+    L.rx = anim ? damp(L.rx, wantX, 5.2, dt) : wantX;
+    L.ry = anim ? damp(L.ry, wantY - (1 - intro) * 0.48, 5.2, dt) : wantY;
+    L.rz = anim ? damp(L.rz, wantZ, 5.2, dt) : wantZ;
+    L.rs = anim ? damp(L.rs, wantS * (0.9 + 0.1 * intro), 5.2, dt) : wantS;
+    L.rotY = anim ? damp(L.rotY, wantRotY, 4.5, dt) : wantRotY;
+    L.rotX = anim ? damp(L.rotX, wantRotX, 4.5, dt) : wantRotX;
+
+    if (basinRig.current) {
+      basinRig.current.position.set(L.rx, L.ry, L.rz);
+      basinRig.current.scale.setScalar(L.rs);
+      basinRig.current.rotation.set(L.rotX, L.rotY, 0);
+    }
+
+    /* ------------------------------------------------------------------
+       2. TWIN PREMIERE SEARCHLIGHTS SWEEPING THE BASIN
+       ------------------------------------------------------------------ */
+    if (beaconWest.current) {
+      beaconWest.current.rotation.y = anim ? el * 0.42 : 0.85;
+      if (beamMatWest.current) {
+        beamMatWest.current.opacity = anim ? 0.16 + 0.05 * Math.sin(el * 0.9) : 0.16;
+      }
+    }
+    if (beaconEast.current) {
+      beaconEast.current.rotation.y = anim ? -el * 0.36 + 1.4 : -0.7;
+      if (beamMatEast.current) {
+        beamMatEast.current.opacity = anim ? 0.14 + 0.05 * Math.cos(el * 0.8) : 0.15;
+      }
+    }
+
+    /* ------------------------------------------------------------------
+       3. CATO THE DIRECTOR ON THE SOUNDSTAGE TERRACE
+       ------------------------------------------------------------------ */
+    if (catoGroup.current && core) {
+      const catoVis = Math.max(0.001, (1 - w * 0.95) * intro);
+      catoGroup.current.scale.setScalar(0.42 * catoVis);
+      if (!anim) {
+        core.scrub('wave', 1.1);
+      } else if (pAngles > 0.35 && pBuild < 0.25) {
+        core.scrub('scan', 0.6 + ((el * 0.65) % 2.1));
+      } else if (pBuild > 0.3 || pDetail > 0.3) {
+        core.scrub('cheer', 0.5 + ((el * 0.9) % 2.0));
+      } else if (pFaq > 0.25) {
+        core.scrub('bow', 0.8);
+      } else {
+        core.scrub('wave', 0.55 + ((el * 0.78) % 1.55));
+      }
+    }
+
+    /* ------------------------------------------------------------------
+       4. HOTSPOT REPORTER ('la-skyline' at Wilshire Grand spire)
+       ------------------------------------------------------------------ */
     if (anchor.current) {
       report(
         anchor.current,
         state.camera,
-        anim ? 0.58 + 0.18 * Math.sin(el * 0.7) : 0.6,
+        anim ? 0.58 + 0.22 * Math.max(w, pDetail) : 0.62,
       );
     }
 
-    /* camera — slow drift, eased pull-back + rise on `angles` */
-    const radius = 9.3 + angles * 1.7 + (1 - intro) * 1.3;
-    const camY = 2.25 + angles * 0.8;
-    const orbit = anim ? Math.sin(el * 0.042) * 0.1 : 0.06;
+    /* ------------------------------------------------------------------
+       5. CAMERA — WIDE BASIN PULL-BACK ON ANGLES + MOMENT CLAPPERBOARD HANDOFF
+       ------------------------------------------------------------------ */
+    const radius = 9.2 + pAngles * 1.35 + (1 - intro) * 1.1;
+    const camY = 1.65 + pAngles * 0.75 - 0.15 * pCta;
+    const orbit = anim ? Math.sin(el * 0.042) * 0.08 : 0.04;
     _camTarget.set(
-      Math.sin(orbit) * radius + (anim ? pointer.x * 0.35 : 0),
-      camY + (anim ? pointer.y * 0.22 : 0),
+      Math.sin(orbit) * radius + (anim ? pointer.x * 0.32 : 0),
+      camY + (anim ? pointer.y * 0.2 : 0),
       Math.cos(orbit) * radius,
     );
-    _lookTarget.set(0.35, -0.55 - angles * 0.3, -0.4);
-    /* the moment dwell takes the camera to the set piece, then hands it back */
-    const m = refreshMoment();
-    const w = m.w;
-    driveCamera(state.camera, _camTarget, _lookTarget, STAGE, w, q.compact ? 1.9 : 1, anim ? pointer.x : 0, anim ? pointer.y : 0);
-    fadeTree(city.current, 1 - w * 0.88);
+    _lookTarget.set(0.28, -0.22 - pAngles * 0.18, -0.15);
+
+    driveCamera(
+      state.camera,
+      _camTarget,
+      _lookTarget,
+      STAGE,
+      w,
+      compact ? 1.88 : 1,
+      anim ? pointer.x : 0,
+      anim ? pointer.y : 0,
+    );
+    fadeTree(fadeGroup.current, 1 - w * 0.84);
   });
 
   return (
     <group>
       <SceneLightRig />
 
-      {/* the city — skyline sculpture + the basin sprawl, one local space */}
-      <group ref={city} position={[0.55, -0.35, -0.6]} scale={2.35}>
-        <ParticleSculpture
-          points={skyline}
-          count={Math.round(target / q.particles)}
-          size={0.031}
-          color="#2e4bff"
-          colorB="#9db2ff"
-          opacity={0.82}
-          waterRadius={0.3}
-          waterStrength={0.16}
-        />
-        <BasinLights count={basinCount} />
-
-        {/* the search beacon — a tilted beam sweeping the basin */}
-        <group ref={beacon} position={BEACON_POS}>
-          <group rotation={[0, 0, BEACON_TILT]}>
-            <mesh position={[0, 1.65, 0]}>
-              <planeGeometry args={[0.34, 3.3]} />
-              <meshBasicMaterial
-                ref={beamMat}
-                color="#b9ccff"
-                transparent
-                opacity={0.15}
-                depthWrite={false}
-                blending={THREE.AdditiveBlending}
-                side={THREE.DoubleSide}
-              />
-            </mesh>
-          </group>
-          <mesh>
-            <sphereGeometry args={[0.05, 12, 12]} />
-            <meshBasicMaterial
-              color="#eef2ff"
-              transparent
-              opacity={0.85}
-              depthWrite={false}
-            />
+      {/* 1. The Los Angeles Basin Architectural Miniature */}
+      <group ref={basinRig} position={[1.55, -0.62, 0.15]} scale={0.92}>
+        <group ref={fadeGroup}>
+          {/* Soft radial contact shadow beneath the vitrine plinth */}
+          <mesh position={[-0.05, -0.22, -0.1]} rotation={[-Math.PI / 2, 0, 0]} material={mats.shadow}>
+            <planeGeometry args={[5.8, 4.3]} />
           </mesh>
+
+          {/*Hollywood Hills, Griffith Observatory, DTLA Skyline, 6th St Viaduct, Santa Monica Pier & Soundstage */}
+          <mesh geometry={arch.porcelainGeo} material={mats.porcelain} />
+          <mesh geometry={arch.enamelGeo} material={mats.enamel} />
+          <mesh geometry={arch.crystalGlassGeo}>
+            <GlassMaterial kind="crystal" transparent />
+          </mesh>
+          <mesh geometry={arch.coreGlassGeo}>
+            <GlassMaterial kind="core" emissive="#2e4bff" emissiveIntensity={0.22} transparent />
+          </mesh>
+          <mesh geometry={arch.paneGlassGeo}>
+            <GlassMaterial kind="pane" transparent />
+          </mesh>
+          <mesh geometry={arch.liquidGeo}>
+            <GlassMaterial kind="liquid" transparent />
+          </mesh>
+          <lineSegments geometry={arch.lineGeo} material={mats.lines} />
+
+          {/* Breathing neighborhood city-lights grid across the LA Basin */}
+          <BasinLights count={basinCount} />
+
+          {/* Premiere Searchlight 1 (West / Sunset pedestal at [-0.28, 0.105, 0.36]) */}
+          <group ref={beaconWest} position={[-0.28, 0.105, 0.36]}>
+            <group rotation={[0, 0, 0.46]}>
+              <mesh position={[0, 1.35, 0]}>
+                <cylinderGeometry args={[0.24, 0.03, 2.7, 20, 1, true]} />
+                <meshBasicMaterial
+                  ref={beamMatWest}
+                  color="#9eb5ff"
+                  transparent
+                  opacity={0.16}
+                  depthWrite={false}
+                  blending={THREE.AdditiveBlending}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            </group>
+          </group>
+
+          {/* Premiere Searchlight 2 (East / DTLA pedestal at [1.22, 0.105, 0.34]) */}
+          <group ref={beaconEast} position={[1.22, 0.105, 0.34]}>
+            <group rotation={[0, 0, -0.42]}>
+              <mesh position={[0, 1.35, 0]}>
+                <cylinderGeometry args={[0.22, 0.03, 2.7, 20, 1, true]} />
+                <meshBasicMaterial
+                  ref={beamMatEast}
+                  color="#5f7dff"
+                  transparent
+                  opacity={0.15}
+                  depthWrite={false}
+                  blending={THREE.AdditiveBlending}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            </group>
+          </group>
         </group>
-        {/* hotspot anchor — just under the spire tip of the tallest tower */}
-        <group ref={anchor} position={[0.06, 0.72, 0]} />
+
+        {/* Cato the Robot on the Foreground Director's Soundstage Terrace */}
+        <group ref={catoGroup} position={[0.72, 0.058, 1.04]} rotation={[0, -0.22, 0]} scale={0.42}>
+          <CatoBody ref={catoBodyRef} paused={!q.animate} />
+        </group>
+
+        {/* Hotspot anchor — Wilshire Grand Spire crown */}
+        <group ref={anchor} position={[0.41, 2.52, -0.22]} />
       </group>
 
-      {/* signature moment — the slate, the projector, the picture */}
+      {/* 2. Signature `moment` Dwell — Glass Clapperboard Slate & 35mm Projector */}
       <Clapperboard position={[-0.4, 0, 0.6]} />
 
-      {/* ambient blue dust */}
+      {/* 3. Ambient Blue Atmospheric Dust */}
       <ParticleField
-        count={Math.floor(1100 * q.particles)}
+        count={Math.floor(1050 * q.particles)}
         drift={q.animate ? 0.1 : 0}
-        opacity={0.3}
+        opacity={0.28}
         position={[0, 0.5, -2]}
       />
     </group>

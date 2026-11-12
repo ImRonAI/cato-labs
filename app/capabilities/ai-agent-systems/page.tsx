@@ -10,7 +10,7 @@ import { journeyStops } from '@/lib/content/agentJourney';
 import CatoVoice from './CatoVoice';
 import DjTrack from './DjTrack';
 import ToolingDemo from './ToolingDemo';
-import JourneyNav from './JourneyNav';
+import JourneyStop, { JourneyOpening } from './JourneyStop';
 import './page.css';
 import './journey.css';
 
@@ -80,34 +80,12 @@ export default function AiAgentSystemsPage() {
         <JsonLd data={jsonLd} />
         {/* ---------- journey: nine stops; Cato performs at each, then falls to the next ---------- */}
         <div data-scene-section="journey" className="aas-journey" aria-label="What Cato does">
+          <JourneyOpening />
           {journeyStops.map((stop, i) => (
-            <section key={stop.id} id={stop.id} className="aas-stop" aria-labelledby={`${stop.id}-title`}>
-              <div className="aas-stop-copy container-x">
-                <Reveal className="micro-label" delay={0}>
-                  <span className="index-no">{String(i + 1).padStart(2, '0')}</span> {stop.eyebrow}
-                </Reveal>
-                <Reveal as="h2" className="h2 aas-stop-title" delay={0.08}>
-                  <span id={`${stop.id}-title`}>
-                    {stop.titleLines[0]}
-                    <br />
-                    {stop.titleLines[1]}
-                  </span>
-                </Reveal>
-                <Reveal as="p" className="body-lg aas-stop-body" delay={0.16}>
-                  {stop.body}
-                </Reveal>
-                <Reveal delay={0.22}>
-                  <ul className="tag-list aas-stop-tags">
-                    {stop.tags.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                </Reveal>
-                {stop.id === 'entertainment' && <DjTrack />}
-                {stop.id === 'tooling' && <ToolingDemo />}
-                <JourneyNav index={i} />
-              </div>
-            </section>
+            <JourneyStop key={stop.id} index={i}>
+              {stop.id === 'music' && <DjTrack />}
+              {stop.id === 'generative-ui' && <ToolingDemo />}
+            </JourneyStop>
           ))}
         </div>
 

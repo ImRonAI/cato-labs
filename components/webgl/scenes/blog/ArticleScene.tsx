@@ -5,31 +5,32 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import SceneLightRig from '../shared/SceneLightRig';
 import ParticleField from '../shared/ParticleField';
-import { GlassMaterial } from '../../lib/materials';
+import { GlassMaterial, GradientGlassMaterial } from '../../lib/materials';
 import { useQuality } from '../../lib/quality';
-import { getSectionProgress, sectionRange, smooth, pointer } from '../../scroll-store';
+import {
+  getSectionProgress,
+  sectionRange,
+  smooth,
+  pointer,
+} from '../../scroll-store';
 import { useHotspotReporter } from '../../kit/ProximityType';
 
 /**
  * ArticleScene — "Harmonograph".
  *
- * In the right margin, a pendulum-driven pen traces a figure on a faint
- * glass platen as the article is read. The figure is a true lateral
- * harmonograph: two damped pendulums per axis, tuned a hair off a 3:2 ratio
- * so the loops precess, and the swing decays toward the centre. Reading
- * progress through the body (`feature`) is the pendulums' clock, so the
- * figure completes as you reach the end of the essay, and scrolling back
- * erases it in reverse. The pen is a small glass bead with a halo; the
- * newest stroke is electric blue, the older strokes cool to ice. The
- * platen tilts slightly toward the cursor.
+ * In the right margin, a pendulum-driven prism pen traces a lateral
+ * harmonograph figure across an ice-glass platen framed by a gradient-glass
+ * bezel as the essay is read. Reading progress through `feature` is the
+ * pendulums' clock, so the figure completes as you reach the end of the
+ * article, and scrolling back erases it in reverse. Across `cta` the finished
+ * harmonograph tilts serenely into view.
  *
- * One line draw call, one bead, one platen. The curve is computed once;
- * the reveal is a uniform. Reduced motion shows the finished figure.
+ * Zero allocations in useFrame; mount-relative intro; reduced motion renders
+ * the finished figure immediately.
  */
 
 const SAMPLES = 7000;
 const T_MAX = 92;
-/* pendulums: [amplitude, frequency, phase, damping] — x pair, y pair */
 const PX: readonly (readonly [number, number, number, number])[] = [
   [0.78, 3.001, 0.0, 0.013],
   [0.62, 2.0, Math.PI / 2, 0.009],
@@ -66,11 +67,11 @@ const lineFragment = /* glsl */ `
   varying float vT;
   void main() {
     if (vT > uProg) discard;
-    float age = uProg - vT;                       // 0 at the pen
+    float age = uProg - vT;
     float fresh = exp(-age * 9.0);
     vec3 col = mix(uIce, uBlue, 0.35 + 0.65 * fresh);
     col = mix(col, uDeep, exp(-age * 60.0) * 0.6);
-    float a = (0.34 + 0.66 * fresh) * uOpacity;
+    float a = (0.36 + 0.64 * fresh) * uOpacity;
     gl_FragColor = vec4(col, a);
   }
 `;
@@ -82,9 +83,10 @@ const _cam = new THREE.Vector3();
 
 export default function ArticleScene() {
   const q = useQuality();
+  const startAt = useRef<number | null>(null);
   const group = useRef<THREE.Group>(null);
   const platen = useRef<THREE.Group>(null);
-  const pen = useRef<THREE.Mesh>(null);
+  const pen = useRef<THREE.Group>(null);
   const haloMat = useRef<THREE.MeshBasicMaterial>(null);
   const report = useHotspotReporter('article-dot');
 
@@ -128,7 +130,8 @@ export default function ArticleScene() {
   );
 
   useFrame((state) => {
-    const el = state.clock.elapsedTime;
+    if (startAt.current === null) startAt.current = state.clock.elapsedTime;
+    const el = state.clock.elapsedTime - startAt.current;
     const anim = q.animate;
     const g = group.current;
     if (!g) return;
@@ -137,40 +140,63 @@ export default function ArticleScene() {
     const hero = anim ? getSectionProgress('hero') : 1;
     const feature = anim ? getSectionProgress('feature') : 1;
     const cta = anim ? getSectionProgress('cta') : 0;
+    const ctaSettle = smooth(sectionRange(cta, 0.15, 0.72));
+
     /* a first breath of ink while the header is read; the rest is the body */
     const prog = anim
-      ? clamp01(0.02 * smooth(sectionRange(hero, 0.3, 1)) + 0.98 * sectionRange(feature, 0.06, 0.9))
+      ? clamp01(
+          0.03 * smooth(sectionRange(hero, 0.25, 1)) +
+            0.97 * sectionRange(feature, 0.05, 0.9),
+        )
       : 1;
-    const intro = anim ? smooth(Math.min(el / 1.8, 1)) : 1;
+    const intro = anim ? smooth(Math.min(el / 1.75, 1)) : 1;
 
-    /* the margin: right of the column; small and faint behind text on mobile */
-    const tx = compact ? 0.95 : 2.55;
-    g.position.x += (tx - g.position.x) * 0.05;
-    g.position.y = (compact ? 1.25 : 0.05) - (1 - intro) * 0.6 + smooth(sectionRange(cta, 0.2, 0.7)) * 0.6;
-    g.scale.setScalar(compact ? 0.55 : 1.1);
+    /* right margin framing; gentle rise and centre-ward poise on cta */
+    const tx = (compact ? 0.95 : 2.55) - ctaSettle * (compact ? 0.2 : 0.35);
+    if (anim) g.position.x += (tx - g.position.x) * 0.05;
+    else g.position.x = tx;
+    g.position.y =
+      (compact ? 1.25 : 0.05) - (1 - intro) * 0.6 + ctaSettle * 0.55;
+    g.scale.setScalar((compact ? 0.55 : 1.1) * (0.94 + 0.06 * intro));
 
     const p = platen.current;
     if (p) {
-      p.rotation.x += ((anim ? -0.18 - pointer.y * 0.12 : -0.18) - p.rotation.x) * 0.05;
-      p.rotation.y += ((anim ? -0.22 + pointer.x * 0.16 : -0.22) - p.rotation.y) * 0.05;
+      const targetRx =
+        -0.18 + ctaSettle * 0.08 - (anim ? pointer.y * 0.12 : 0);
+      const targetRy =
+        -0.22 + ctaSettle * 0.1 + (anim ? pointer.x * 0.16 : 0);
+      if (anim) {
+        p.rotation.x += (targetRx - p.rotation.x) * 0.05;
+        p.rotation.y += (targetRy - p.rotation.y) * 0.05;
+      } else {
+        p.rotation.set(targetRx, targetRy, 0);
+      }
     }
 
     material.uniforms.uProg.value = prog;
-    material.uniforms.uOpacity.value = intro * (compact ? 0.42 : 1);
+    material.uniforms.uOpacity.value = intro * (compact ? 0.45 : 1);
 
-    /* the pen rides the leading point of the curve */
+    /* the prism-and-sapphire pen rides the leading point of the curve */
     const pm = pen.current;
     if (pm) {
       const t = prog * T_MAX;
-      pm.position.set(harmonograph(t, PX), harmonograph(t, PY), 0.02);
-      const pulse = anim ? 1 + Math.sin(el * 1.4) * 0.06 : 1;
-      pm.scale.setScalar(Math.max(intro * pulse, 0.001));
-      if (haloMat.current) haloMat.current.opacity = 0.18 * intro * (compact ? 0.5 : 1);
-      report(pm, state.camera, (0.4 + 0.1 * Math.sin(el * 1.4)) * intro);
+      pm.position.set(harmonograph(t, PX), harmonograph(t, PY), 0.025);
+      const breath = anim ? Math.sin(el * 1.4) : 0;
+      pm.scale.setScalar(Math.max(intro * (1 + breath * 0.06), 0.001));
+      if (haloMat.current) {
+        haloMat.current.opacity = 0.2 * intro * (compact ? 0.5 : 1);
+      }
+      report(pm, state.camera, (0.45 + 0.1 * breath) * intro);
     }
 
-    _cam.set(anim ? pointer.x * 0.25 : 0, 0.05 + (anim ? pointer.y * 0.15 : 0), 9.4);
-    state.camera.position.lerp(_cam, 0.05);
+    _cam.set(
+      anim ? pointer.x * 0.25 : 0,
+      0.05 + (anim ? pointer.y * 0.15 : 0),
+      9.4 - ctaSettle * 0.25,
+    );
+    if (anim) state.camera.position.lerp(_cam, 0.05);
+    else state.camera.position.copy(_cam);
+
     state.camera.lookAt(compact ? 0.4 : 0.65, 0, 0);
   });
 
@@ -179,17 +205,32 @@ export default function ArticleScene() {
       <SceneLightRig intensity={0.9} />
       <group ref={group}>
         <group ref={platen}>
-          {/* the platen: a faint glass disc the pen draws on */}
-          <mesh position={[0, 0, -0.06]}>
+          {/* ice-glass platen disc facing the reader in the XY plane */}
+          <mesh position={[0, 0, -0.045]} rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[1.62, 1.62, 0.04, 96]} />
-            <GlassMaterial kind="ice" transparent opacity={0.55} />
+            <GlassMaterial kind="ice" />
           </mesh>
+
+          {/* calibrated gradient-glass bezel framing the platen */}
+          <mesh position={[0, 0, -0.022]}>
+            <torusGeometry args={[1.635, 0.015, 16, 112]} />
+            <GradientGlassMaterial opacity={0.9} />
+          </mesh>
+
           <primitive object={line} />
-          <mesh ref={pen}>
-            <sphereGeometry args={[0.045, 24, 24]} />
-            <meshBasicMaterial color="#1226c8" toneMapped={false} />
-            <mesh position={[0, 0, -0.005]}>
-              <circleGeometry args={[0.15, 32]} />
+
+          {/* prism bead pen with sapphire nib & soft halo */}
+          <group ref={pen}>
+            <mesh>
+              <sphereGeometry args={[0.072, 24, 24]} />
+              <GlassMaterial kind="prism" />
+            </mesh>
+            <mesh>
+              <sphereGeometry args={[0.036, 20, 20]} />
+              <meshBasicMaterial color="#1226c8" toneMapped={false} />
+            </mesh>
+            <mesh position={[0, 0, -0.012]}>
+              <circleGeometry args={[0.16, 32]} />
               <meshBasicMaterial
                 ref={haloMat}
                 color="#93a9ff"
@@ -198,7 +239,7 @@ export default function ArticleScene() {
                 depthWrite={false}
               />
             </mesh>
-          </mesh>
+          </group>
         </group>
       </group>
       <ParticleField

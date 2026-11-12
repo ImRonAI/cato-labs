@@ -5,10 +5,18 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import SceneLightRig from '../shared/SceneLightRig';
 import ParticleField from '../shared/ParticleField';
-import { GlassMaterial } from '../../lib/materials';
+import { GlassMaterial, GradientGlassMaterial } from '../../lib/materials';
 import { useQuality } from '../../lib/quality';
-import { useBakedSimulation, type BakedSimulation } from '../../lib/physics-bake';
-import { getSectionProgress, sectionRange, smooth, pointer } from '../../scroll-store';
+import {
+  useBakedSimulation,
+  type BakedSimulation,
+} from '../../lib/physics-bake';
+import {
+  getSectionProgress,
+  sectionRange,
+  smooth,
+  pointer,
+} from '../../scroll-store';
 import {
   BALL_R,
   BALL_START,
@@ -34,15 +42,23 @@ import {
  * ApproachScene — "The Marble Run".
  *
  * Five moves, in order, every time: a glass cat's-eye marble rolls down a
- * tower of five glass ramps, one per move. Each ramp ends in a drop to the
- * next and carries a glass gate that lights electric blue as the marble
- * passes through it. The roll is a real Rapier simulation baked once and
- * scrubbed by each move's section, so scrolling up rolls it back uphill
- * exactly. A fine thread records the path taken; in the outro the camera
- * pulls back to show the whole run, the marble resting in its cradle.
+ * tower of five glass ramps, one per move (`evidence`, `truth`, `decision`,
+ * `implementation`, `tradeoff`), anticipated across `app-hero` and resolved in
+ * `app-outro`. Each ramp ends in a drop to the next and carries a glass gate
+ * that lights electric blue as the marble passes through it. The roll is a
+ * real Rapier simulation baked once and scrubbed by each move's section, so
+ * scrolling up rolls it back uphill exactly. A fine thread records the path
+ * taken; in `app-outro` the camera pulls back to show the whole run, the
+ * marble resting in its prism-rimmed cradle.
  */
 
-const STAGE_IDS = ['evidence', 'truth', 'decision', 'implementation', 'tradeoff'] as const;
+const STAGE_IDS = [
+  'evidence',
+  'truth',
+  'decision',
+  'implementation',
+  'tradeoff',
+] as const;
 const RAIL_Z = 0.15;
 const RAIL_R = 0.026;
 /** rail centre height above the physics floor so the marble sits on both rails */
@@ -81,7 +97,6 @@ function useVaneGeometry() {
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i);
       const y = p.getY(i);
-      /* lens taper + helical twist */
       const u = x / (BALL_R * 0.625);
       const taper = Math.sqrt(Math.max(1 - u * u, 0));
       const a = u * 1.4;
@@ -140,6 +155,7 @@ export default function ApproachScene() {
   const spinRef = useRef<THREE.Group>(null);
   const ringMats = useRef<(THREE.MeshPhysicalMaterial | null)[]>([]);
   const ringRefs = useRef<(THREE.Group | null)[]>([]);
+  const cradleHaloRef = useRef<THREE.Mesh>(null);
   const lightRef = useRef<THREE.PointLight>(null);
   const startRef = useRef<number | null>(null);
   const boundsReady = useRef(false);
@@ -150,12 +166,15 @@ export default function ApproachScene() {
   /* thread: the path the marble has taken, revealed by drawRange */
   const thread = useMemo(() => {
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3 * (RUN_STEPS + 1)), 3));
+    geo.setAttribute(
+      'position',
+      new THREE.BufferAttribute(new Float32Array(3 * (RUN_STEPS + 1)), 3),
+    );
     geo.setDrawRange(0, 0);
     const mat = new THREE.LineBasicMaterial({
       color: '#2e4bff',
       transparent: true,
-      opacity: 0.32,
+      opacity: 0.34,
       depthWrite: false,
     });
     const line = new THREE.Line(geo, mat);
@@ -168,28 +187,36 @@ export default function ApproachScene() {
       thread.geometry.dispose();
       (thread.material as THREE.Material).dispose();
     },
-    [thread]
+    [thread],
   );
 
   useFrame((state) => {
     const cam = state.camera;
+    const anim = q.animate;
     if (startRef.current === null) startRef.current = state.clock.elapsedTime;
     const elapsed = state.clock.elapsedTime - startRef.current;
-    const intro = q.animate ? smooth(Math.min(Math.max(elapsed / 1.6, 0), 1)) : 1;
+    const intro = anim ? smooth(Math.min(Math.max(elapsed / 1.6, 0), 1)) : 1;
     const baked = sim.current;
 
     /* one-time: segment bounds + thread geometry from the recording */
     if (baked && !boundsReady.current) {
       computeBounds(baked, _bounds);
-      const attr = thread.geometry.attributes.position as THREE.BufferAttribute;
-      (attr.array as Float32Array).set(baked.positions.subarray(0, attr.array.length));
+      const attr = thread.geometry.attributes
+        .position as THREE.BufferAttribute;
+      (attr.array as Float32Array).set(
+        baked.positions.subarray(0, attr.array.length),
+      );
       attr.needsUpdate = true;
       boundsReady.current = true;
     }
 
-    /* ---- scroll → simulation frame (each move scrubs its own ramp) ---- */
+    /* ---- app-hero anticipation + scroll → simulation frame ---- */
+    const heroExit = anim
+      ? smooth(sectionRange(getSectionProgress('app-hero'), 0.42, 0.96))
+      : 1;
+
     let frame = 0;
-    if (!q.animate) {
+    if (!anim) {
       frame = RUN_STEPS;
     } else if (boundsReady.current) {
       for (let i = 0; i < RAMPS; i++) {
@@ -207,17 +234,29 @@ export default function ApproachScene() {
       baked.sample(0, t, _pos, _quat);
       bx = _pos.x;
       by = _pos.y;
-      if (spinRef.current) spinRef.current.quaternion.copy(_quat);
+      if (spinRef.current) {
+        spinRef.current.quaternion.copy(_quat);
+        /* subtle cat's-eye poise while resting at the top of ramp 1 */
+        if (anim && frame < 1) {
+          spinRef.current.rotation.z +=
+            Math.sin(elapsed * 0.9) * 0.08 + heroExit * 0.25;
+        }
+      }
     }
     if (m) {
-      /* intro: the marble settles onto the top ramp from just above */
       const drop = (1 - intro) * 0.9;
       m.position.set(bx, by + drop, 0);
+      m.scale.setScalar(Math.max(0.25 + 0.75 * intro, 0.001));
     }
-    if (q.animate && boundsReady.current && Math.round(frame) !== lastFrame.current) {
+    if (
+      anim &&
+      boundsReady.current &&
+      Math.round(frame) !== lastFrame.current
+    ) {
       lastFrame.current = Math.round(frame);
       thread.geometry.setDrawRange(0, Math.max(lastFrame.current + 1, 0));
-    } else if (!q.animate && boundsReady.current) {
+    } else if (!anim && boundsReady.current && lastFrame.current !== RUN_STEPS) {
+      lastFrame.current = RUN_STEPS;
       thread.geometry.setDrawRange(0, RUN_STEPS + 1);
     }
 
@@ -227,35 +266,67 @@ export default function ApproachScene() {
       const r = ramps[i];
       let lit = 0;
       let pulse = 0;
-      if (!q.animate) {
+      if (!anim) {
         lit = 1;
-      } else if (level > i || by < r.ring[1] - 0.8) {
-        lit = 1;
-      } else if (level === i) {
-        const along = (bx - r.ring[0]) * r.d; /* + once through */
-        lit = smooth(Math.min(Math.max((along + 0.25) / 0.4, 0), 1));
-        pulse = Math.max(0, 1 - Math.abs(along) / 0.35);
+        _ringLit[i] = 1;
+      } else {
+        if (level > i || by < r.ring[1] - 0.8) {
+          lit = 1;
+        } else if (level === i) {
+          const along = (bx - r.ring[0]) * r.d;
+          lit = smooth(Math.min(Math.max((along + 0.25) / 0.4, 0), 1));
+          pulse = Math.max(0, 1 - Math.abs(along) / 0.35);
+        }
+        _ringLit[i] += (lit - _ringLit[i]) * 0.12;
       }
-      _ringLit[i] += (lit - _ringLit[i]) * 0.12;
       const mat = ringMats.current[i];
       if (mat) {
         mat.emissive.copy(_cIce).lerp(_cBlue, _ringLit[i]);
         mat.emissiveIntensity = 0.12 + _ringLit[i] * 0.85 + pulse * 1.6;
       }
       const g = ringRefs.current[i];
-      if (g) g.scale.setScalar(1 + pulse * 0.08);
+      if (g) {
+        const ringPop = anim
+          ? smooth(Math.min(Math.max((elapsed - 0.12 - i * 0.08) / 0.75, 0), 1))
+          : 1;
+        g.scale.setScalar(Math.max(ringPop, 0.001) * (1 + pulse * 0.08));
+      }
     }
 
-    /* ---- tower intro ---- */
+    /* ---- outro & cradle settle halo ---- */
+    const outro = anim
+      ? smooth(sectionRange(getSectionProgress('app-outro'), 0.1, 0.6))
+      : 1;
+    if (cradleHaloRef.current) {
+      const settledInCradle = smooth(sectionRange(t, 0.88, 0.99));
+      const haloScale =
+        (0.65 + 0.35 * Math.max(settledInCradle, outro)) * intro;
+      cradleHaloRef.current.scale.setScalar(Math.max(haloScale, 0.001));
+    }
+
+    /* ---- tower intro + subtle pointer parallax ---- */
     const tower = towerRef.current;
     if (tower) {
       tower.position.y = (1 - intro) * -0.35;
       tower.scale.setScalar(0.97 + 0.03 * intro);
+      const targetYaw = anim ? pointer.x * 0.045 : 0;
+      const targetPitch = anim ? -pointer.y * 0.025 : 0;
+      if (anim) {
+        tower.rotation.y += (targetYaw - tower.rotation.y) * 0.06;
+        tower.rotation.x += (targetPitch - tower.rotation.x) * 0.06;
+      } else {
+        tower.rotation.set(0, 0, 0);
+      }
     }
 
     /* ---- camera ---- */
-    const outro = q.animate ? smooth(sectionRange(getSectionProgress('app-outro'), 0.1, 0.6)) : 1;
-    const heroIn = q.animate ? smooth(sectionRange(getSectionProgress(STAGE_IDS[0]), 0.0, 0.4)) : 1;
+    const stage1In = anim
+      ? smooth(sectionRange(getSectionProgress(STAGE_IDS[0]), 0.0, 0.4))
+      : 1;
+    const heroIn = Math.max(heroExit * 0.35, stage1In);
+
+    const px = anim ? pointer.x : 0;
+    const py = anim ? pointer.y : 0;
 
     let cx: number;
     let cy: number;
@@ -263,24 +334,25 @@ export default function ApproachScene() {
     let lx: number;
     let ly: number;
     if (q.compact) {
-      /* portrait: the whole run width in frame, marble in the upper third */
       const followY = THREE.MathUtils.lerp(-0.9, by - 1.2, heroIn);
-      cy = THREE.MathUtils.lerp(followY, TOWER_MID, outro) + pointer.y * 0.15;
-      cx = pointer.x * 0.25;
+      cy = THREE.MathUtils.lerp(followY, TOWER_MID, outro) + py * 0.15;
+      cx = px * 0.25;
       cz = THREE.MathUtils.lerp(17.5, 25, outro);
       lx = 0;
       ly = cy;
     } else {
-      /* the run owns the right half; during the hero it sits further out
-         so the title reads clean, then the camera follows the marble down */
       const followY = THREE.MathUtils.lerp(-1.25, by - 0.25, heroIn);
-      cy = THREE.MathUtils.lerp(followY, TOWER_MID, outro) + pointer.y * 0.22;
-      lx = THREE.MathUtils.lerp(THREE.MathUtils.lerp(-3.6, -2.5, heroIn), -3.0, outro);
-      cx = lx - 0.9 + pointer.x * 0.4;
+      cy = THREE.MathUtils.lerp(followY, TOWER_MID, outro) + py * 0.22;
+      lx = THREE.MathUtils.lerp(
+        THREE.MathUtils.lerp(-3.6, -2.5, heroIn),
+        -3.0,
+        outro,
+      );
+      cx = lx - 0.9 + px * 0.4;
       cz = THREE.MathUtils.lerp(11.5, 19.5, outro);
       ly = cy - 0.05;
     }
-    if (!q.animate) {
+    if (!anim) {
       cam.position.set(q.compact ? 0 : -3.9, TOWER_MID, q.compact ? 25 : 19.5);
       _look.set(q.compact ? 0 : -3.0, TOWER_MID - 0.05, 0);
       cam.lookAt(_look);
@@ -292,11 +364,15 @@ export default function ApproachScene() {
       cam.lookAt(_look);
     }
 
-    /* cursor light — a studio key that follows the pointer across the glass */
+    /* cursor light — studio key following pointer when animated */
     const L = lightRef.current;
     if (L) {
-      L.position.x += (pointer.x * 3.2 + 0.4 - L.position.x) * 0.06;
-      L.position.y += (cam.position.y + pointer.y * 2.2 + 0.8 - L.position.y) * 0.06;
+      if (anim) {
+        L.position.x += (px * 3.2 + 0.4 - L.position.x) * 0.06;
+        L.position.y += (cam.position.y + py * 2.2 + 0.8 - L.position.y) * 0.06;
+      } else {
+        L.position.set(0.4, TOWER_MID + 0.8, 3.2);
+      }
     }
   });
 
@@ -305,15 +381,28 @@ export default function ApproachScene() {
   return (
     <group>
       <SceneLightRig />
-      <pointLight ref={lightRef} position={[0, 1, 3.2]} intensity={7} distance={9} decay={1.6} color="#ffffff" />
+      <pointLight
+        ref={lightRef}
+        position={[0, 1, 3.2]}
+        intensity={7}
+        distance={9}
+        decay={1.6}
+        color="#ffffff"
+      />
 
       <group ref={towerRef}>
         {/* ramps — twin glass rails each */}
         {ramps.map((r) => (
-          <Rail key={r.index} x0={r.x0} x1={r.x1} yAt={(x) => floorY(r, x)} ang={-r.d * SLOPE} />
+          <Rail
+            key={r.index}
+            x0={r.x0}
+            x1={r.x1}
+            yAt={(x) => floorY(r, x)}
+            ang={-r.d * SLOPE}
+          />
         ))}
 
-        {/* cradle — two shallow rails meeting in a V */}
+        {/* cradle — two shallow rails meeting in a V + gradient-glass settle halo */}
         {cradle.map((c, i) => {
           const half = c.len / 2;
           const x0 = c.cx - half;
@@ -330,17 +419,35 @@ export default function ApproachScene() {
           );
         })}
 
+        <mesh
+          ref={cradleHaloRef}
+          position={[0, CRADLE_Y - 0.06, 0]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          <torusGeometry args={[BALL_R * 2.1, 0.018, 16, 64]} />
+          <GradientGlassMaterial opacity={0.9} />
+        </mesh>
+
         {/* backstops — frosted glass panes at each drop */}
         {panes.map((p, i) => (
           <mesh key={`pane-${i}`} position={[p.x, p.y, 0]}>
             <boxGeometry args={[0.045, p.h, 0.62]} />
-            <GlassMaterial kind="pane" transmission={0.55} thickness={0.25} roughness={0.28} />
+            <GlassMaterial
+              kind="pane"
+              transmission={0.55}
+              thickness={0.25}
+              roughness={0.28}
+            />
           </mesh>
         ))}
 
         {/* gates — one glass ring per move */}
         {rings.map((ring, i) => (
-          <group key={`ring-${i}`} position={ring} rotation={[0, 0, -ramps[i].d * SLOPE]}>
+          <group
+            key={`ring-${i}`}
+            position={ring}
+            rotation={[0, 0, -ramps[i].d * SLOPE]}
+          >
             <group
               ref={(g) => {
                 ringRefs.current[i] = g;
@@ -363,7 +470,7 @@ export default function ApproachScene() {
           </group>
         ))}
 
-        {/* the floor line under each ramp — a hairline shadow on the glass */}
+        {/* floor hairline under each ramp */}
         {ramps.map((r) => {
           const len = (r.x1 - r.x0) / Math.cos(SLOPE);
           const mx = (r.x0 + r.x1) / 2;
@@ -374,7 +481,12 @@ export default function ApproachScene() {
               rotation={[0, 0, -r.d * SLOPE]}
             >
               <boxGeometry args={[len, 0.008, 0.42]} />
-              <meshBasicMaterial color="#c8d4ff" transparent opacity={0.45} depthWrite={false} />
+              <meshBasicMaterial
+                color="#c8d4ff"
+                transparent
+                opacity={0.45}
+                depthWrite={false}
+              />
             </mesh>
           );
         })}
@@ -387,7 +499,12 @@ export default function ApproachScene() {
         <group ref={spinRef}>
           <mesh>
             <sphereGeometry args={[BALL_R, 48, 32]} />
-            <GlassMaterial kind="crystal" transmission={0.92} thickness={0.5} roughness={0.02} />
+            <GlassMaterial
+              kind="crystal"
+              transmission={0.92}
+              thickness={0.5}
+              roughness={0.02}
+            />
           </mesh>
           <mesh geometry={vane}>
             <meshStandardMaterial
@@ -412,4 +529,3 @@ export default function ApproachScene() {
     </group>
   );
 }
-

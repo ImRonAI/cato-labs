@@ -1,7 +1,7 @@
 /* ============================================================
    Cato's journey: nine stops (aas-* prefix only).
    Each stop is a normal 100vh section — no sticky scroll tunnel.
-   Cato's 6s fall to the next ledge is triggered by each stop's
+   Cato's short journey to the next ledge is triggered by each stop's
    "Next stop" button or by the voice agent's `next_stop` tool,
    which scrolls the page to the next stop's copy with him.
    ============================================================ */
@@ -40,15 +40,50 @@
   margin-top: 8px;
 }
 
+.aas-opening { padding-block: 80px; display: grid; gap: 24px; }
+.aas-opening > * { max-width: 42rem; }
+.aas-opening label { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.aas-opening select { padding: 12px; background: #fff; color: var(--ink); border: 1px solid #b9c9ff; font: inherit; }
+.aas-opening select:focus-visible { outline: 2px solid #2e4bff; outline-offset: 3px; }
+.aas-opening small, .aas-story-label { font-size: 12px; color: #3f2a9e; }
+.aas-copy-fade { display: flex; flex-direction: column; gap: 18px; }
+.aas-copy-fade .aas-stop-nav { margin-top: 8px; }
+.aas-stop[data-visible='true'] .aas-copy-fade { animation: aas-copy-in 0.12s linear both; }
+.aas-story { font-size: 16px; line-height: 1.5; }
+.aas-queue { font-size: 14px; }
+@keyframes aas-copy-in { from { opacity: 0; } to { opacity: 1; } }
+.aas-finale-screen {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  background: #fff;
+  border: 8px solid #0a1890;
+  border-radius: 12px;
+  transform-origin: left center;
+  transform: perspective(1000px) rotateY(-88deg) scaleX(0.05);
+  visibility: hidden;
+  transition: transform 0.55s cubic-bezier(.2,.7,.2,1), visibility 0s 0.55s;
+}
+.aas-finale-screen[data-open='true'] { transform: perspective(1000px) rotateY(0) scaleX(1); visibility: visible; transition-delay: 0s; }
+.aas-screen-content { padding: clamp(16px, 3vw, 40px); display: grid; gap: 20px; }
+.aas-screen-content > .cato-btn { justify-self: start; }
+.aas-stop--finale { padding-block: 80px; }
+.aas-stop--finale .aas-stop-copy { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); align-items: start; gap: 32px; }
+.aas-stop--finale .aas-copy-fade { padding-top: 30vh; }
+.aas-stop--finale .aas-stop-copy > * { max-width: none; }
+.aas-stop--finale .aas-stop-nav { grid-column: 1 / -1; }
+.aas-voice-prefab { width: 100%; }
+
 /* narrow: Cato stands in the top half, the copy sits in a card below him */
 @media (max-width: 759px) {
   .aas-stop {
-    align-items: flex-end;
+    align-items: flex-start;
     padding-block: 0;
   }
   .aas-stop-copy {
     min-height: 100vh;
     justify-content: flex-end;
+    padding-top: 40vh;
     padding-bottom: 28px;
     background: linear-gradient(to bottom, transparent 42%, rgba(255, 255, 255, 0.86) 58%);
   }
@@ -58,6 +93,10 @@
   .aas-stop-body {
     font-size: 15px;
   }
+}
+@media (max-width: 1000px) {
+  .aas-stop--finale .aas-stop-copy { display: flex; }
+  .aas-stop--finale .aas-copy-fade { padding-top: 0; }
 }
 
 /* ---------- Cato voice dock ---------- */
@@ -169,6 +208,8 @@
   .cato-cloud {
     animation: none;
   }
+  .aas-stop[data-visible='true'] .aas-copy-fade { animation: none; }
+  .aas-finale-screen { transition: none; }
 }
 
 /* ---------- DJ stop: ask Cato for a track ---------- */

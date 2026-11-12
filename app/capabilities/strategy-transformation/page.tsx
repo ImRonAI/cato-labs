@@ -1,9 +1,11 @@
 import { childPageJsonLd, pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { capabilityChildren } from '@/lib/content/capabilities';
+import { decisionEngineCopy } from '@/lib/content/overhaul/cap-strategy';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
+import DecisionEngine from './DecisionEngine';
 import './page.css';
 
 const copy = capabilityChildren['strategy-transformation'];
@@ -42,8 +44,9 @@ export const metadata = pageMetadata({
 
 /**
  * /capabilities/strategy-transformation — decide on evidence, not instinct.
- * Scene: StrategyTransformationScene ("The Chessboard of Evidence").
- * Section ids are CONTRACT: hero (shell), feature, detail, faq/cta (shell).
+ * Scene: StrategyTransformationScene ("The Strategic Decision Table & Probability Field").
+ * Signature experience: THE DECISION ENGINE (DecisionEngine.tsx).
+ * Section ids: hero (shell), feature, engine, detail, faq/cta (shell).
  */
 export default function Page() {
   return (
@@ -59,6 +62,7 @@ export default function Page() {
       cta={copy.cta}
     >
       <JsonLd data={jsonLd} />
+
       {/* ---------- feature — the three disciplines ---------- */}
       <section
         data-scene-section="feature"
@@ -86,26 +90,49 @@ export default function Page() {
         </div>
       </section>
 
+      {/* ---------- engine — THE DECISION ENGINE (signature interactive experience) ---------- */}
+      <section
+        data-scene-section="engine"
+        id="decision-engine"
+        className="container-x stf-engine-section"
+        aria-label={decisionEngineCopy.title}
+      >
+        <div className="stf-engine-head">
+          <Reveal className="micro-label">{decisionEngineCopy.eyebrow}</Reveal>
+          <Reveal as="h2" className="h2 stf-engine-head__title" delay={0.08}>
+            <ProximityType>{decisionEngineCopy.title}</ProximityType>
+          </Reveal>
+          <Reveal as="p" className="lede" delay={0.14}>
+            {decisionEngineCopy.lede}
+          </Reveal>
+        </div>
+        <Reveal delay={0.18}>
+          <DecisionEngine />
+        </Reveal>
+      </section>
+
       {/* ---------- detail — the work, itemized ---------- */}
       <section
         data-scene-section="detail"
         className="container-x stf-detail"
         aria-label={copy.detail.title}
       >
-        <Reveal className="micro-label">{copy.detail.eyebrow}</Reveal>
-        <Reveal as="h2" className="h2 stf-detail__title" delay={0.08}>
-          {copy.detail.title}
-        </Reveal>
-        <Reveal as="p" className="lede stf-detail__body" delay={0.16}>
-          {copy.detail.body}
-        </Reveal>
-        <ul className="stf-detail__bullets">
-          {copy.detail.bullets.map((b, i) => (
-            <Reveal as="li" key={b} delay={0.1 + i * 0.05}>
-              {b}
-            </Reveal>
-          ))}
-        </ul>
+        <div className="stf-detail__card">
+          <Reveal className="micro-label">{copy.detail.eyebrow}</Reveal>
+          <Reveal as="h2" className="h2 stf-detail__title" delay={0.08}>
+            {copy.detail.title}
+          </Reveal>
+          <Reveal as="p" className="lede stf-detail__body" delay={0.16}>
+            {copy.detail.body}
+          </Reveal>
+          <ul className="stf-detail__bullets">
+            {copy.detail.bullets.map((b, i) => (
+              <Reveal as="li" key={b} delay={0.1 + i * 0.05}>
+                {b}
+              </Reveal>
+            ))}
+          </ul>
+        </div>
       </section>
     </ChildPageShell>
   );

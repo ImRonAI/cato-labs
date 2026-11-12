@@ -1,9 +1,11 @@
-import { childPageJsonLd, pageMetadata } from '@/lib/seo';
+import { pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { regions, type RegionCopy } from '@/lib/content/regions';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
+import RegionMoment from '@/components/webgl/scenes/regions/lib-a/RegionMomentPage';
+import { regionChildJsonLd, regionGeoMeta } from '../_geo';
 import './page.css';
 
 function regionCopy(slug: string): RegionCopy {
@@ -14,18 +16,13 @@ function regionCopy(slug: string): RegionCopy {
 
 const copy = regionCopy('napa');
 
-const jsonLd = childPageJsonLd({
-  crumbs: [
-    { name: 'Regions', path: '/regions' },
-    { name: copy.crumbLabel, path: `/regions/${copy.slug}` },
-  ],
-  faq: copy.faq,
-});
+const jsonLd = regionChildJsonLd(copy);
 
 export const metadata = pageMetadata({
   title: `AI-native consulting in ${copy.city}`,
   description: copy.lede,
   path: '/regions/napa',
+  geo: regionGeoMeta(copy),
   keywords: [
     'AI consulting Napa',
     'Wine Country marketing',
@@ -40,12 +37,13 @@ export const metadata = pageMetadata({
 
 /**
  * /regions/napa — the valley sells considered experiences.
- * Scene: NapaScene ("The Rows") — hills + vine-row skyline above four
- * hairline vine rows receding into the valley; a fine mist rises and
- * drifts between the rows on the `angles` beat, a tiny deep-blue sun low
- * overhead. Hotspot 'napa-skyline' rides the hill crest.
- * Section ids are CONTRACT: hero (shell), stats, angles, feature, build,
- * detail, faq/cta (shell).
+ * Scene: NapaScene ("Dawn Over the Contour Rows") — rolling Napa Valley
+ * contour terraces and instanced vineyard trellises in refractive crystal;
+ * during `moment`, low morning mist layers part and recede as sculpted vine
+ * rows and luminous cluster nodes emerge under a raking dawn light.
+ * Hotspot 'napa-skyline' rides the hillside estate crest.
+ * Section ids are CONTRACT: hero (shell), stats, moment, angles, feature,
+ * build, detail, faq/cta (shell).
  */
 export default function NapaPage() {
   return (
@@ -86,6 +84,9 @@ export default function NapaPage() {
         </section>
       )}
 
+      {/* ---------- moment — the signature scroll moment (dwell) ---------- */}
+      <RegionMoment copy={copy} />
+
       {/* ---------- angles — the valley, four ways ---------- */}
       <section
         data-scene-section="angles"
@@ -96,8 +97,11 @@ export default function NapaPage() {
           {copy.region}
         </Reveal>
         <div className="nap-angles__grid">
-          {copy.localAngles.map((a) => (
+          {copy.localAngles.map((a, i) => (
             <article key={a.title} className="nap-angle">
+              <Reveal className="index-no" delay={0}>
+                {String(i + 1).padStart(2, '0')}
+              </Reveal>
               <Reveal as="h3" className="h3 nap-angle__title" delay={0.06}>
                 {a.title}
               </Reveal>

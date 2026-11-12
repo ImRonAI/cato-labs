@@ -7,10 +7,47 @@ import {
   resetServer,
   uiResourceForTool,
 } from '@/lib/mcp-app/server';
+import { ensureMistralBridge } from '@/lib/mistral-bridge';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 800;
+
+const CATO_WORKFLOW_TOOLS = new Set([
+  'get_page_knowledge_base',
+  'check_discovery_availability',
+  'trigger_qualify_book_confirm',
+  'trigger_follow_up_sequence',
+  'trigger_human_handoff',
+  'trigger_daily_digest',
+]);
+
+function normalizeInteractiveToolName(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('fastmcp_telnyx_mcp_a353.')) {
+    return trimmed.slice('fastmcp_telnyx_mcp_a353.'.length);
+  }
+  for (const wfTool of CATO_WORKFLOW_TOOLS) {
+    if (trimmed === wfTool || trimmed.endsWith(`.${wfTool}`)) {
+      return wfTool;
+    }
+  }
+  return trimmed;
+}
+
+async function callViaMistralBridge(name: string, args: Record<string, unknown>) {
+  const baseUrl = await ensureMistralBridge();
+  const res = await fetch(`${baseUrl}/tool`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, arguments: args }),
+    cache: 'no-store',
+  });
+  if (!res.ok) {
+    throw new Error(`Mistral bridge tool call failed (${res.status})`);
+  }
+  return res.json();
+}
 
 export async function POST(req: Request) {
   let body: {
@@ -36,11 +73,19 @@ export async function POST(req: Request) {
       return Response.json(await uiResourceForTool(target));
     }
     if (body.op === 'call' && typeof body.name === 'string' && body.name) {
+      const cleanName = normalizeInteractiveToolName(body.name);
       const args =
         typeof body.arguments === 'object' && body.arguments
           ? (body.arguments as Record<string, unknown>)
           : {};
-      return Response.json(await callBrowserTool(body.name, args));
+      if (CATO_WORKFLOW_TOOLS.has(cleanName)) {
+        return Response.json(await callViaMistralBridge(cleanName, args));
+      }
+      try {
+        return Response.json(await callBrowserTool(cleanName, args));
+      } catch {
+        return Response.json(await callViaMistralBridge(cleanName, args));
+      }
     }
     if (body.op === 'readResource' && typeof body.uri === 'string' && body.uri) {
       return Response.json(await readServerResource(body.uri));

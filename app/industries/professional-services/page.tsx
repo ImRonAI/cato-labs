@@ -34,23 +34,24 @@ export const metadata = pageMetadata({
 
 /**
  * /industries/professional-services — expertise is bought on evidence.
- * Scene: ProfessionalServicesScene ("The Balance Beam").
+ * Scene: ProfessionalServicesScene ("The Partner's Evidence Table").
  * Section ids are CONTRACT: hero (shell), market-truth, feature, detail,
  * faq/cta (shell).
  */
 export default function Page() {
   return (
-    <ChildPageShell
-      crumbs={[
-        { label: 'Industries', href: '/industries' },
-        { label: copy.crumbLabel },
-      ]}
-      eyebrow={copy.eyebrow}
-      titleLines={copy.titleLines}
-      lede={copy.lede}
-      faq={copy.faq}
-      cta={copy.cta}
-    >
+    <div className="psf-page">
+      <ChildPageShell
+        crumbs={[
+          { label: 'Industries', href: '/industries' },
+          { label: copy.crumbLabel },
+        ]}
+        eyebrow={copy.eyebrow}
+        titleLines={copy.titleLines}
+        lede={copy.lede}
+        faq={copy.faq}
+        cta={copy.cta}
+      >
       <JsonLd data={jsonLd} />
       {/* ---------- market truth — the statement ---------- */}
       <section
@@ -71,19 +72,28 @@ export default function Page() {
         aria-label="The plays"
       >
         <div className="psf-feature__grid">
-          {copy.plays.map((p, i) => (
-            <article key={p.title} className="psf-feature__block">
-              <Reveal className="index-no" delay={0}>
-                {`0${i + 1}`}
-              </Reveal>
-              <Reveal as="h3" className="h3 psf-feature__block-title" delay={0.08}>
-                {p.title}
-              </Reveal>
-              <Reveal as="p" className="psf-feature__body" delay={0.16}>
-                {p.body}
-              </Reveal>
-            </article>
-          ))}
+          {copy.plays.map((p, i) => {
+            const feat = copy.features[i];
+            return (
+              <article key={p.title} className="psf-feature__block">
+                <Reveal className="psf-feature__meta" delay={0}>
+                  <span className="index-no">{`0${i + 1}`}</span>
+                  {feat ? <span className="psf-feature__kicker">{feat.title}</span> : null}
+                </Reveal>
+                <Reveal as="h3" className="h3 psf-feature__block-title" delay={0.08}>
+                  {p.title}
+                </Reveal>
+                <Reveal as="p" className="psf-feature__body" delay={0.14}>
+                  {p.body}
+                </Reveal>
+                {feat ? (
+                  <Reveal as="p" className="psf-feature__subbody" delay={0.2}>
+                    {feat.body}
+                  </Reveal>
+                ) : null}
+              </article>
+            );
+          })}
         </div>
       </section>
 
@@ -108,6 +118,7 @@ export default function Page() {
           ))}
         </ul>
       </section>
-    </ChildPageShell>
+      </ChildPageShell>
+    </div>
   );
 }

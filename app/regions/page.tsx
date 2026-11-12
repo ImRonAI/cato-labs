@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { childPageJsonLd, pageMetadata } from '@/lib/seo';
+import { pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { regionsIndex, regions } from '@/lib/content/regions';
 import Reveal from '@/components/ui/Reveal';
 import { CtaButton } from '@/components/ui/Magnetic';
 import ProximityType from '@/components/webgl/kit/ProximityType';
 import RegionStage from '@/components/webgl/scenes/regions/lib-a/RegionStage';
+import { regionsIndexJsonLd } from './_geo';
 import './page.css';
 
 export const metadata = pageMetadata({
@@ -23,9 +24,7 @@ export const metadata = pageMetadata({
   ],
 });
 
-const jsonLd = childPageJsonLd({
-  crumbs: [{ name: regionsIndex.eyebrow, path: '/regions' }],
-});
+const jsonLd = regionsIndexJsonLd(regions, regionsIndex.lede);
 
 /* The valley mains open the index — the beachhead Cato knows deepest. */
 const VALLEY_SLUGS = new Set(['palm-springs', 'palm-desert', 'indio']);

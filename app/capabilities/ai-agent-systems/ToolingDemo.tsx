@@ -1,34 +1,29 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useSyncExternalStore } from 'react';
 import PrefabView, { callPrefabTool, type PrefabRun } from '@/components/mcp-app/PrefabView';
-import { setToolMove } from '@/components/webgl/kit/cato/bus';
+import { catoBus, setToolMove, subscribeCato } from '@/components/webgl/kit/cato/bus';
+import { journeyCopy, storyPrefabs } from '@/lib/content/agentJourney';
 
 /**
- * ToolingDemo: on the tooling stop, without a voice session, the visitor asks
- * Cato to build a small tool. The page calls generate_prefab_ui on the Telnyx
- * MCP server with a Prefab program (the tool's own documented slider pattern)
- * and renders the result as an MCP App. Cato sits at his desk while it builds.
+ * The finale calls the existing tool and renders PrefabView unchanged.
+ * Voice-generated tools occupy the adjacent portal slot in the same screen.
  */
-const SAMPLE = `from prefab_ui.components import Column, Heading, Slider, Text
-from prefab_ui.app import PrefabApp
-
-with PrefabApp(state={"tip": 18}) as app:
-    with Column(gap=4):
-        Heading("Tip calculator")
-        slider = Slider(value=18, min=0, max=40, name="tip")
-        Text(f"Tip: {slider.rx}%")
-`;
+const snapshot = () => `${catoBus.story}:${catoBus.screenOpen}`;
+const serverSnapshot = () => 'enterprise:false';
 
 export default function ToolingDemo() {
-  const [run, setRun] = useState<PrefabRun | null>(null);
+  useSyncExternalStore(subscribeCato, snapshot, serverSnapshot);
+  const [built, setBuilt] = useState<{ story: typeof catoBus.story; run: PrefabRun } | null>(null);
+  const run = built?.story === catoBus.story ? built.run : null;
   const [busy, setBusy] = useState(false);
+  const building = busy && built?.story === catoBus.story;
 
   const build = () => {
-    const input = { code: SAMPLE };
+    const input = { code: storyPrefabs[catoBus.story] };
     setBusy(true);
     setToolMove('desk');
-    setRun({ input, result: callPrefabTool('generate_prefab_ui', input) });
+    setBuilt({ story: catoBus.story, run: { input, result: callPrefabTool('generate_prefab_ui', input) } });
   };
   const done = useCallback(() => {
     setBusy(false);
@@ -36,11 +31,15 @@ export default function ToolingDemo() {
   }, []);
 
   return (
-    <div className="aas-tooling">
-      <button type="button" className="cato-btn" onClick={build} disabled={busy}>
-        {busy ? 'Cato is building…' : run ? 'Build it again' : 'Ask Cato to build a tool'}
-      </button>
-      {run && <PrefabView run={run} onDone={done} />}
+    <div className="aas-finale-screen" data-open={catoBus.screenOpen} aria-label={journeyCopy.finale}>
+      <div className="aas-screen-content">
+        <p className="aas-story-label">{journeyCopy.illustrative}</p>
+        <div id="aas-finale-voice-slot" />
+        <button type="button" className="cato-btn" onClick={build} disabled={building}>
+          {building ? journeyCopy.building : run ? journeyCopy.rebuild : journeyCopy.build}
+        </button>
+        {run && <PrefabView run={run} onDone={done} />}
+      </div>
     </div>
   );
 }

@@ -10,10 +10,14 @@ import './cato.css';
  * CatoBody: draws the owner's Timmy rig (timmy-core.js, verbatim geometry,
  * rig and moves) with three.js.
  *
- * - Every engine mesh is rigid on one bone, so it becomes one THREE.Mesh whose
- *   matrix is the bone's 3x4 world matrix W (matrixAutoUpdate off; set per
- *   frame). Faces keep their engine materials as geometry groups, shaded by a
- *   port of Timmy's own lighting (see FRAG).
+ * - Every engine mesh is rigid on one bone. Its faces are split per engine
+ *   material into "pieces"; all pieces sharing a material live in one
+ *   THREE.BatchedMesh (one multi-draw call per material instead of one draw
+ *   per mesh per material group). Each piece is a batch instance whose matrix
+ *   is set every frame from the bone's 3x4 world matrix W, and whose
+ *   visibility mirrors the engine's mesh.vis (props, hidden parts). Shading is
+ *   a port of Timmy's own lighting (see FRAG); the batch matrix is applied in
+ *   the vertex stage only, so the tonal result is unchanged.
  * - Face decals (eyes, mouth, chest core, prop screens) are rebuilt every
  *   frame into one dynamic vertex-coloured mesh.
  * - Timmy's SVG cards (think trace, email, fax, video, texting) and floating
@@ -53,10 +57,23 @@ const LIGHTS = {
   uLed: { value: new THREE.Vector3() },
 };
 
+/*
+ * Vertex stage: three's batching chunks resolve the per-piece (bone) matrix
+ * from the BatchedMesh matrices texture when the material is drawn through a
+ * BatchedMesh (USE_BATCHING); the chunks compile to nothing otherwise. The
+ * world position feeding the fragment shading is identical to the former
+ * per-mesh `modelMatrix` path (group matrix × bone W).
+ */
 const VERT = /* glsl */ `
+#include <batching_pars_vertex>
 varying vec3 vW;
 void main() {
-  vec4 w = modelMatrix * vec4(position, 1.0);
+  #include <batching_vertex>
+  vec4 lp = vec4(position, 1.0);
+  #ifdef USE_BATCHING
+  lp = batchingMatrix * lp;
+  #endif
+  vec4 w = modelMatrix * lp;
   vW = w.xyz;
   gl_Position = projectionMatrix * viewMatrix * w;
 }`;
@@ -131,6 +148,7 @@ function updateLights(camera: THREE.Camera, core: CatoCore) {
 }
 
 const _inv = new THREE.Matrix4();
+const _bone = new THREE.Matrix4();
 const _cp = new THREE.Vector3();
 const _cx = new THREE.Vector3();
 const _cy = new THREE.Vector3();
@@ -166,39 +184,95 @@ const CatoBody = forwardRef<CatoBodyHandle, { paused?: boolean }>(function CatoB
   const core = useMemo(() => (typeof document === 'undefined' ? null : createCatoCore()), []);
   useImperativeHandle(ref, () => ({ core }), [core]);
 
-  /* static meshes, one per engine mesh */
+  /*
+   * Static geometry: every engine mesh is split per material into pieces
+   * (same fan triangulation and face set as before, in engine face order),
+   * and all pieces of one material are packed into one BatchedMesh. Batch
+   * capacities are exactly the piece count and vertex count of that material,
+   * derived from the generated geometry.
+   */
   const built = useMemo(() => {
     if (!core) return null;
     const mats = core.MATS.map(materialFor);
-    const objs = core.meshes.map((m) => {
-      const pos: number[] = [];
-      const g = new THREE.BufferGeometry();
-      let groupStart = 0;
-      let groupMat = -1;
+    const { fStart, fLen, fMat, fIdx, LP } = core;
+
+    /* per material: the pieces (triangle positions) it will hold */
+    const perMat: Float32Array[][] = mats.map(() => []);
+    /* pieces in mesh order; pieceRange[i]..pieceRange[i+1] are mesh i's pieces */
+    const pieceMat: number[] = [];
+    const pieceSlot: number[] = [];
+    const pieceRange: number[] = [0];
+    const tris = new Map<number, number>();
+    core.meshes.forEach((m, mi) => {
+      tris.clear();
       for (let f = m.f0; f < m.f1; f++) {
-        const s = core.fStart[f];
-        const n = core.fLen[f];
-        const mat = core.fMat[f];
-        if (mat !== groupMat) {
-          if (groupMat >= 0) g.addGroup(groupStart, pos.length / 3 - groupStart, groupMat);
-          groupStart = pos.length / 3;
-          groupMat = mat;
-        }
-        const a = core.fIdx[s];
+        const mat = fMat[f];
+        tris.set(mat, (tris.get(mat) ?? 0) + Math.max(0, fLen[f] - 2));
+      }
+      const fill = new Map<number, { pos: Float32Array; n: number }>();
+      tris.forEach((count, mat) => fill.set(mat, { pos: new Float32Array(count * 9), n: 0 }));
+      for (let f = m.f0; f < m.f1; f++) {
+        const s = fStart[f];
+        const n = fLen[f];
+        const piece = fill.get(fMat[f])!;
+        const a = fIdx[s];
         for (let k = 1; k < n - 1; k++) {
-          for (const vi of [a, core.fIdx[s + k], core.fIdx[s + k + 1]]) {
-            pos.push(core.LP[vi * 3], core.LP[vi * 3 + 1], core.LP[vi * 3 + 2]);
-          }
+          const b = fIdx[s + k];
+          const c = fIdx[s + k + 1];
+          const o = piece.n;
+          const p = piece.pos;
+          p[o] = LP[a * 3]; p[o + 1] = LP[a * 3 + 1]; p[o + 2] = LP[a * 3 + 2];
+          p[o + 3] = LP[b * 3]; p[o + 4] = LP[b * 3 + 1]; p[o + 5] = LP[b * 3 + 2];
+          p[o + 6] = LP[c * 3]; p[o + 7] = LP[c * 3 + 1]; p[o + 8] = LP[c * 3 + 2];
+          piece.n = o + 9;
         }
       }
-      if (groupMat >= 0) g.addGroup(groupStart, pos.length / 3 - groupStart, groupMat);
-      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-      g.computeVertexNormals();
-      const mesh = new THREE.Mesh(g, mats);
-      mesh.matrixAutoUpdate = false;
-      mesh.frustumCulled = false;
-      return mesh;
+      /* keep each material's pieces in first-use order, as the old groups were */
+      for (let f = m.f0; f < m.f1; f++) {
+        const mat = fMat[f];
+        const piece = fill.get(mat);
+        if (!piece) continue;
+        fill.delete(mat);
+        if (piece.n === 0) continue;
+        pieceMat.push(mat);
+        pieceSlot.push(perMat[mat].length);
+        perMat[mat].push(piece.pos);
+      }
+      pieceRange.push(pieceMat.length);
     });
+
+    /* one BatchedMesh per material that has faces */
+    const batches: (THREE.BatchedMesh | null)[] = perMat.map((pieces, mat) => {
+      if (pieces.length === 0) return null;
+      let verts = 0;
+      for (const p of pieces) verts += p.length / 3;
+      const batch = new THREE.BatchedMesh(pieces.length, verts, 0, mats[mat]);
+      /* same culling/order semantics as the former per-mesh Meshes */
+      batch.frustumCulled = false;
+      batch.perObjectFrustumCulled = false;
+      batch.sortObjects = false;
+      return batch;
+    });
+    /* add geometries and instances; piece order within a batch == slot order */
+    const objs = batches.filter((b): b is THREE.BatchedMesh => b !== null);
+    const pieceBatch: THREE.BatchedMesh[] = new Array(pieceMat.length);
+    const pieceId = new Int32Array(pieceMat.length);
+    const pieceObj = new Int32Array(pieceMat.length); // index into objs
+    for (let p = 0; p < pieceMat.length; p++) {
+      const mat = pieceMat[p];
+      const batch = batches[mat]!;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(perMat[mat][pieceSlot[p]], 3));
+      const gid = batch.addGeometry(g);
+      g.dispose();
+      pieceBatch[p] = batch;
+      pieceId[p] = batch.addInstance(gid);
+      pieceObj[p] = objs.indexOf(batch);
+    }
+    /* piece visibility mirror + per-batch visible-piece count (a batch with none is hidden outright) */
+    const pieceVis = new Uint8Array(pieceMat.length).fill(1);
+    const objVis = new Int32Array(objs.length);
+    for (let p = 0; p < pieceMat.length; p++) objVis[pieceObj[p]]++;
 
     /* decals: one dynamic RGBA mesh */
     const dg = new THREE.BufferGeometry();
@@ -224,19 +298,28 @@ const CatoBody = forwardRef<CatoBodyHandle, { paused?: boolean }>(function CatoB
     const decalMesh = new THREE.Mesh(dg, dm);
     decalMesh.frustumCulled = false;
     decalMesh.renderOrder = 2;
-    return { mats, objs, dg, dPos, dCol, dm, decalMesh, shadow, shadowTex, shadowMat };
+    return { mats, objs, pieceBatch, pieceId, pieceObj, pieceRange, pieceVis, objVis, dg, dPos, dCol, dm, decalMesh, shadow, shadowTex, shadowMat };
   }, [core]);
 
+  const resourceLease = useRef(0);
+  const currentBuilt = useRef(built);
   useEffect(
-    () => () => {
-      if (!built) return;
-      built.objs.forEach((o) => o.geometry.dispose());
-      built.mats.forEach((m) => m.dispose());
-      built.dg.dispose();
-      built.dm.dispose();
-      built.shadow.geometry.dispose();
-      built.shadowMat.dispose();
-      built.shadowTex.dispose();
+    () => {
+      currentBuilt.current = built;
+      const lease = ++resourceLease.current;
+      return () => queueMicrotask(() => {
+        // Strict-mode effect replay retains the same live GPU resources.
+        if (resourceLease.current !== lease && currentBuilt.current === built) return;
+        if (!built) return;
+        /* BatchedMesh.dispose frees its merged geometry and matrix/indirect textures */
+        built.objs.forEach((o) => o.dispose());
+        built.mats.forEach((m) => m.dispose());
+        built.dg.dispose();
+        built.dm.dispose();
+        built.shadow.geometry.dispose();
+        built.shadowMat.dispose();
+        built.shadowTex.dispose();
+      });
     },
     [built],
   );
@@ -284,17 +367,38 @@ const CatoBody = forwardRef<CatoBodyHandle, { paused?: boolean }>(function CatoB
     built.shadow.position.x = core.body.x;
     built.shadow.position.z = core.body.z;
 
-    /* rigid skinning: mesh matrix = bone W */
-    const { objs } = built;
-    for (let i = 0; i < objs.length; i++) {
-      const m = core.meshes[i];
-      const o = objs[i];
-      o.visible = m.vis;
-      if (!m.vis) continue;
+    /* rigid skinning: every piece of mesh i takes bone W; hidden meshes hide their pieces */
+    const { objs, pieceBatch, pieceId, pieceObj, pieceRange, pieceVis, objVis } = built;
+    const meshes = core.meshes;
+    for (let i = 0; i < meshes.length; i++) {
+      const m = meshes[i];
+      const p0 = pieceRange[i];
+      const p1 = pieceRange[i + 1];
+      if (!m.vis) {
+        for (let p = p0; p < p1; p++) {
+          if (pieceVis[p]) {
+            pieceVis[p] = 0;
+            objVis[pieceObj[p]]--;
+            pieceBatch[p].setVisibleAt(pieceId[p], false);
+          }
+        }
+        continue;
+      }
       const W = core.BONES[m.bone].W;
-      o.matrix.set(W[0], W[1], W[2], W[3], W[4], W[5], W[6], W[7], W[8], W[9], W[10], W[11], 0, 0, 0, 1);
-      o.matrixWorldNeedsUpdate = true;
+      _bone.set(W[0], W[1], W[2], W[3], W[4], W[5], W[6], W[7], W[8], W[9], W[10], W[11], 0, 0, 0, 1);
+      for (let p = p0; p < p1; p++) {
+        const batch = pieceBatch[p];
+        const id = pieceId[p];
+        if (!pieceVis[p]) {
+          pieceVis[p] = 1;
+          objVis[pieceObj[p]]++;
+          batch.setVisibleAt(id, true);
+        }
+        batch.setMatrixAt(id, _bone);
+      }
     }
+    /* a batch whose pieces are all hidden is skipped by the renderer entirely */
+    for (let b = 0; b < objs.length; b++) objs[b].visible = objVis[b] > 0;
 
     /* decals: fan-triangulate each polygon */
     const { dPos, dCol, dg } = built;
@@ -322,7 +426,7 @@ const CatoBody = forwardRef<CatoBodyHandle, { paused?: boolean }>(function CatoB
 
   if (!built) return null;
   return (
-    <group ref={group}>
+    <group ref={group} dispose={null}>
       {built.objs.map((o, i) => (
         <primitive key={i} object={o} />
       ))}

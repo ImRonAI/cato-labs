@@ -1,12 +1,12 @@
 /* ============================================================
    Region signature-moment dwell (rb-* prefix) — shared by
-   los-angeles, orange-county, san-francisco, napa, phoenix,
-   salt-lake-city. The stage is transparent: the GL set piece
+   lib-b region stages. The stage is transparent: the GL set piece
    behind it is the content.
    ============================================================ */
 
 .rb-moment {
   position: relative;
+  min-height: 280vh;
   pointer-events: none;
 }
 .rb-moment__stage {
@@ -48,9 +48,15 @@
 .rb-moment__fill {
   position: absolute;
   inset: 0;
-  background: var(--blue);
+  background: linear-gradient(to right, var(--blue-300), var(--blue));
   transform-origin: 0 50%;
   transform: scaleX(var(--rb-t));
+}
+
+@media (max-width: 820px) {
+  .rb-moment {
+    min-height: 220vh;
+  }
 }
 
 @media (max-width: 720px) {
@@ -62,5 +68,18 @@
   .rb-moment__track {
     width: 100%;
     flex: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rb-moment {
+    min-height: 100vh;
+  }
+  .rb-moment__meter {
+    opacity: 1;
+    transform: none;
+  }
+  .rb-moment__fill {
+    transform: scaleX(1);
   }
 }

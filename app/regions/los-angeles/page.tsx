@@ -1,10 +1,11 @@
-import { childPageJsonLd, pageMetadata } from '@/lib/seo';
+import { pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { regions, type RegionCopy } from '@/lib/content/regions';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
 import MomentDwell from '@/components/webgl/scenes/regions/lib-b/MomentDwell';
+import { regionChildJsonLd, regionGeoMeta } from '../_geo';
 import './page.css';
 
 function regionCopy(slug: string): RegionCopy {
@@ -15,18 +16,13 @@ function regionCopy(slug: string): RegionCopy {
 
 const copy = regionCopy('los-angeles');
 
-const jsonLd = childPageJsonLd({
-  crumbs: [
-    { name: 'Regions', path: '/regions' },
-    { name: copy.crumbLabel, path: `/regions/${copy.slug}` },
-  ],
-  faq: copy.faq,
-});
+const jsonLd = regionChildJsonLd(copy);
 
 export const metadata = pageMetadata({
   title: `AI-native consulting in ${copy.city}`,
   description: copy.lede,
   path: '/regions/los-angeles',
+  geo: regionGeoMeta(copy),
   keywords: [
     'AI consulting Los Angeles',
     'brand strategy Los Angeles',

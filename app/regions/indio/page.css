@@ -46,12 +46,9 @@
   gap: clamp(72px, 10vw, 140px);
 }
 .in-angle {
-  max-width: 560px;
+  max-width: 540px;
   border-top: 1px solid var(--line);
   padding-top: 28px;
-}
-.in-angle:nth-child(even) {
-  align-self: flex-end;
 }
 .in-angle .index-no {
   display: block;
@@ -175,8 +172,52 @@
   font-size: 1rem;
 }
 
+/* ---------- desktop split-stage layout (leaves right stage clear for 3D miniature) ---------- */
+@media (min-width: 1024px) {
+  .child-hero:has(~ .in-stats) h1.display-1 {
+    font-size: clamp(2.8rem, 5.1vw, 4.8rem);
+    max-width: 13ch;
+  }
+  .child-hero:has(~ .in-stats) .lede {
+    max-width: 31rem;
+  }
+  .in-stats__grid {
+    max-width: 47%;
+    column-gap: clamp(20px, 2.5vw, 36px);
+  }
+  .in-angles__stack {
+    max-width: 46%;
+    gap: clamp(56px, 7vw, 96px);
+  }
+  .in-features__grid {
+    max-width: 46%;
+    grid-template-columns: 1fr;
+    row-gap: 44px;
+  }
+  .in-feature__title {
+    max-width: 28ch;
+  }
+  .in-build__grid {
+    max-width: 47%;
+    column-gap: clamp(20px, 2.5vw, 36px);
+  }
+  .in-detail__body {
+    max-width: 46%;
+  }
+  .in-detail__bullets {
+    max-width: 47%;
+    column-gap: clamp(20px, 2.5vw, 36px);
+  }
+  .in-detail ~ section[data-scene-section="faq"] > div {
+    max-width: 47%;
+  }
+}
+
 /* ---------- responsive ---------- */
 @media (max-width: 720px) {
+  .child-hero:has(~ .in-stats) {
+    padding-bottom: 290px;
+  }
   .in-stats__grid {
     grid-template-columns: 1fr;
     border-bottom: 0;
@@ -189,6 +230,9 @@
   .in-features__grid {
     grid-template-columns: 1fr;
     row-gap: 48px;
+  }
+  .in-feature:first-child {
+    padding-bottom: 255px;
   }
   .in-build__grid {
     grid-template-columns: 1fr;

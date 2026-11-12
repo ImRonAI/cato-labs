@@ -1,9 +1,11 @@
-import { childPageJsonLd, pageMetadata } from '@/lib/seo';
+import { pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { regions, type RegionCopy } from '@/lib/content/regions';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
+import RegionMoment from '@/components/webgl/scenes/regions/lib-a/RegionMomentPage';
+import { regionChildJsonLd, regionGeoMeta } from '../_geo';
 import './page.css';
 
 function regionCopy(slug: string): RegionCopy {
@@ -14,13 +16,7 @@ function regionCopy(slug: string): RegionCopy {
 
 const copy = regionCopy('salt-lake-city');
 
-const jsonLd = childPageJsonLd({
-  crumbs: [
-    { name: 'Regions', path: '/regions' },
-    { name: copy.crumbLabel, path: `/regions/${copy.slug}` },
-  ],
-  faq: copy.faq,
-});
+const jsonLd = regionChildJsonLd(copy);
 
 /* The local angles are numbered structurally — the deck carries no index. */
 const angles = copy.localAngles.map((a, i) => ({
@@ -32,6 +28,7 @@ export const metadata = pageMetadata({
   title: `AI-native consulting in ${copy.city}`,
   description: copy.lede,
   path: '/regions/salt-lake-city',
+  geo: regionGeoMeta(copy),
   keywords: [
     'AI consulting Salt Lake City',
     'AI-native consulting Utah',
@@ -46,12 +43,14 @@ export const metadata = pageMetadata({
 
 /**
  * /regions/salt-lake-city — the Silicon Slopes and the Wasatch.
- * Scene: SaltLakeCityScene ("The Ridge") — the Wasatch skyline assembles
- * out of light; a bright alpenglow sweep travels along the ridge crest as
- * `angles` scrolls, over a soft glow band and a small spire marker at the
- * base. Hotspot 'slc-skyline' rides the ridge crest.
- * Section ids are CONTRACT: hero (shell), stats, angles, feature, build,
- * detail, faq/cta (shell).
+ * Scene: SaltLakeCityScene ("The Wasatch Alpenglow & Silicon Slopes Lattice") —
+ * steep faceted Wasatch alpine peaks in refractive crystal above the Great Salt
+ * Lake mirror plane; during `moment`, an ice-to-electric-blue alpenglow sweep
+ * washes across the facets as the camera ascends the mountain face toward the
+ * summit spire and Silicon Slopes light lattice. Hotspot 'slc-skyline' rides
+ * the summit spire apex.
+ * Section ids are CONTRACT: hero (shell), stats, moment, angles, feature,
+ * build, detail, faq/cta (shell).
  */
 export default function SaltLakeCityRegionPage() {
   return (
@@ -91,6 +90,9 @@ export default function SaltLakeCityRegionPage() {
           </div>
         </section>
       )}
+
+      {/* ---------- moment — the signature scroll moment (dwell) ---------- */}
+      <RegionMoment copy={copy} />
 
       {/* ---------- angles — the local read ---------- */}
       <section

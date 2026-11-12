@@ -102,6 +102,11 @@ class GreetingRequest(BaseModel):
     input: str = "(The visitor has just opened the page. Send your proactive welcome message now.)"
 
 
+class ToolInvokeRequest(BaseModel):
+    name: str
+    arguments: dict[str, Any] = Field(default_factory=dict)
+
+
 class ChatRequest(BaseModel):
     input: str
     previous_response_id: str | None = None
@@ -230,6 +235,7 @@ async def _run_qualify_book_confirm_workflow(args: QualifyBookConfirmInput) -> W
     client = _mistral_client()
     started = await client.workflows.execute_workflow_async(
         workflow_identifier="cato-qualify-book-confirm",
+        deployment_name="cato-workflows-worker",
         input=args.model_dump(),
         wait_for_result=False,
     )
@@ -269,6 +275,7 @@ async def _run_follow_up_workflow(args: FollowUpSequenceInput) -> WorkflowFollow
     client = _mistral_client()
     started = await client.workflows.execute_workflow_async(
         workflow_identifier="cato-follow-up-sequence",
+        deployment_name="cato-workflows-worker",
         input=args.model_dump(),
         wait_for_result=False,
     )
@@ -285,6 +292,7 @@ async def _run_human_handoff_workflow(args: HumanHandoffInput) -> WorkflowHandof
     client = _mistral_client()
     completed = await client.workflows.execute_workflow_async(
         workflow_identifier="cato-human-handoff",
+        deployment_name="cato-workflows-worker",
         input=args.model_dump(),
         wait_for_result=True,
     )
@@ -300,6 +308,7 @@ async def _run_daily_digest_workflow(args: DailyDigestInput) -> WorkflowDigestRe
     client = _mistral_client()
     completed = await client.workflows.execute_workflow_async(
         workflow_identifier="cato-daily-digest",
+        deployment_name="cato-workflows-worker",
         input=args.model_dump(),
         wait_for_result=True,
     )
@@ -359,6 +368,48 @@ def _build_client_tool_answers(req: ChatRequest) -> agents.ClientToolAnswers:
 @app.get("/health")
 async def health() -> dict[str, Any]:
     return {"ok": True, "model": PRIMARY_MODEL, "agent": "cato-studio-concierge"}
+
+
+@app.post("/tool")
+async def invoke_tool_from_ui(req: ToolInvokeRequest) -> dict[str, Any]:
+    """Execute a Cato Labs concierge/workflow tool or Telnyx connector tool directly from an interactive Prefab UI card."""
+    clean = _normalize_tool_name(req.name)
+    args = req.arguments or {}
+    try:
+        if clean == "get_page_knowledge_base":
+            parsed = PageKnowledgeBaseInput.model_validate(args)
+            kb_md = _read_kb_from_disk(parsed.slug)
+            data = PageKnowledgeBaseOutput(slug=parsed.slug or "studio", knowledge_base_markdown=kb_md).model_dump()
+        elif clean == "check_discovery_availability":
+            data = (await _query_zoho_availability(AvailabilityCheckInput.model_validate(args))).model_dump()
+        elif clean == "trigger_qualify_book_confirm":
+            data = (await _run_qualify_book_confirm_workflow(QualifyBookConfirmInput.model_validate(args))).model_dump()
+        elif clean == "trigger_follow_up_sequence":
+            data = (await _run_follow_up_workflow(FollowUpSequenceInput.model_validate(args))).model_dump()
+        elif clean == "trigger_human_handoff":
+            data = (await _run_human_handoff_workflow(HumanHandoffInput.model_validate(args))).model_dump()
+        elif clean == "trigger_daily_digest":
+            data = (await _run_daily_digest_workflow(DailyDigestInput.model_validate(args))).model_dump()
+        else:
+            client = _mistral_client()
+            raw = await client.beta.connectors.call_tool_async(
+                connector_id_or_name="fastmcp_telnyx_mcp_a353",
+                tool_name=clean,
+                arguments=args,
+            )
+            extracted = _extract_json(raw)
+            data = extracted if isinstance(extracted, dict) else {"result": extracted}
+
+        return {
+            "isError": False,
+            "structuredContent": data,
+            "content": [{"type": "text", "text": json.dumps(data, default=str)}],
+        }
+    except Exception as exc:
+        return {
+            "isError": True,
+            "content": [{"type": "text", "text": str(exc)}],
+        }
 
 
 @app.post("/greeting")
@@ -461,25 +512,26 @@ async def stream_chat(req: ChatRequest) -> StreamingResponse:
             nonlocal emitted_text_deltas
             try:
                 session: agents.Session | None = None
+                deployed: agents.Agent | None = None
                 prev_id = (req.previous_response_id or "").strip()
+                resumed_existing = False
 
                 if prev_id and prev_id in _LOCAL_SESSIONS:
                     session = _LOCAL_SESSIONS[prev_id]
+                    resumed_existing = True
                 elif req.prefer_deployed:
                     try:
                         deployed = agents.Agent.load_from(
                             agent_name="cato-studio-concierge",
                             api_key=api_key,
                         )
-                        if prev_id:
+                        if prev_id and len(prev_id) == 36 and "-" in prev_id:
                             try:
                                 session = deployed.session(prev_id, on_client_tool=answers)
+                                resumed_existing = True
                             except Exception:
-                                session = await deployed.start_session(
-                                    agent=customization,
-                                    on_client_tool=answers,
-                                )
-                        else:
+                                session = None
+                        if session is None:
                             session = await deployed.start_session(
                                 agent=customization,
                                 on_client_tool=answers,
@@ -495,12 +547,27 @@ async def stream_chat(req: ChatRequest) -> StreamingResponse:
                     _LOCAL_SESSIONS[session.id] = session
 
                 emit({"type": "response.created", "response": {"id": session.id}})
-                turn_state = await session.run(req.input.strip(), on_event=on_event)
+                try:
+                    turn_state = await session.run(req.input.strip(), on_event=on_event)
+                except Exception:
+                    if resumed_existing and deployed is not None and not emitted_text_deltas:
+                        session = await deployed.start_session(
+                            agent=customization,
+                            on_client_tool=answers,
+                        )
+                        emit({"type": "response.created", "response": {"id": session.id}})
+                        turn_state = await session.run(req.input.strip(), on_event=on_event)
+                    else:
+                        raise
 
                 if not emitted_text_deltas:
-                    fallback_out = getattr(turn_state, "output", None)
+                    fallback_out = getattr(turn_state, "text", None) or getattr(turn_state, "output", None)
                     if isinstance(fallback_out, str) and fallback_out.strip():
                         emit({"type": "response.output_text.delta", "delta": fallback_out})
+                    else:
+                        turn_err = getattr(turn_state, "error", None)
+                        if turn_err:
+                            emit({"type": "response.output_text.delta", "delta": f"*(Concierge notice: {turn_err})*"})
             except Exception as exc:
                 emit(
                     {

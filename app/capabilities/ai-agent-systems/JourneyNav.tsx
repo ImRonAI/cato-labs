@@ -2,15 +2,15 @@
 
 import React, { useSyncExternalStore } from 'react';
 import { catoBus, goToStop, subscribeCato } from '@/components/webgl/kit/cato/bus';
-import { journeyStops } from '@/lib/content/agentJourney';
+import { journeyCopy, journeyStops } from '@/lib/content/agentJourney';
 
 /**
  * JourneyNav: on-page "Next stop" / "Previous stop" buttons for each stop.
- * Clicking starts Cato's 6-second fall to that ledge and smoothly scrolls
+ * Clicking queues the destination during the reading hold, then scrolls
  * the page to the target stop's copy with him.
  */
-const snap = () => `${catoBus.stopIndex}:${catoBus.targetStop}:${catoBus.falling ? 1 : 0}`;
-const serverSnap = () => '0:0:0';
+const snap = () => `${catoBus.stopIndex}:${catoBus.targetStop}:${catoBus.falling ? 1 : 0}:${catoBus.queuedStop}`;
+const serverSnap = () => '0:0:0:null';
 
 export default function JourneyNav({ index }: { index: number }) {
   useSyncExternalStore(subscribeCato, snap, serverSnap);
@@ -26,11 +26,11 @@ export default function JourneyNav({ index }: { index: number }) {
           type="button"
           className="cato-btn"
           disabled={falling}
-          onClick={() => goToStop(index + 1, index)}
+          onClick={() => goToStop(index + 1)}
         >
           {falling && target === index + 1
-            ? `Falling to ${next.eyebrow}…`
-            : `Next stop: ${next.eyebrow} →`}
+             ? journeyCopy.travelling
+             : `${journeyCopy.next}: ${next.eyebrow}`}
         </button>
       )}
       {prev && (
@@ -38,11 +38,12 @@ export default function JourneyNav({ index }: { index: number }) {
           type="button"
           className="cato-btn cato-btn--ghost"
           disabled={falling}
-          onClick={() => goToStop(index - 1, index)}
+          onClick={() => goToStop(index - 1)}
         >
-          ← Previous stop
+          {journeyCopy.previous}
         </button>
       )}
+      {catoBus.queuedStop !== null && catoBus.stopIndex === index && <p className="aas-queue" role="status">{journeyCopy.queued}</p>}
     </div>
   );
 }

@@ -1,9 +1,11 @@
-import { childPageJsonLd, pageMetadata } from '@/lib/seo';
+import { pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { regions, type RegionCopy } from '@/lib/content/regions';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
+import RegionMoment from '@/components/webgl/scenes/regions/lib-a/RegionMomentPage';
+import { regionChildJsonLd, regionGeoMeta } from '../_geo';
 import './page.css';
 
 function regionCopy(slug: string): RegionCopy {
@@ -14,18 +16,13 @@ function regionCopy(slug: string): RegionCopy {
 
 const copy = regionCopy('orange-county');
 
-const jsonLd = childPageJsonLd({
-  crumbs: [
-    { name: 'Regions', path: '/regions' },
-    { name: copy.crumbLabel, path: `/regions/${copy.slug}` },
-  ],
-  faq: copy.faq,
-});
+const jsonLd = regionChildJsonLd(copy);
 
 export const metadata = pageMetadata({
   title: `AI-native consulting in ${copy.city}`,
   description: copy.lede,
   path: '/regions/orange-county',
+  geo: regionGeoMeta(copy),
   keywords: [
     'AI consulting Orange County',
     'Irvine tech marketing',
@@ -40,11 +37,13 @@ export const metadata = pageMetadata({
 
 /**
  * /regions/orange-county — a patchwork of thirty-four cities.
- * Scene: OrangeCountyScene ("The Pier") — the pier skyline over a
- * sine-displaced azure water sheet with a surfer dot; swell sets roll in
- * under the pier in looping trains. Hotspot 'oc-skyline' rides the hut.
- * Section ids are CONTRACT: hero (shell), stats, angles, feature, build,
- * detail, faq/cta (shell).
+ * Scene: OrangeCountyScene ("The Crystalline Barrel & Coastal Horizon") —
+ * a sculptural refractive glass ocean swell builds into a curling crystal
+ * barrel wave that the camera glides through during `moment`, opening onto
+ * the Huntington/Newport pier and terraced coastal headlands.
+ * Hotspot 'oc-skyline' rides the pier-end pavilion.
+ * Section ids are CONTRACT: hero (shell), stats, moment, angles, feature,
+ * build, detail, faq/cta (shell).
  */
 export default function OrangeCountyPage() {
   return (
@@ -84,6 +83,9 @@ export default function OrangeCountyPage() {
           </div>
         </section>
       )}
+
+      {/* ---------- moment — the signature scroll moment (dwell) ---------- */}
+      <RegionMoment copy={copy} />
 
       {/* ---------- angles — the local read ---------- */}
       <section

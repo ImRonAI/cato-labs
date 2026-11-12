@@ -1,8 +1,27 @@
-/**
- * The nine stops of Cato's journey on /capabilities/ai-agent-systems.
- * Copy: research/palm-springs-seo-brief.md §8 (draft, owner review pending).
- * `id` doubles as the data-scene-section id.
- */
+/** Draft tour copy and illustrative stories. Owner review required before launch. */
+export type JourneyStory = 'enterprise' | 'startup' | 'family' | 'solo';
+
+export const journeyCopy = {
+  review: 'Draft copy, pending owner review',
+  illustrative: 'Illustrative example, not a real client',
+  storyLabel: 'Choose an example business',
+  stories: { enterprise: 'Enterprise', startup: 'Startup', family: 'Family business', solo: 'Sole proprietor' },
+  openingTitle: 'Your business. Your tour.',
+  opening: 'Tell Cato what type of business you run, what it does, and its biggest headache. He will connect every stop to that problem.',
+  next: 'Next stop',
+  previous: 'Previous stop',
+  queued: 'Next stop queued. Take a moment with this example.',
+  travelling: 'Cato is on his way.',
+  finale: 'A working interface for your story',
+  build: 'Build this example',
+  building: 'Cato is building...',
+  rebuild: 'Build it again',
+  close: 'Close',
+  djPresets: [{ id: 'lobby', label: 'Lobby loop' }, { id: 'pool', label: 'Pool-deck set' }, { id: 'jingle', label: 'Weekend jingle' }],
+  composing: 'Cato is composing...',
+  stopAudio: 'Stop',
+  voiceOffer: 'Tell me about your business, what it does, and the headache you want to solve. I will show you where agents fit.',
+};
 
 export interface JourneyStop {
   id: string;
@@ -10,74 +29,138 @@ export interface JourneyStop {
   titleLines: [string, string];
   body: string;
   tags: string[];
+  stories: Record<JourneyStory, string>;
+  logos: string[];
+  illustrativeLabel: string;
 }
 
 export const journeyStops: JourneyStop[] = [
   {
-    id: 'omnichannel',
-    eyebrow: 'AI receptionist & SMS',
-    titleLines: ['One agent.', 'Every channel.'],
-    body: 'Cato answers voice calls, replies to texts, sorts email, reads inbound fax and joins video calls with one persona and one memory across every line. It runs on Telnyx communications infrastructure, so numbers, call routing and SMS registration are set up properly, not improvised. The 10pm reservation call in Palm Springs gets the same care as the 10am email.',
-    tags: ['AI voice receptionist', 'Registered business SMS', 'Email & fax intake', 'Video presence', 'Shared memory across channels'],
+    id: 'video-call', eyebrow: 'Video call', titleLines: ['Start with', 'a conversation.'],
+    body: 'Create a live video room through Telnyx. Cato connects the conversation to the work, with your approval before an outbound action.',
+    tags: ['Telnyx video rooms', 'Visitor approval', 'Human handoff'], logos: [], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'An enterprise service team brings a specialist into a customer conversation instead of sending another handoff email.',
+      startup: 'A startup founder opens a product conversation with a prospect while the context is still fresh.',
+      family: 'A family-run repair business talks through a customer request before arranging the visit.',
+      solo: 'An independent consultant moves an inquiry into a video consultation without juggling messages.',
+    },
   },
   {
-    id: 'entertainment',
-    eyebrow: 'Guest experience',
-    titleLines: ['Work done.', 'Music on.'],
-    body: "Agents are not only for the back office. Ask Cato for a lobby loop, a pool-deck set or a jingle for the weekend special, and it composes and plays an original track. For hotels, rentals and venues in a valley that runs on festival weekends, that means guest-facing moments in your brand's voice.",
-    tags: ['Generated music & audio', 'Guest-facing entertainment', 'Brand-voice soundtracks', 'Concierge moments'],
+    id: 'music', eyebrow: 'Music & sound', titleLines: ['Give your brand', 'its own sound.'],
+    body: 'Cato chooses a genre and mood, then generates music or a sound effect using the existing audio tools. Listen here, without downloads or raw prompt access.',
+    tags: ['Original music', 'Sound effects', 'In-page playback'], logos: [], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'The service team explores an instrumental sound bed for a product introduction, without naming an artist or copying lyrics.',
+      startup: 'The founder tries a bright electronic soundtrack for the product demo.',
+      family: 'The repair shop explores a warm instrumental loop for an introduction to its services.',
+      solo: 'The consultant gives a short explainer a calm, focused soundtrack.',
+    },
   },
   {
-    id: 'tooling',
-    eyebrow: 'Live tool building',
-    titleLines: ['It builds the tool.', 'You use it.'],
-    body: 'When a task needs a tool that does not exist, Cato builds one while you talk: a working interface, assembled from components and rendered right here in a sandbox. Anything that touches the real world, a call, a text, an email, waits for your approval first. Capability grows without loosening control.',
-    tags: ['Tools built on demand', 'Sandboxed rendering', 'Approval before action', 'Full audit log'],
+    id: 'asset-gen', eyebrow: 'Image, video & assets', titleLines: ['Make the assets.', 'Keep the direction.'],
+    body: 'Generate images and video from a business brief with ElevenLabs Flows. Review the output before using it in a campaign or customer experience.',
+    tags: ['Image generation', 'Video generation', 'Creative review'], logos: [], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'The team drafts visual material that explains a complicated service before asking its brand team to review.',
+      startup: 'The founder explores launch imagery while the product story is taking shape.',
+      family: 'The shop prepares a visual service guide without passing off generated images as real customer work.',
+      solo: 'The consultant creates supporting visuals for an explainer instead of starting every asset from scratch.',
+    },
   },
   {
-    id: 'automation',
-    eyebrow: 'Workflow automation',
-    titleLines: ['The busywork,', 'handled.'],
-    body: 'Intake, scheduling, invoicing, follow-ups, the spreadsheet everyone updates by hand. Cato runs the repeatable workflow end to end across your CRM, calendar, booking system and inbox, and stops for a person wherever judgment is required. For a lean Coachella Valley team, that means high-season coverage without high-season hiring.',
-    tags: ['End-to-end workflows', 'CRM, PMS & calendar integration', 'Human approval steps', 'Exception handling'],
+    id: 'seo-social', eyebrow: 'SEO & social', titleLines: ['Be easier', 'to discover.'],
+    body: 'Research search intent, structure useful pages, and draft social content around the questions customers actually ask. A person reviews what gets published.',
+    tags: ['Search research', 'Structured content', 'Social planning'], logos: ['perplexity'], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'The team turns recurring service questions into source-backed pages and a coordinated social plan.',
+      startup: 'The founder builds a launch content plan around the problem the product solves.',
+      family: 'The shop answers local service questions clearly, with accurate opening hours and coverage.',
+      solo: 'The consultant turns specialist knowledge into useful articles rather than generic daily posts.',
+    },
   },
   {
-    id: 'frameworks',
-    eyebrow: 'Frameworks & deployment',
-    titleLines: ['The right framework.', 'The right home.'],
-    body: "Cato is built on the frameworks that hold up in production, chosen per task: Strands, Vercel's Eve, LangChain, CrewAI, the OpenAI Agents SDK, the Claude Agent SDK, the Perplexity Agent API, Temporal, Gemini Live, ElevenLabs, Vapi and Telnyx. Then we put agents to work inside the tools your engineers already use: Claude Code, Codex, OpenCode, Cursor, Devin and more.",
-    tags: [
-      'Strands', 'Vercel Eve', 'LangChain', 'CrewAI', 'Antigravity SDK agents', 'OpenCode SDK agents', 'OpenAI Agents SDK',
-      'Claude Agent SDK', 'Perplexity Agent API', 'Temporal', 'Zapier', 'Mistral', 'ElevenLabs', 'Gemini Live', 'Vapi', 'Telnyx', 'MCP',
-      'Claude Code', 'Codex', 'OpenCode', 'Cursor', 'Devin', 'Trae AI', 'Kimi Code', 'Mistral Vibe', 'Grok Build', 'Qwen Code', 'and more',
-    ],
+    id: 'crm-automation', eyebrow: 'CRM & work automation', titleLines: ['Connect the work.', 'Drop the busywork.'],
+    body: 'Move context between your CRM and work tools. Route inquiries, create tasks, and prepare follow-ups, with human decisions kept where they belong.',
+    tags: ['CRM integration', 'Task routing', 'Approval steps'], logos: ['hubspot', 'salesforce', 'zoho', 'jira', 'asana', 'linear', 'clickup'], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'The service request becomes an assigned work item with the customer context attached, not another manual copy-and-paste job.',
+      startup: 'The founder connects prospect conversations to the CRM and product backlog.',
+      family: 'The shop keeps inquiries, estimates, and follow-up tasks together so the next family member can pick up the work.',
+      solo: 'The consultant turns an accepted inquiry into a project checklist and a follow-up reminder.',
+    },
   },
   {
-    id: 'seo-marketing',
-    eyebrow: 'AI search & marketing',
-    titleLines: ['Found in search.', 'Cited in answers.'],
-    body: 'Cato researches the query, drafts the page, structures the data and tracks what ranks, in Google results and in AI answers from Google AI Overviews, ChatGPT and Perplexity. Every page is written for people first and reviewed by a person before it ships. For Palm Springs, that means content timed to the season, not the annual average.',
-    tags: ['Local & technical SEO', 'Answer engine optimization', 'Structured data', 'Seasonal content calendars', 'Human editorial review'],
+    id: 'implementations', eyebrow: 'Implementations & fine-tuning', titleLines: ['The right model.', 'Built into your work.'],
+    body: 'Choose models for the task, integrate them with your systems, and evaluate their behavior. Fine-tune when your data and the use case justify it, not by default.',
+    tags: ['Model selection', 'Evaluation', 'Fine-tuning', 'Unsloth'], logos: ['anthropic', 'openai', 'mistral', 'xai', 'huggingface', 'axolotl'], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'The team evaluates a service assistant against approved examples before connecting it to a production workflow.',
+      startup: 'The founder compares models on real product tasks before investing in fine-tuning.',
+      family: 'The shop starts with a practical integration and checks whether a tailored model would solve a real gap.',
+      solo: 'The consultant tests an assistant against the work they already know how to judge.',
+    },
   },
   {
-    id: 'lead-gen',
-    eyebrow: 'AI lead generation',
-    titleLines: ['More of the right', 'conversations.'],
-    body: 'Cato finds prospects that match your ideal customer, researches each one and drafts outreach worth answering: personal, consent-aware and paced to the rules of each channel. Inbound gets the same care. Every form, call and chat becomes a logged lead within moments, with the source and the context attached.',
-    tags: ['Prospect research', 'Personalized outreach', 'Consent-aware sequences', 'Instant inbound capture'],
+    id: 'lead-support', eyebrow: 'Lead generation & support', titleLines: ['Find the fit.', 'Support the customer.'],
+    body: 'Research prospective customers, qualify inbound inquiries, and answer routine support questions. Give a person the sensitive case and the context to handle it.',
+    tags: ['Prospect research', 'Lead qualification', 'Support handoff'], logos: ['zendesk', 'intercom'], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'The team separates new opportunities from support cases and routes each to the right owner.',
+      startup: 'The founder learns which prospects fit and which support questions need product attention.',
+      family: 'The shop asks about the job, location, and urgency before arranging the next conversation.',
+      solo: 'The consultant qualifies scope and timing while existing clients still get clear answers.',
+    },
   },
   {
-    id: 'lead-qualify',
-    eyebrow: 'Lead qualification',
-    titleLines: ['Every lead,', 'properly asked.'],
-    body: 'Cato replies to new inquiries quickly, asks the questions your best salesperson would, scores the answers against your criteria and books the ready ones straight onto the calendar. The rest are nurtured, not dropped. Your team spends its hours with real buyers, and the full conversation is already in the CRM.',
-    tags: ['Fast first response', 'Your scoring criteria', 'Calendar booking', 'CRM handoff with transcript'],
+    id: 'knowledge', eyebrow: 'Knowledge, tooling & protocols', titleLines: ['Your knowledge.', 'Ready for action.'],
+    body: 'Connect the knowledge your team trusts to the tools an agent can use. MCP, A2A, and Agent Skills describe how capabilities connect, without replacing your source of truth.',
+    tags: ['MCP', 'A2A', 'Agent Skills'], logos: ['notion', 'confluence', 'guru', 'sharepoint'], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'The team grounds service answers in approved internal material and keeps access tied to the right sources.',
+      startup: 'The founder connects product documentation to the assistant and its tools.',
+      family: 'The shop brings service notes and operating procedures into one usable knowledge flow.',
+      solo: 'The consultant makes reusable methods available to an assistant without losing the original documents.',
+    },
   },
   {
-    id: 'support-compliance',
-    eyebrow: 'Support & compliance',
-    titleLines: ['Support that', 'follows the rules.'],
-    body: "Cato resolves the routine case, escalates the sensitive one and documents both. For legal, financial and other regulated teams, deployments are designed around your obligations: TCPA consent for calls, 10DLC registration for texts, CCPA/CPRA privacy rights and California's bot-disclosure rule. Your counsel sets the policy. Cato follows it, every time.",
-    tags: ['TCPA consent & opt-out', '10DLC-registered messaging', 'CCPA/CPRA data rights', 'Bot disclosure & audit trails'],
+    id: 'generative-ui', eyebrow: 'Generative UI', titleLines: ['Now put it', 'on the big screen.'],
+    body: 'Cato pulls open a screen and renders a working Prefab interface for the example business. Tell him what needs to change and continue the conversation with the tool in view.',
+    tags: ['Prefab', 'Live interface', 'Your business context'], logos: [], illustrativeLabel: journeyCopy.illustrative,
+    stories: {
+      enterprise: 'An illustrative service workspace brings the request, its owner, and the next action into view.',
+      startup: 'An illustrative launch workspace gives the founder a place to work through product priorities.',
+      family: 'An illustrative job-intake workspace keeps the customer request and next action together.',
+      solo: 'An illustrative project workspace helps the consultant turn an inquiry into a clear next step.',
+    },
   },
 ];
+
+const workspaceLabels: Record<JourneyStory, [string, string]> = {
+  enterprise: ['Service request', 'Request owner'],
+  startup: ['Launch priority', 'Responsible person'],
+  family: ['Customer request', 'Job owner'],
+  solo: ['Project inquiry', 'Client or contact'],
+};
+
+/** Demonstration programs, not client records or claimed results. */
+export const storyPrefabs: Record<JourneyStory, string> = Object.fromEntries(
+  (Object.keys(journeyCopy.stories) as JourneyStory[]).map((story) => [story, `from prefab_ui.components import Column, Heading, Text, Input, Label
+from prefab_ui.app import PrefabApp
+
+with PrefabApp(state={"request": "", "owner": "", "next_action": ""}) as app:
+    with Column(gap=4):
+        Heading(${JSON.stringify(journeyCopy.stories[story] + ' workspace')})
+        Text(${JSON.stringify(journeyCopy.illustrative)})
+        Text(${JSON.stringify(journeyStops[8].stories[story])})
+        Label(${JSON.stringify(workspaceLabels[story][0])})
+        request = Input(name="request")
+        Label(${JSON.stringify(workspaceLabels[story][1])})
+        owner = Input(name="owner")
+        Label("Next action")
+        action = Input(placeholder="Describe the next action", name="next_action")
+        Text(f"Request: {request.rx}")
+        Text(f"Owner: {owner.rx}")
+        Text(f"Next action: {action.rx}")
+`]),
+) as Record<JourneyStory, string>;

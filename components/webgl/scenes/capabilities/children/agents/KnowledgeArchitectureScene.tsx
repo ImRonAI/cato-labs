@@ -15,281 +15,296 @@ import {
   pointer,
 } from '../../../../scroll-store';
 import { useHotspotReporter } from '../../../../kit/ProximityType';
+import {
+  clamp01,
+  easeOutBack,
+  easeOutCubic,
+  lerp,
+  readDwell,
+  rng,
+  type DwellBeats,
+} from './signature';
 
 /* ------------------------------------------------------------------ */
-/*  KnowledgeArchitectureScene — "The Memory Palace".                 */
+/*  KnowledgeArchitectureScene — "The Knowledge Lattice".             */
 /*                                                                    */
-/*  A 3D graph of knowledge: thirty small glass nodes in five         */
-/*  layered domain clusters (products / people / policies / support / */
-/*  operations), wired with hairline azure edges in a single          */
-/*  lineSegments draw call. The whole palace orbits slowly. A deep-   */
-/*  blue query sphere fires light along the edges every ~5s —         */
-/*  retrieval made visible — and distant nodes flare on arrival.      */
+/*  Fifty-four refractive glass document tablets begin as an          */
+/*  unstructured cloud of drifting shards around a dormant sapphire   */
+/*  query core. Across the 280vh `signature` dwell (0 → 1):           */
+/*    Beat 1 (0.00 → 0.38): Taxonomy — chaotic shards sort and snap   */
+/*      into a three-tier hexagonal refractive lattice + datum rings. */
+/*    Beat 2 (0.32 → 0.70): Vector Index — hairline azure edges and   */
+/*      six semantic anchor hubs wire the tiers into a unified graph. */
+/*    Beat 3 (0.64 → 1.00): Grounded Retrieval — an axial electric-   */
+/*      blue retrieval beam ignites through the core and fires        */
+/*      light pulses along multi-hop vector paths, flaring matched    */
+/*      shards on arrival.                                            */
 /*                                                                    */
-/*  Scroll: hero = full palace orbit; feature = camera descends into  */
-/*  a cluster; detail = the query sphere retrieves close to camera.   */
-/*  Hotspot 'knowledge-query' reported on the query sphere. Reduced   */
-/*  motion → static assembled palace. Zero allocations per frame.     */
+/*  Continues choreographing camera + stage through `feature`,        */
+/*  `detail`, `faq`, and `cta`. Hotspot 'knowledge-query' rides the   */
+/*  central query core. Zero allocations in useFrame; reduced motion  */
+/*  renders the fully crystallized, illuminated lattice as a still.   */
 /* ------------------------------------------------------------------ */
 
-const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const TIERS = 3;
+const PER_TIER = 18;
+const SHARD_TOTAL = TIERS * PER_TIER; // 54
+const ANCHOR_TOTAL = 6; // 2 semantic hubs per tier
+const TIER_Y = [-1.12, 0.0, 1.12] as const;
+const TIER_R = [2.15, 1.78, 1.42] as const;
 
-/* deterministic PRNG so SSR and client agree on the layout */
-function prng(seed: number) {
-  let s = seed * 9973;
-  return () => {
-    s = (s * 16807) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
-}
-
-/* ------------------------- palace layout ------------------------- */
-
-const QUERY_POS = new THREE.Vector3(0, -2.3, 2.4);
-
-const CLUSTERS: { c: [number, number, number]; n: number; tint: string }[] = [
-  { c: [-3.1, 1.05, -1.9], n: 6, tint: '#b9c9ff' }, // products
-  { c: [3.0, 1.35, -2.5], n: 6, tint: '#93a9ff' }, // people
-  { c: [0.1, 2.5, -4.2], n: 5, tint: '#dce4ff' }, // policies
-  { c: [-2.3, -1.35, -0.9], n: 7, tint: '#e8eeff' }, // support
-  { c: [2.5, -1.05, -1.3], n: 6, tint: '#b9c9ff' }, // operations
-];
-
-interface Path {
-  pts: Float32Array; // waypoint xyz triplets
-  lens: Float32Array; // cumulative length per waypoint
+interface RetrievalPath {
+  pts: Float32Array;
+  lens: Float32Array;
   total: number;
-  target: number; // node index that flares on arrival
-  start: number; // seconds offset inside the cycle
+  targetShard: number;
+  targetAnchor: number;
+  offset: number;
 }
 
-const {
-  NODE_TOTAL,
-  nodePos,
-  nodeScale,
-  nodePhase,
-  nodeCluster,
-  nodeTint,
-  edgeGeometry,
-  paths,
-} = (() => {
-  const rand = prng(31);
+const LATTICE = (() => {
+  const rand = rng(409);
 
-  /* nodes */
-  const counts = CLUSTERS.map((c) => c.n);
-  const NODE_TOTAL = counts.reduce((a, b) => a + b, 0);
-  const nodePos = new Float32Array(NODE_TOTAL * 3);
-  const nodeScale = new Float32Array(NODE_TOTAL);
-  const nodePhase = new Float32Array(NODE_TOTAL);
-  const nodeCluster = new Int8Array(NODE_TOTAL);
-  const nodeTint: string[] = [];
-  const anchors: number[] = [];
+  const cloudPos = new Float32Array(SHARD_TOTAL * 3);
+  const cloudQuat = new Float32Array(SHARD_TOTAL * 4);
+  const latPos = new Float32Array(SHARD_TOTAL * 3);
+  const latQuat = new Float32Array(SHARD_TOTAL * 4);
+  const shardScale = new Float32Array(SHARD_TOTAL * 3);
+  const shardTier = new Uint8Array(SHARD_TOTAL);
+  const shardOrder = new Float32Array(SHARD_TOTAL);
+  const shardPhase = new Float32Array(SHARD_TOTAL);
+  const shardTint: string[] = [];
 
-  let idx = 0;
-  CLUSTERS.forEach((cl, ci) => {
-    let anchor = idx;
-    let anchorD = Infinity;
-    for (let k = 0; k < cl.n; k++) {
-      /* random point in a flattened sphere around the cluster center */
-      const theta = rand() * Math.PI * 2;
-      const phi = Math.acos(rand() * 2 - 1);
-      const r = 0.28 + rand() * 0.6;
-      const x = cl.c[0] + Math.sin(phi) * Math.cos(theta) * r;
-      const y = cl.c[1] + Math.cos(phi) * r * 0.8;
-      const z = cl.c[2] + Math.sin(phi) * Math.sin(theta) * r;
-      nodePos[idx * 3] = x;
-      nodePos[idx * 3 + 1] = y;
-      nodePos[idx * 3 + 2] = z;
-      nodeScale[idx] = 0.17 + rand() * 0.13;
-      nodePhase[idx] = rand() * Math.PI * 2;
-      nodeCluster[idx] = ci;
-      nodeTint.push(cl.tint);
-      const d = (x - cl.c[0]) ** 2 + (y - cl.c[1]) ** 2 + (z - cl.c[2]) ** 2;
-      if (d < anchorD) {
-        anchorD = d;
-        anchor = idx;
-      }
-      idx++;
-    }
-    anchors.push(anchor);
-  });
+  const qTmp = new THREE.Quaternion();
+  const eTmp = new THREE.Euler();
 
-  const dist2 = (a: number, b: number) => {
-    const dx = nodePos[a * 3] - nodePos[b * 3];
-    const dy = nodePos[a * 3 + 1] - nodePos[b * 3 + 1];
-    const dz = nodePos[a * 3 + 2] - nodePos[b * 3 + 2];
-    return dx * dx + dy * dy + dz * dz;
-  };
-  const dist2Q = (a: number) => {
-    const dx = nodePos[a * 3] - QUERY_POS.x;
-    const dy = nodePos[a * 3 + 1] - QUERY_POS.y;
-    const dz = nodePos[a * 3 + 2] - QUERY_POS.z;
-    return dx * dx + dy * dy + dz * dz;
-  };
+  const TINTS = ['#dce4ff', '#b9c9ff', '#93a9ff', '#e8eeff', '#7d97ff'];
 
-  /* edges — deduped, then rasterized into one lineSegments geometry */
-  const edgeSet = new Set<string>();
-  const edges: Array<[number, number]> = [];
-  const addEdge = (a: number, b: number) => {
-    const key = a < b ? `${a}_${b}` : `${b}_${a}`;
-    if (edgeSet.has(key)) return;
-    edgeSet.add(key);
-    edges.push(a < b ? [a, b] : [b, a]);
-  };
+  for (let tier = 0; tier < TIERS; tier++) {
+    const y = TIER_Y[tier];
+    const r = TIER_R[tier];
+    for (let k = 0; k < PER_TIER; k++) {
+      const i = tier * PER_TIER + k;
+      const angle = (k / PER_TIER) * Math.PI * 2 + tier * (Math.PI / PER_TIER);
+      /* slight hexagonal facet modulation */
+      const hexMod = 1 + 0.055 * Math.cos(angle * 6);
+      const lx = Math.cos(angle) * r * hexMod;
+      const lz = Math.sin(angle) * r * hexMod;
+      latPos[i * 3] = lx;
+      latPos[i * 3 + 1] = y + (k % 2 === 0 ? 0.04 : -0.04);
+      latPos[i * 3 + 2] = lz;
 
-  idx = 0;
-  CLUSTERS.forEach((cl, ci) => {
-    const base = idx;
-    for (let k = 0; k < cl.n; k++) {
-      const a = base + k;
-      /* wire each node to its two nearest cluster-mates */
-      let b1 = -1;
-      let b2 = -1;
-      let d1 = Infinity;
-      let d2 = Infinity;
-      for (let j = 0; j < cl.n; j++) {
-        if (j === k) continue;
-        const b = base + j;
-        const d = dist2(a, b);
-        if (d < d1) {
-          d2 = d1;
-          b2 = b1;
-          d1 = d;
-          b1 = b;
-        } else if (d < d2) {
-          d2 = d;
-          b2 = b;
-        }
-      }
-      if (b1 >= 0) addEdge(a, b1);
-      if (b2 >= 0) addEdge(a, b2);
-    }
-    idx += cl.n;
-    void ci;
-  });
+      /* tablet faces the central retrieval axis cleanly */
+      eTmp.set(0, -angle + Math.PI / 2, 0);
+      qTmp.setFromEuler(eTmp);
+      latQuat[i * 4] = qTmp.x;
+      latQuat[i * 4 + 1] = qTmp.y;
+      latQuat[i * 4 + 2] = qTmp.z;
+      latQuat[i * 4 + 3] = qTmp.w;
 
-  /* anchors wire to their two nearest peer anchors — the palace spine */
-  anchors.forEach((a, i) => {
-    const order = anchors
-      .map((b, j) => ({ b, j, d: i === j ? Infinity : dist2(a, b) }))
-      .sort((x, y) => x.d - y.d);
-    addEdge(a, order[0].b);
-    addEdge(a, order[1].b);
-  });
+      /* unstructured cloud pose: wide spherical scatter + arbitrary tumble */
+      const u = rand() * Math.PI * 2;
+      const v = Math.acos(rand() * 2 - 1);
+      const cr = 2.55 + rand() * 2.15;
+      cloudPos[i * 3] = Math.sin(v) * Math.cos(u) * cr;
+      cloudPos[i * 3 + 1] = Math.cos(v) * cr * 0.72;
+      cloudPos[i * 3 + 2] = Math.sin(v) * Math.sin(u) * cr - 0.35;
 
-  /* the query sphere wires to its two nearest nodes */
-  let q1 = -1;
-  let q2 = -1;
-  let qd1 = Infinity;
-  let qd2 = Infinity;
-  for (let i = 0; i < NODE_TOTAL; i++) {
-    const d = dist2Q(i);
-    if (d < qd1) {
-      qd2 = qd1;
-      q2 = q1;
-      qd1 = d;
-      q1 = i;
-    } else if (d < qd2) {
-      qd2 = d;
-      q2 = i;
+      eTmp.set(
+        (rand() - 0.5) * Math.PI * 1.6,
+        (rand() - 0.5) * Math.PI * 2.0,
+        (rand() - 0.5) * Math.PI * 1.4,
+      );
+      qTmp.setFromEuler(eTmp);
+      cloudQuat[i * 4] = qTmp.x;
+      cloudQuat[i * 4 + 1] = qTmp.y;
+      cloudQuat[i * 4 + 2] = qTmp.z;
+      cloudQuat[i * 4 + 3] = qTmp.w;
+
+      /* crisp vertical document-tablet proportions */
+      const h = 0.28 + rand() * 0.14;
+      shardScale[i * 3] = 0.19 + rand() * 0.05;
+      shardScale[i * 3 + 1] = h;
+      shardScale[i * 3 + 2] = 0.048;
+
+      shardTier[i] = tier;
+      shardOrder[i] = tier * 0.24 + (k / PER_TIER) * 0.22 + rand() * 0.06;
+      shardPhase[i] = rand() * Math.PI * 2;
+      shardTint.push(TINTS[(tier * 2 + k) % TINTS.length]);
     }
   }
-  /* query endpoints are stored after the node block in the geometry */
-  const pos = new Float32Array((edges.length + 2) * 6);
-  edges.forEach(([a, b], e) => {
-    pos[e * 6] = nodePos[a * 3];
-    pos[e * 6 + 1] = nodePos[a * 3 + 1];
-    pos[e * 6 + 2] = nodePos[a * 3 + 2];
-    pos[e * 6 + 3] = nodePos[b * 3];
-    pos[e * 6 + 4] = nodePos[b * 3 + 1];
-    pos[e * 6 + 5] = nodePos[b * 3 + 2];
-  });
-  [q1, q2].forEach((qn, k) => {
-    const e = edges.length + k;
-    pos[e * 6] = QUERY_POS.x;
-    pos[e * 6 + 1] = QUERY_POS.y;
-    pos[e * 6 + 2] = QUERY_POS.z;
-    pos[e * 6 + 3] = nodePos[qn * 3];
-    pos[e * 6 + 4] = nodePos[qn * 3 + 1];
-    pos[e * 6 + 5] = nodePos[qn * 3 + 2];
-  });
-  const edgeGeometry = new THREE.BufferGeometry();
-  edgeGeometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
 
-  /* retrieval paths — query → near node → target anchor → distant node */
-  const paths: Path[] = [];
-  const targetClusters = [0, 1, 2, 4]; // products / people / policies / operations
-  targetClusters.forEach((ci, pi) => {
-    /* farthest node of the cluster from the query — a distant answer */
-    let target = -1;
-    let td = -1;
-    for (let i = 0; i < NODE_TOTAL; i++) {
-      if (nodeCluster[i] !== ci) continue;
-      const d = dist2Q(i);
-      if (d > td) {
-        td = d;
-        target = i;
+  /* 6 semantic anchor hubs — 2 opposing inner hubs per tier */
+  const anchorCloud = new Float32Array(ANCHOR_TOTAL * 3);
+  const anchorLat = new Float32Array(ANCHOR_TOTAL * 3);
+  for (let tier = 0; tier < TIERS; tier++) {
+    for (let side = 0; side < 2; side++) {
+      const a = tier * 2 + side;
+      const ang = side * Math.PI + tier * (Math.PI / 3) + 0.35;
+      const ar = TIER_R[tier] * 0.52;
+      anchorLat[a * 3] = Math.cos(ang) * ar;
+      anchorLat[a * 3 + 1] = TIER_Y[tier];
+      anchorLat[a * 3 + 2] = Math.sin(ang) * ar;
+
+      anchorCloud[a * 3] = Math.cos(ang + 1.1) * (ar + 1.5);
+      anchorCloud[a * 3 + 1] = TIER_Y[tier] * 1.45 + (rand() - 0.5) * 0.9;
+      anchorCloud[a * 3 + 2] = Math.sin(ang + 1.1) * (ar + 1.5);
+    }
+  }
+
+  /* ordered vector graph edges so setDrawRange reveals tier-by-tier */
+  const segs: number[] = [];
+  const pushSeg = (
+    ax: number,
+    ay: number,
+    az: number,
+    bx: number,
+    by: number,
+    bz: number,
+  ) => {
+    segs.push(ax, ay, az, bx, by, bz);
+  };
+
+  for (let tier = 0; tier < TIERS; tier++) {
+    /* intra-tier ring edges */
+    for (let k = 0; k < PER_TIER; k++) {
+      const i = tier * PER_TIER + k;
+      const j = tier * PER_TIER + ((k + 1) % PER_TIER);
+      pushSeg(
+        latPos[i * 3],
+        latPos[i * 3 + 1],
+        latPos[i * 3 + 2],
+        latPos[j * 3],
+        latPos[j * 3 + 1],
+        latPos[j * 3 + 2],
+      );
+    }
+    /* anchor spokes to core & to nearest shards */
+    for (let side = 0; side < 2; side++) {
+      const a = tier * 2 + side;
+      const ax = anchorLat[a * 3];
+      const ay = anchorLat[a * 3 + 1];
+      const az = anchorLat[a * 3 + 2];
+      /* core to anchor */
+      pushSeg(0, 0, 0, ax, ay, az);
+      /* anchor to 5 nearest shards in the same tier */
+      const base = tier * PER_TIER + (side === 0 ? 0 : 9);
+      for (let m = -2; m <= 2; m++) {
+        const k = (base + m + PER_TIER) % PER_TIER;
+        const si = tier * PER_TIER + k;
+        pushSeg(
+          ax,
+          ay,
+          az,
+          latPos[si * 3],
+          latPos[si * 3 + 1],
+          latPos[si * 3 + 2],
+        );
       }
     }
-    const chain = [q1, anchors[ci], target].filter(
-      (v, i, arr) => i === 0 || v !== arr[i - 1],
+    /* cross-tier vertical links */
+    if (tier < TIERS - 1) {
+      for (let k = 0; k < PER_TIER; k += 3) {
+        const i = tier * PER_TIER + k;
+        const j = (tier + 1) * PER_TIER + k;
+        pushSeg(
+          latPos[i * 3],
+          latPos[i * 3 + 1],
+          latPos[i * 3 + 2],
+          latPos[j * 3],
+          latPos[j * 3 + 1],
+          latPos[j * 3 + 2],
+        );
+      }
+    }
+  }
+
+  const edgeVertices = new Float32Array(segs);
+  const edgeGeo = new THREE.BufferGeometry();
+  edgeGeo.setAttribute('position', new THREE.BufferAttribute(edgeVertices, 3));
+  const totalEdgeVerts = edgeVertices.length / 3;
+
+  /* 6 retrieval paths: core (0,0,0) → axial tier node → anchor → target shard */
+  const paths: RetrievalPath[] = [];
+  for (let a = 0; a < ANCHOR_TOTAL; a++) {
+    const tier = Math.floor(a / 2);
+    const side = a % 2;
+    const targetK = (side === 0 ? 2 : 11) + tier;
+    const shardIdx = tier * PER_TIER + (targetK % PER_TIER);
+    const w0 = new THREE.Vector3(0, 0, 0);
+    const w1 = new THREE.Vector3(0, TIER_Y[tier], 0);
+    const w2 = new THREE.Vector3(
+      anchorLat[a * 3],
+      anchorLat[a * 3 + 1],
+      anchorLat[a * 3 + 2],
     );
-    const waypoints: THREE.Vector3[] = [QUERY_POS.clone()];
-    chain.forEach((n) =>
-      waypoints.push(
-        new THREE.Vector3(nodePos[n * 3], nodePos[n * 3 + 1], nodePos[n * 3 + 2]),
-      ),
+    const w3 = new THREE.Vector3(
+      latPos[shardIdx * 3],
+      latPos[shardIdx * 3 + 1],
+      latPos[shardIdx * 3 + 2],
     );
-    const pts = new Float32Array(waypoints.length * 3);
-    const lens = new Float32Array(waypoints.length);
-    let total = 0;
-    waypoints.forEach((w, i) => {
-      pts[i * 3] = w.x;
-      pts[i * 3 + 1] = w.y;
-      pts[i * 3 + 2] = w.z;
-      if (i > 0) total += w.distanceTo(waypoints[i - 1]);
-      lens[i] = total;
+    const wps = [w0, w1, w2, w3];
+    const pts = new Float32Array(wps.length * 3);
+    const lens = new Float32Array(wps.length);
+    let acc = 0;
+    for (let w = 0; w < wps.length; w++) {
+      pts[w * 3] = wps[w].x;
+      pts[w * 3 + 1] = wps[w].y;
+      pts[w * 3 + 2] = wps[w].z;
+      if (w > 0) acc += wps[w].distanceTo(wps[w - 1]);
+      lens[w] = acc;
+    }
+    paths.push({
+      pts,
+      lens,
+      total: acc,
+      targetShard: shardIdx,
+      targetAnchor: a,
+      offset: a * 0.13,
     });
-    paths.push({ pts, lens, total, target, start: pi * 1.05 });
-  });
+  }
 
   return {
-    NODE_TOTAL,
-    nodePos,
-    nodeScale,
-    nodePhase,
-    nodeCluster,
-    nodeTint,
-    edgeGeometry,
+    cloudPos,
+    cloudQuat,
+    latPos,
+    latQuat,
+    shardScale,
+    shardTier,
+    shardOrder,
+    shardPhase,
+    shardTint,
+    anchorCloud,
+    anchorLat,
+    edgeGeo,
+    totalEdgeVerts,
     paths,
   };
 })();
 
-/* ------------------------ frame constants ------------------------ */
+const PULSE_COUNT = LATTICE.paths.length;
 
-const CYCLE = 5; // one retrieval cycle every ~5s
-const TRAVEL = 1.25; // seconds per pulse journey
-const PULSE_COUNT = paths.length; // 4
-
-/* module-level temps — zero allocations inside useFrame */
+/* module-level scratch — zero allocations inside useFrame */
+const _beats: DwellBeats = { arrive: 0, play: 0, leave: 0 };
 const _m = new THREE.Matrix4();
 const _p = new THREE.Vector3();
-const _q = new THREE.Quaternion();
+const _qA = new THREE.Quaternion();
+const _qB = new THREE.Quaternion();
 const _s = new THREE.Vector3();
 const _c = new THREE.Color();
-const _wq = new THREE.Vector3();
-const _look = new THREE.Vector3(0, 0.35, -1.6);
-const _flare = new Float32Array(NODE_TOTAL);
+const _look = new THREE.Vector3(0, 0, 0);
+const _camTarget = new THREE.Vector3();
+const _shardFlare = new Float32Array(SHARD_TOTAL);
+const _anchorFlare = new Float32Array(ANCHOR_TOTAL);
 
-/** walk a waypoint polyline by arc length — no allocation */
-function samplePath(path: Path, u: number, out: THREE.Vector3) {
-  const target = clamp01(u) * path.total;
+function samplePath(path: RetrievalPath, u: number, out: THREE.Vector3) {
+  const d = clamp01(u) * path.total;
   const lens = path.lens;
   let i = 1;
-  while (i < lens.length - 1 && lens[i] < target) i++;
+  while (i < lens.length - 1 && lens[i] < d) i++;
   const l0 = lens[i - 1];
   const l1 = lens[i];
-  const f = l1 > l0 ? (target - l0) / (l1 - l0) : 0;
+  const f = l1 > l0 ? (d - l0) / (l1 - l0) : 0;
   const a = (i - 1) * 3;
   const b = i * 3;
   const pts = path.pts;
@@ -304,220 +319,439 @@ export default function KnowledgeArchitectureScene() {
   const q = useQuality();
   const report = useHotspotReporter('knowledge-query');
 
-  const spin = useRef<THREE.Group>(null);
-  const nodes = useRef<THREE.InstancedMesh>(null);
-  const lineMat = useRef<THREE.LineBasicMaterial>(null);
-  const pulses = useRef<THREE.InstancedMesh>(null);
-  const queryRef = useRef<THREE.Mesh>(null);
-  const queryMat = useRef<THREE.MeshPhysicalMaterial>(null);
-
+  const stageRef = useRef<THREE.Group>(null);
+  const spinRef = useRef<THREE.Group>(null);
+  const shardsRef = useRef<THREE.InstancedMesh>(null);
+  const anchorsRef = useRef<THREE.InstancedMesh>(null);
+  const pulsesRef = useRef<THREE.InstancedMesh>(null);
+  const lineMatRef = useRef<THREE.LineBasicMaterial>(null);
+  const ringRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const beamRef = useRef<THREE.Mesh>(null);
+  const beamMatRef = useRef<THREE.MeshBasicMaterial>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+  const coreMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const lensRingRef = useRef<THREE.Mesh>(null);
   const startAt = useRef<number | null>(null);
 
-  /* one rounded-box geometry shared by every node instance */
-  const nodeGeo = useMemo(() => new RoundedBoxGeometry(1, 1, 1, 3, 0.16), []);
+  const shardGeo = useMemo(
+    () => new RoundedBoxGeometry(1, 1, 1, 3, 0.14),
+    [],
+  );
+  const pulseColor = useMemo(() => new THREE.Color(0.85, 1.15, 2.9), []);
+  const beamColor = useMemo(() => new THREE.Color(0.45, 0.72, 2.5), []);
+
   useEffect(
     () => () => {
-      nodeGeo.dispose();
-      edgeGeometry.dispose();
+      shardGeo.dispose();
     },
-    [nodeGeo],
+    [shardGeo],
   );
 
-  /* static instance transforms + per-cluster tints, set once */
+  /* apply per-shard subtle blue-spectrum tints once on mount */
   useEffect(() => {
-    const inst = nodes.current;
+    const inst = shardsRef.current;
     if (!inst) return;
-    for (let i = 0; i < NODE_TOTAL; i++) {
-      _p.set(nodePos[i * 3], nodePos[i * 3 + 1], nodePos[i * 3 + 2]);
-      _s.setScalar(nodeScale[i]);
-      _m.compose(_p, _q, _s);
-      inst.setMatrixAt(i, _m);
-      inst.setColorAt(i, _c.set(nodeTint[i]));
+    for (let i = 0; i < SHARD_TOTAL; i++) {
+      inst.setColorAt(i, _c.set(LATTICE.shardTint[i]));
     }
-    inst.instanceMatrix.needsUpdate = true;
     if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
   }, []);
 
   useFrame((state, delta) => {
-    const t = state.clock.elapsedTime;
-    if (startAt.current === null) startAt.current = t;
+    const now = state.clock.elapsedTime;
+    if (startAt.current === null) startAt.current = now;
+    const el = now - startAt.current;
     const anim = q.animate;
-    const introT = anim ? Math.min((t - startAt.current) / 1.6, 1) : 1;
-    const intro = smooth(introT);
+    const dt = Math.min(delta, 0.05);
 
-    /* scroll drivers — contract ids: hero / feature / detail */
+    /* mount-relative intro from light */
+    const introRaw = anim ? clamp01(el / 1.55) : 1;
+    const intro = easeOutCubic(introRaw);
+
+    /* scroll choreography — hero → signature (280vh dwell) → feature → detail → faq → cta */
     const hero = smooth(sectionRange(getSectionProgress('hero'), 0.05, 0.95));
-    const feat = smooth(sectionRange(getSectionProgress('feature'), 0.06, 0.92));
-    const det = smooth(sectionRange(getSectionProgress('detail'), 0.12, 0.8));
+    const sig = readDwell('signature', _beats);
+    const feat = smooth(sectionRange(getSectionProgress('feature'), 0.04, 0.92));
+    const det = smooth(sectionRange(getSectionProgress('detail'), 0.08, 0.88));
+    const faq = smooth(sectionRange(getSectionProgress('faq'), 0.05, 0.9));
+    const cta = smooth(sectionRange(getSectionProgress('cta'), 0.05, 0.85));
 
-    /* the palace orbits — slowing as the query takes the stage */
-    if (spin.current && anim) {
-      spin.current.rotation.y += delta * 0.045 * (1 - det * 0.7);
+    /* play progress: 0 in hero, scrubs 0→1 across pinned signature dwell, stays 1 below */
+    const play = anim ? Math.max(sig.play, sig.leave > 0 ? 1 : 0) : 1;
+
+    /* Beat 2: vector graph edge draw */
+    const edgeDraw = anim ? smooth(sectionRange(play, 0.28, 0.72)) : 1;
+    const drawVerts = Math.floor((edgeDraw * LATTICE.totalEdgeVerts) / 2) * 2;
+    LATTICE.edgeGeo.setDrawRange(0, drawVerts);
+    if (lineMatRef.current) {
+      lineMatRef.current.opacity = intro * (0.08 + 0.36 * edgeDraw);
     }
 
-    /* ------------------------------ camera ------------------------------ */
-    const drift = anim ? Math.sin(t * 0.06) * 0.45 : 0;
-    let cx = drift;
-    let cy = 0.55;
-    let cz = 10.6 - hero * 0.7;
-    cx += feat * -2.6;
-    cy += feat * 0.55;
-    cz += feat * -6.9; // descend into the products cluster
-    cx += det * 2.9;
-    cy += det * -2.15;
-    cz += det * 3.1; // rise to meet the query sphere
-    cz += (1 - intro) * 1.8;
-    cy += (1 - intro) * 0.5;
+    /* Beat 3: axial retrieval beam + multi-hop retrieval pulses */
+    const beamIgnite = anim ? smooth(sectionRange(play, 0.62, 0.94)) : 0.88;
+    _shardFlare.fill(0);
+    _anchorFlare.fill(0);
+    let coreFlash = 0;
+
+    const pInst = pulsesRef.current;
+    for (let i = 0; i < PULSE_COUNT; i++) {
+      const path = LATTICE.paths[i];
+      let u = -1;
+      if (anim && play > 0.6) {
+        if (sig.leave < 0.05) {
+          /* scrub-driven retrieval wave during the pinned dwell */
+          u = (play - 0.62 - path.offset * 0.45) / 0.3;
+        } else {
+          /* post-dwell autonomous retrieval cadence across feature/detail */
+          const cyc = ((el * 0.42 + i * 0.38) % 2.2);
+          u = cyc <= 1.0 ? cyc : -1;
+        }
+      }
+
+      if (u >= 0 && u <= 1.0) {
+        const fu = smooth(clamp01(u));
+        if (pInst) {
+          samplePath(path, fu, _p);
+          const sc = Math.max(Math.sin(fu * Math.PI) * (0.85 + 0.35 * det), 0.0001);
+          _m.compose(_p, _qA.identity(), _s.setScalar(sc));
+          pInst.setMatrixAt(i, _m);
+        }
+        if (fu < 0.2) coreFlash = Math.max(coreFlash, (0.2 - fu) / 0.2);
+        if (fu > 0.45 && fu < 0.82) {
+          _anchorFlare[path.targetAnchor] = Math.max(
+            _anchorFlare[path.targetAnchor],
+            Math.sin(((fu - 0.45) / 0.37) * Math.PI),
+          );
+        }
+        if (fu > 0.78) {
+          const hit = (fu - 0.78) / 0.22;
+          _shardFlare[path.targetShard] = Math.max(
+            _shardFlare[path.targetShard],
+            Math.sin(hit * Math.PI),
+          );
+        }
+      } else if (pInst) {
+        _m.compose(_p.set(0, -100, 0), _qA.identity(), _s.setScalar(0.0001));
+        pInst.setMatrixAt(i, _m);
+      }
+
+      /* sustain subtle target glow at the end of the dwell */
+      if (beamIgnite > 0.85) {
+        _shardFlare[path.targetShard] = Math.max(
+          _shardFlare[path.targetShard],
+          (beamIgnite - 0.85) * 2.2,
+        );
+      }
+    }
+    if (pInst) pInst.instanceMatrix.needsUpdate = true;
+
+    /* update 54 document shards: chaotic cloud → 3-tier hexagonal lattice */
+    const sInst = shardsRef.current;
+    if (sInst) {
+      for (let i = 0; i < SHARD_TOTAL; i++) {
+        const ord = LATTICE.shardOrder[i];
+        const rawLock = anim ? clamp01((play - ord * 0.75) / 0.36) : 1;
+        const lock = rawLock <= 0 ? 0 : rawLock >= 1 ? 1 : easeOutBack(rawLock, 1.05);
+        const chaosAmt = 1 - clamp01(rawLock);
+
+        const ph = LATTICE.shardPhase[i];
+        const cx =
+          LATTICE.cloudPos[i * 3] +
+          (anim ? Math.sin(el * 0.55 + ph) * 0.18 * chaosAmt : 0);
+        const cy =
+          LATTICE.cloudPos[i * 3 + 1] +
+          (anim ? Math.cos(el * 0.48 + ph * 1.3) * 0.16 * chaosAmt : 0);
+        const cz =
+          LATTICE.cloudPos[i * 3 + 2] +
+          (anim ? Math.sin(el * 0.41 + ph * 0.7) * 0.15 * chaosAmt : 0);
+
+        const lx = LATTICE.latPos[i * 3];
+        const ly =
+          LATTICE.latPos[i * 3 + 1] +
+          (anim ? Math.sin(el * 0.9 + ph) * 0.018 * clamp01(rawLock) : 0);
+        const lz = LATTICE.latPos[i * 3 + 2];
+
+        _p.set(lerp(cx, lx, lock), lerp(cy, ly, lock), lerp(cz, lz, lock));
+
+        _qA.set(
+          LATTICE.cloudQuat[i * 4],
+          LATTICE.cloudQuat[i * 4 + 1],
+          LATTICE.cloudQuat[i * 4 + 2],
+          LATTICE.cloudQuat[i * 4 + 3],
+        );
+        _qB.set(
+          LATTICE.latQuat[i * 4],
+          LATTICE.latQuat[i * 4 + 1],
+          LATTICE.latQuat[i * 4 + 2],
+          LATTICE.latQuat[i * 4 + 3],
+        );
+        _qA.slerp(_qB, smooth(rawLock));
+
+        const appear = smooth(clamp01((introRaw - LATTICE.shardTier[i] * 0.08) / 0.68));
+        const flare = 1 + _shardFlare[i] * 0.48;
+        _s.set(
+          Math.max(LATTICE.shardScale[i * 3] * appear * flare, 0.0001),
+          Math.max(LATTICE.shardScale[i * 3 + 1] * appear * flare, 0.0001),
+          Math.max(LATTICE.shardScale[i * 3 + 2] * appear * (1 + _shardFlare[i] * 0.9), 0.0001),
+        );
+        _m.compose(_p, _qA, _s);
+        sInst.setMatrixAt(i, _m);
+      }
+      sInst.instanceMatrix.needsUpdate = true;
+    }
+
+    /* update 6 semantic anchor octahedra */
+    const aInst = anchorsRef.current;
+    if (aInst) {
+      const hubLock = anim ? smooth(sectionRange(play, 0.24, 0.6)) : 1;
+      for (let a = 0; a < ANCHOR_TOTAL; a++) {
+        _p.set(
+          lerp(LATTICE.anchorCloud[a * 3], LATTICE.anchorLat[a * 3], hubLock),
+          lerp(LATTICE.anchorCloud[a * 3 + 1], LATTICE.anchorLat[a * 3 + 1], hubLock),
+          lerp(LATTICE.anchorCloud[a * 3 + 2], LATTICE.anchorLat[a * 3 + 2], hubLock),
+        );
+        _qA.setFromAxisAngle(
+          THREE.Object3D.DEFAULT_UP,
+          (anim ? el * 0.5 : 0.4) + a * 1.05,
+        );
+        const sc =
+          Math.max(intro * (0.11 + 0.04 * hubLock), 0.0001) *
+          (1 + _anchorFlare[a] * 0.55);
+        _m.compose(_p, _qA, _s.setScalar(sc));
+        aInst.setMatrixAt(a, _m);
+      }
+      aInst.instanceMatrix.needsUpdate = true;
+    }
+
+    /* 3 horizontal refractive datum rings expand into place per tier */
+    for (let tier = 0; tier < TIERS; tier++) {
+      const ring = ringRefs.current[tier];
+      if (!ring) continue;
+      const rAppear = anim
+        ? easeOutBack(clamp01((play - (0.12 + tier * 0.09)) / 0.28), 0.9)
+        : 1;
+      ring.scale.setScalar(Math.max(rAppear * intro, 0.0001));
+    }
+
+    /* axial retrieval beam */
+    if (beamRef.current) {
+      beamRef.current.scale.set(
+        1 + coreFlash * 0.35,
+        Math.max(beamIgnite * intro, 0.0001),
+        1 + coreFlash * 0.35,
+      );
+    }
+    if (beamMatRef.current) {
+      beamMatRef.current.opacity = beamIgnite * (0.42 + coreFlash * 0.38) * intro;
+    }
+
+    /* central sapphire query core + dispersive halo lens */
+    if (coreRef.current) {
+      const pulse = 1 + coreFlash * 0.16 + beamIgnite * 0.08;
+      coreRef.current.scale.setScalar(Math.max(intro * pulse, 0.0001));
+      report(
+        coreRef.current,
+        state.camera,
+        0.48 + beamIgnite * 0.32 + coreFlash * 0.25 + det * 0.12,
+      );
+    }
+    if (coreMatRef.current) {
+      coreMatRef.current.emissiveIntensity =
+        0.45 + beamIgnite * 0.75 + coreFlash * 1.15 + det * 0.35;
+    }
+    if (lensRingRef.current) {
+      if (anim) {
+        lensRingRef.current.rotation.x = Math.PI / 2 + Math.sin(el * 0.55) * 0.26;
+        lensRingRef.current.rotation.y = el * 0.38;
+      } else {
+        lensRingRef.current.rotation.set(Math.PI / 2 + 0.18, 0.4, 0);
+      }
+      lensRingRef.current.scale.setScalar(Math.max(intro * (0.88 + 0.12 * beamIgnite), 0.0001));
+    }
+
+    /* stage framing & slow spin */
+    const inDwell = sig.arrive * (1 - sig.leave);
+    if (stageRef.current) {
+      const targetX = q.compact
+        ? 0
+        : lerp(1.35, 0.38, sig.arrive) +
+          sig.leave * 0.85 -
+          det * 0.35 +
+          cta * 0.25;
+      const targetY = (1 - intro) * -0.85 + (q.compact ? -0.15 : 0.05) + cta * 0.18;
+      if (anim) {
+        stageRef.current.position.x += (targetX - stageRef.current.position.x) * 0.06;
+        stageRef.current.position.y += (targetY - stageRef.current.position.y) * 0.06;
+      } else {
+        stageRef.current.position.set(q.compact ? 0 : 0.55, 0.05, 0);
+      }
+    }
+
+    if (spinRef.current) {
+      if (anim) {
+        const spinRate = 0.085 + inDwell * 0.055 - det * 0.04;
+        spinRef.current.rotation.y += dt * spinRate;
+        const targetRx = -pointer.y * 0.08 + inDwell * 0.06;
+        const targetRz = pointer.x * 0.05;
+        spinRef.current.rotation.x += (targetRx - spinRef.current.rotation.x) * 0.05;
+        spinRef.current.rotation.z += (targetRz - spinRef.current.rotation.z) * 0.05;
+      } else {
+        spinRef.current.rotation.set(0.08, 0.52, 0);
+      }
+    }
+
+    /* camera choreography across hero → signature → feature → detail → faq/cta */
+    const baseZ = q.compact ? 9.8 : 8.2;
+    let cx = anim ? Math.sin(el * 0.07) * 0.22 : 0.18;
+    let cy = 0.72 + (1 - intro) * 0.45;
+    let cz = baseZ + (1 - intro) * 1.6 - hero * 0.35;
+
+    /* dwell: compose an authoritative elevated three-quarter view */
+    cx += inDwell * -0.35;
+    cy += inDwell * 0.52;
+    cz -= inDwell * 0.95;
+
+    /* feature: glide closer to inspect the crystallized middle tier */
+    cx += feat * -0.85 * (1 - det);
+    cy += feat * -0.18 * (1 - det);
+    cz -= feat * 1.45 * (1 - faq);
+
+    /* detail: descend & focus into the central sapphire query core */
+    cx += det * 0.65 * (1 - faq);
+    cy += det * -0.32 * (1 - faq);
+    cz -= det * 0.75 * (1 - faq);
+
+    /* faq & cta: rise into a calm gallery overview */
+    cy += (faq * 0.45 + cta * 0.55);
+    cz += (faq * 0.9 + cta * 1.15);
+
     if (anim) {
-      cx += pointer.x * 0.22;
-      cy += pointer.y * 0.15;
+      cx += pointer.x * 0.28;
+      cy += pointer.y * 0.18;
     }
 
-    /* gaze — the cluster on feature, tracking the query sphere on detail */
-    let lx = feat * -2.9;
-    let ly = 0.35 + feat * 0.75;
-    let lz = -1.6 + feat * -0.3;
-    if (queryRef.current) {
-      queryRef.current.getWorldPosition(_wq);
-      lx += (_wq.x - lx) * det;
-      ly += (_wq.y - ly) * det;
-      lz += (_wq.z - lz) * det;
-    }
+    const lx = q.compact ? 0 : lerp(0.55, 0.28, inDwell) + feat * 0.25 - det * 0.15;
+    const ly = 0.04 + feat * 0.08 - det * 0.06;
+    const lz = 0;
 
-    const cam = state.camera;
+    _camTarget.set(cx, cy, cz);
     if (anim) {
-      cam.position.x += (cx - cam.position.x) * 0.05;
-      cam.position.y += (cy - cam.position.y) * 0.05;
-      cam.position.z += (cz - cam.position.z) * 0.05;
-      _look.x += (lx - _look.x) * 0.05;
-      _look.y += (ly - _look.y) * 0.05;
-      _look.z += (lz - _look.z) * 0.05;
+      state.camera.position.lerp(_camTarget, 0.055);
+      _look.x += (lx - _look.x) * 0.06;
+      _look.y += (ly - _look.y) * 0.06;
+      _look.z += (lz - _look.z) * 0.06;
     } else {
-      cam.position.set(cx, cy, cz);
+      state.camera.position.copy(_camTarget);
       _look.set(lx, ly, lz);
     }
-    cam.lookAt(_look);
-
-    /* ------------------- retrieval cycle: pulses & flares ------------------ */
-    const local = anim ? t % CYCLE : -1;
-    let fire = 0;
-    _flare.fill(0);
-
-    const pinst = pulses.current;
-    for (let i = 0; i < PULSE_COUNT; i++) {
-      const path = paths[i];
-      const dt = local - path.start;
-      const travelling = anim && dt >= 0 && dt <= TRAVEL;
-
-      if (travelling) {
-        const f = smooth(dt / TRAVEL);
-        if (pinst) {
-          samplePath(path, f, _p);
-          const s = Math.max(Math.sin(f * Math.PI), 0.0001);
-          _m.compose(_p, _q, _s.setScalar(s));
-          pinst.setMatrixAt(i, _m);
-        }
-        if (f < 0.14) fire = Math.max(fire, (0.14 - f) / 0.14);
-      } else if (pinst) {
-        _m.compose(_p.set(0, -100, 0), _q, _s.setScalar(0.0001));
-        pinst.setMatrixAt(i, _m);
-      }
-
-      /* arrival flare — decays through the rest of the cycle */
-      if (anim) {
-        const ad = (((local - path.start - TRAVEL) % CYCLE) + CYCLE) % CYCLE;
-        _flare[path.target] = Math.max(_flare[path.target], Math.exp(-ad * 2.6));
-      }
-    }
-    if (pinst) pinst.instanceMatrix.needsUpdate = true;
-
-    /* node matrices — breathe, assemble, flare */
-    const inst = nodes.current;
-    if (inst) {
-      for (let i = 0; i < NODE_TOTAL; i++) {
-        const a = smooth(clamp01((introT - nodeCluster[i] * 0.1) / 0.7));
-        const breath = anim ? Math.sin(t * 0.45 + nodePhase[i]) * 0.05 : 0;
-        const s = Math.max(nodeScale[i] * a * (1 + breath + _flare[i] * 0.9), 0.0001);
-        _p.set(nodePos[i * 3], nodePos[i * 3 + 1], nodePos[i * 3 + 2]);
-        _m.compose(_p, _q, _s.setScalar(s));
-        inst.setMatrixAt(i, _m);
-      }
-      inst.instanceMatrix.needsUpdate = true;
-    }
-
-    /* hairline edges fade in with the assembly */
-    if (lineMat.current) lineMat.current.opacity = intro * 0.34;
-
-    /* the query sphere — deep blue, spiking as each retrieval fires */
-    if (queryRef.current) {
-      const qa = smooth(clamp01(introT / 0.5));
-      const bob = anim ? Math.sin(t * 0.6) * 0.08 : 0;
-      queryRef.current.position.set(QUERY_POS.x, QUERY_POS.y + bob, QUERY_POS.z);
-      queryRef.current.scale.setScalar(Math.max(qa, 0.0001) * (1 + fire * 0.18));
-    }
-    if (queryMat.current) {
-      queryMat.current.emissiveIntensity = 0.5 + fire * 1.35 + det * 0.3;
-    }
-
-    /* hotspot for ProximityType — the query sphere itself */
-    if (queryRef.current) {
-      report(queryRef.current, cam, 0.42 + fire * 0.5 + det * 0.08);
-    }
+    state.camera.lookAt(_look);
   });
 
   return (
-    <group scale={q.compact ? 0.85 : 1}>
+    <group scale={q.compact ? 0.86 : 1}>
       <SceneLightRig />
 
-      <group ref={spin}>
-        {/* the palace — thirty instanced glass nodes in five clusters */}
-        <instancedMesh
-          ref={nodes}
-          args={[undefined, undefined, NODE_TOTAL]}
-          geometry={nodeGeo}
-          frustumCulled={false}
-        >
-          <GlassMaterial kind="pane" />
-        </instancedMesh>
+      <group ref={stageRef} position={[q.compact ? 0 : 1.2, 0, 0]}>
+        <group ref={spinRef}>
+          {/* 54 refractive glass document shards (1 instanced draw call) */}
+          <instancedMesh
+            ref={shardsRef}
+            args={[undefined, undefined, SHARD_TOTAL]}
+            geometry={shardGeo}
+            frustumCulled={false}
+          >
+            <GlassMaterial kind="crystal" />
+          </instancedMesh>
 
-        {/* hairline azure edges — one draw call */}
-        <lineSegments geometry={edgeGeometry} frustumCulled={false}>
-          <lineBasicMaterial
-            ref={lineMat}
-            color="#93a9ff"
-            transparent
-            opacity={0}
-            depthWrite={false}
-          />
-        </lineSegments>
+          {/* 6 semantic hub octahedra (1 instanced draw call) */}
+          <instancedMesh
+            ref={anchorsRef}
+            args={[undefined, undefined, ANCHOR_TOTAL]}
+            frustumCulled={false}
+          >
+            <octahedronGeometry args={[1, 0]} />
+            <GlassMaterial kind="core" emissive="#2e4bff" emissiveIntensity={0.28} />
+          </instancedMesh>
 
-        {/* retrieval pulses — instanced sparks riding the edges */}
-        <instancedMesh
-          ref={pulses}
-          args={[undefined, undefined, PULSE_COUNT]}
-          frustumCulled={false}
-        >
-          <sphereGeometry args={[0.05, 12, 12]} />
-          <meshBasicMaterial color={[0.85, 1.05, 2.8]} toneMapped={false} transparent />
-        </instancedMesh>
+          {/* 3 refractive tier datum rings */}
+          {TIER_Y.map((y, tier) => (
+            <mesh
+              key={tier}
+              ref={(m) => {
+                ringRefs.current[tier] = m;
+              }}
+              position={[0, y, 0]}
+              rotation={[Math.PI / 2, 0, 0]}
+            >
+              <torusGeometry args={[TIER_R[tier], 0.014, 14, 96]} />
+              <GlassMaterial kind="ice" />
+            </mesh>
+          ))}
 
-        {/* the query — a deep-blue sphere asking the palace */}
-        <mesh ref={queryRef} position={[QUERY_POS.x, QUERY_POS.y, QUERY_POS.z]}>
-          <sphereGeometry args={[0.19, 28, 28]} />
-          <GlassMaterial
-            kind="deep"
-            ref={queryMat}
-            emissive="#2e4bff"
-            emissiveIntensity={0.5}
-          />
-        </mesh>
+          {/* vector index graph — progressively drawn across Beat 2 */}
+          <lineSegments geometry={LATTICE.edgeGeo} frustumCulled={false}>
+            <lineBasicMaterial
+              ref={lineMatRef}
+              color="#6b87ff"
+              transparent
+              opacity={0}
+              depthWrite={false}
+            />
+          </lineSegments>
+
+          {/* axial retrieval beam */}
+          <mesh ref={beamRef} position={[0, 0, 0]}>
+            <cylinderGeometry args={[0.026, 0.026, 3.1, 20, 1, true]} />
+            <meshBasicMaterial
+              ref={beamMatRef}
+              color={beamColor}
+              toneMapped={false}
+              transparent
+              opacity={0}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+
+          {/* retrieval light pulses racing along multi-hop vector paths */}
+          <instancedMesh
+            ref={pulsesRef}
+            args={[undefined, undefined, PULSE_COUNT]}
+            frustumCulled={false}
+          >
+            <sphereGeometry args={[0.048, 12, 12]} />
+            <meshBasicMaterial
+              color={pulseColor}
+              toneMapped={false}
+              transparent
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+            />
+          </instancedMesh>
+
+          {/* central sapphire query core + dispersive optical collar */}
+          <mesh ref={coreRef} position={[0, 0, 0]}>
+            <sphereGeometry args={[0.24, 36, 36]} />
+            <GlassMaterial
+              ref={coreMatRef}
+              kind="deep"
+              emissive="#2e4bff"
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+          <mesh ref={lensRingRef} position={[0, 0, 0]}>
+            <torusGeometry args={[0.42, 0.028, 20, 72]} />
+            <GlassMaterial kind="prism" />
+          </mesh>
+        </group>
       </group>
 
       <ParticleField
         count={Math.floor(1300 * q.particles)}
         drift={q.animate ? 0.1 : 0}
         parallax={q.animate ? 0.8 : 0}
-        opacity={0.34}
+        opacity={0.32}
       />
     </group>
   );

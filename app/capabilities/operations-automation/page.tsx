@@ -1,9 +1,13 @@
 import { childPageJsonLd, pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { capabilityChildren } from '@/lib/content/capabilities';
+import { STUDIO_COPY } from '@/lib/content/overhaul/cap-ops';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
+import AutomationStudio, {
+  MachineStageHud,
+} from './_studio/AutomationStudio';
 import './page.css';
 
 const copy = capabilityChildren['operations-automation'];
@@ -42,10 +46,8 @@ export const metadata = pageMetadata({
 
 /**
  * /capabilities/operations-automation — scale without scaling headcount.
- * Scene: OperationsAutomationScene ("Clockwork").
- * Section ids are CONTRACT: hero (shell), feature, detail, faq/cta (shell).
- * `machine` is a visual dwell: the gear train spins up and the conveyor
- * carries raw work through the machine, scrubbed by its progress.
+ * Scene: OperationsAutomationScene ("The Glass Sorting & Dispatch Line").
+ * Section ids are CONTRACT: hero (shell), machine, studio, feature, detail, faq/cta (shell).
  */
 export default function Page() {
   return (
@@ -61,9 +63,33 @@ export default function Page() {
       cta={copy.cta}
     >
       <JsonLd data={jsonLd} />
-      {/* ---------- machine — the signature dwell (GL only) ---------- */}
-      <section data-scene-section="machine" className="ops-machine" aria-hidden="true">
-        <div className="ops-machine__stage" />
+
+      {/* ---------- machine — 5-station glass sorting line showcase ---------- */}
+      <section
+        data-scene-section="machine"
+        className="ops-machine"
+        aria-label={STUDIO_COPY.machineTitle}
+      >
+        <MachineStageHud />
+      </section>
+
+      {/* ---------- studio — THE AUTOMATION STUDIO signature experience ---------- */}
+      <section
+        data-scene-section="studio"
+        id="studio"
+        className="container-x ops-studio-section"
+        aria-label={STUDIO_COPY.title}
+      >
+        <div className="ops-studio-head">
+          <Reveal className="micro-label">{STUDIO_COPY.eyebrow}</Reveal>
+          <Reveal as="h2" className="h2 ops-studio-head__title" delay={0.08}>
+            <ProximityType>{STUDIO_COPY.title}</ProximityType>
+          </Reveal>
+          <Reveal as="p" className="lede" delay={0.14}>
+            {STUDIO_COPY.lede}
+          </Reveal>
+        </div>
+        <AutomationStudio />
       </section>
 
       {/* ---------- feature — the three disciplines ---------- */}
@@ -99,20 +125,22 @@ export default function Page() {
         className="container-x ops-detail"
         aria-label={copy.detail.title}
       >
-        <Reveal className="micro-label">{copy.detail.eyebrow}</Reveal>
-        <Reveal as="h2" className="h2 ops-detail__title" delay={0.08}>
-          {copy.detail.title}
-        </Reveal>
-        <Reveal as="p" className="lede ops-detail__body" delay={0.16}>
-          {copy.detail.body}
-        </Reveal>
-        <ul className="ops-detail__bullets">
-          {copy.detail.bullets.map((b, i) => (
-            <Reveal as="li" key={b} delay={0.1 + i * 0.05}>
-              {b}
-            </Reveal>
-          ))}
-        </ul>
+        <div className="ops-detail__card">
+          <Reveal className="micro-label">{copy.detail.eyebrow}</Reveal>
+          <Reveal as="h2" className="h2 ops-detail__title" delay={0.08}>
+            {copy.detail.title}
+          </Reveal>
+          <Reveal as="p" className="lede ops-detail__body" delay={0.16}>
+            {copy.detail.body}
+          </Reveal>
+          <ul className="ops-detail__bullets">
+            {copy.detail.bullets.map((b, i) => (
+              <Reveal as="li" key={b} delay={0.1 + i * 0.05}>
+                {b}
+              </Reveal>
+            ))}
+          </ul>
+        </div>
       </section>
     </ChildPageShell>
   );

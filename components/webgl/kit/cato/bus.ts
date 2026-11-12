@@ -1,4 +1,5 @@
-import { journeyStops } from '@/lib/content/agentJourney';
+import { journeyStops, type JourneyStory } from '@/lib/content/agentJourney';
+import { JOURNEY_COPY_SECONDS, JOURNEY_HOLD_MS, JOURNEY_TRAVEL_SECONDS } from '@/lib/content/journeyLayout';
 import { scrollToTarget } from '@/components/webgl/ScrollDirector';
 
 /**
@@ -23,6 +24,12 @@ export interface CatoVisemes {
 }
 
 export const catoBus = {
+  story: 'enterprise' as JourneyStory,
+  tourStarted: false,
+  screenOpen: false,
+  /** Arrival is recorded when the page's copy is visible, not on route mount. */
+  arrivedAt: 0,
+  queuedStop: null as number | null,
   activity: 'idle' as CatoActivity,
   /** 0..1 mouth opening from lip-sync; decays when not refreshed */
   mouth: 0,
@@ -54,6 +61,56 @@ export function subscribeCato(fn: () => void): () => void {
 
 function notify() {
   listeners.forEach((fn) => fn());
+}
+
+export function setStory(story: JourneyStory) {
+  if (catoBus.story === story) return;
+  catoBus.story = story;
+  notify();
+}
+
+export function setScreenOpen(open: boolean) {
+  if (catoBus.screenOpen === open) return;
+  catoBus.screenOpen = open;
+  notify();
+}
+
+let holdTimer: ReturnType<typeof setTimeout> | undefined;
+
+function releaseQueue() {
+  if (holdTimer) clearTimeout(holdTimer);
+  holdTimer = undefined;
+  if (catoBus.falling || catoBus.queuedStop === null) return;
+  const remaining = catoBus.arrivedAt + JOURNEY_HOLD_MS - performance.now();
+  if (catoBus.arrivedAt && remaining > 0) {
+    holdTimer = setTimeout(releaseQueue, remaining);
+    return;
+  }
+  const target = catoBus.queuedStop;
+  catoBus.queuedStop = null;
+  goToStop(target);
+}
+
+/** The page calls this after a stop's whole copy enters the viewport. */
+export function markStopVisible(index: number) {
+  if (catoBus.falling || index !== catoBus.stopIndex || catoBus.arrivedAt) return;
+  catoBus.arrivedAt = performance.now() + JOURNEY_COPY_SECONDS * 1000;
+  releaseQueue();
+  notify();
+}
+
+export function resetJourney() {
+  if (holdTimer) clearTimeout(holdTimer);
+  holdTimer = undefined;
+  catoBus.queuedStop = null;
+  catoBus.tourStarted = false;
+  catoBus.arrivedAt = 0;
+  catoBus.stopIndex = 0;
+  catoBus.targetStop = 0;
+  catoBus.stop = journeyStops[0].id;
+  catoBus.falling = false;
+  catoBus.screenOpen = false;
+  notify();
 }
 
 /*
@@ -111,41 +168,72 @@ export function setMouth(v: number, visemes?: Partial<CatoVisemes>) {
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 /**
- * Trigger Cato's jump/fall to `nextIndex` (0..8) and scroll the page to that
- * stop's copy in lockstep with his 6s fall. Called ONLY from the on-page
+ * Queue or trigger Cato's travel to `nextIndex` (0..8), scrolling to that
+ * stop's copy in lockstep with his travel. Called ONLY from the on-page
  * Next/Previous buttons or the voice agent's client tool — never from scroll.
  */
-export function goToStop(nextIndex: number, fromIndex?: number): number {
+export function goToStop(nextIndex: number): number {
   const N = journeyStops.length;
+  if (!Number.isFinite(nextIndex)) return catoBus.targetStop;
   const clamped = Math.max(0, Math.min(N - 1, Math.round(nextIndex)));
-  if (fromIndex !== undefined && !catoBus.falling) {
-    const fromClamped = Math.max(0, Math.min(N - 1, Math.round(fromIndex)));
-    if (catoBus.stopIndex !== fromClamped) {
-      catoBus.stopIndex = fromClamped;
-    }
+  catoBus.tourStarted = true;
+  if (clamped === catoBus.targetStop) {
+    catoBus.queuedStop = null;
+    if (holdTimer) clearTimeout(holdTimer);
+    holdTimer = undefined;
+    notify();
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) document.getElementById(journeyStops[clamped].id)?.scrollIntoView({ behavior: 'instant' });
+    else scrollToTarget(`#${journeyStops[clamped].id}`, { offset: 0, duration: JOURNEY_TRAVEL_SECONDS });
+    return clamped;
+  }
+  if (!catoBus.falling && !catoBus.arrivedAt && clamped !== catoBus.stopIndex) {
+    catoBus.queuedStop = clamped;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) document.getElementById(journeyStops[catoBus.stopIndex].id)?.scrollIntoView({ behavior: 'instant' });
+    else scrollToTarget(`#${journeyStops[catoBus.stopIndex].id}`, { offset: 0, duration: JOURNEY_TRAVEL_SECONDS });
+    notify();
+    return clamped;
+  }
+  if (catoBus.falling || (catoBus.arrivedAt && performance.now() < catoBus.arrivedAt + JOURNEY_HOLD_MS)) {
+    catoBus.queuedStop = clamped;
+    releaseQueue();
+    notify();
+    return clamped;
   }
   const moving = clamped !== catoBus.stopIndex;
   catoBus.targetStop = clamped;
   catoBus.stop = journeyStops[clamped].id;
+  catoBus.queuedStop = null;
+  catoBus.screenOpen = false;
+  catoBus.arrivedAt = 0;
   if (moving) catoBus.falling = true;
   notify();
 
   const reduced =
     typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  scrollToTarget(`#${journeyStops[clamped].id}`, {
+  const destination = document.getElementById(journeyStops[clamped].id);
+  const scrollPosition = destination ? window.scrollY + destination.getBoundingClientRect().top : undefined;
+  if (reduced) {
+    destination?.scrollIntoView({ behavior: 'instant' });
+  } else scrollToTarget(scrollPosition ?? `#${journeyStops[clamped].id}`, {
     offset: 0,
-    duration: reduced ? 0 : moving ? 5.2 : 1.4,
+    duration: JOURNEY_TRAVEL_SECONDS,
     easing: easeInOutCubic,
   });
   return clamped;
 }
 
-/** Called by AiAgentSystemsScene when a fall starts or finishes. */
+/** Called by AiAgentSystemsScene when travel starts or finishes. */
 export function setFallState(stopIndex: number, falling: boolean) {
   const nextId = journeyStops[stopIndex]?.id ?? catoBus.stop;
   if (catoBus.stopIndex === stopIndex && catoBus.falling === falling && catoBus.stop === nextId) return;
   catoBus.stopIndex = stopIndex;
   catoBus.falling = falling;
   catoBus.stop = nextId;
+  if (!falling) {
+    catoBus.arrivedAt = 0;
+    // The page records arrival once this stop's copy is actually on screen.
+  }
   notify();
 }

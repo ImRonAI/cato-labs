@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BuildDirector, type DirectorStats } from './buildDirector';
 import './kit.css';
 
 /* ------------------------------------------------------------------ */
@@ -138,25 +139,7 @@ const DEFAULT_AGENTS: StreamAgent[] = [
   { id: 'seo', name: 'Indigo', role: 'Discoverability', color: '#0a1890' },
 ];
 
-interface DomBuildTarget {
-  el: HTMLElement;
-  docTop: number;
-  label: string;
-}
-
-interface AgentLiveDrawState {
-  agent: StreamAgent;
-  x: number;
-  y: number;
-  task: string;
-  box: {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-    tag: string;
-  } | null;
-}
+type Stage = 'loading' | 'building' | 'complete';
 
 function stripBundledRuntimeForCodeView(rawHtml: string): string {
   const begin = '<!-- STUDIO-CONCIERGE:BEGIN -->';
@@ -173,525 +156,303 @@ function stripBundledRuntimeForCodeView(rawHtml: string): string {
   return rawHtml;
 }
 
-function describeElement(el: HTMLElement): string {
-  const tag = el.tagName.toLowerCase();
-  if (tag === 'img') {
-    const src = (el as HTMLImageElement).getAttribute('src') || '';
-    const file = src.split('/').pop() || 'image';
-    return `<img> ${file.slice(0, 22)}`;
-  }
-  if (tag === 'canvas') {
-    return `<canvas#${el.id || 'webgl'}> 3D Stage`;
-  }
-  if (tag === 'svg') {
-    return `<svg> Vector Diagram`;
-  }
-  if (tag === 'form') {
-    return `<form#${el.id || 'interactive'}>`;
-  }
-  const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-  const idPart = el.id ? `#${el.id}` : '';
-  if (text.length > 0) {
-    return `<${tag}${idPart}> ${text.slice(0, 22)}${text.length > 22 ? '…' : ''}`;
-  }
-  return `<${tag}${idPart}>`;
-}
-
 /* ------------------------------------------------------------------ */
 /*  StreamSimulator                                                    */
 /* ------------------------------------------------------------------ */
 
+/**
+ * One of the ten finished flagship sites, drawn into place by four agents.
+ * Each agent claims its own div in the current section, outlines it, paints it
+ * in, then claims the next; the camera moves down a section once it is drawn.
+ * The choreography lives in `buildDirector.ts`; this component is the browser
+ * chrome, the controls and the optional streaming source pane around it.
+ */
 export function StreamSimulator({
   agents = DEFAULT_AGENTS,
   autoPlay = true,
+  defaultCodeVisible = true,
   onDone,
 }: {
   script?: StreamStep[];
   agents?: StreamAgent[];
   autoPlay?: boolean;
   loop?: boolean;
+  /** whether the streaming HTML pane starts open (narrow placements start with the live render alone) */
+  defaultCodeVisible?: boolean;
   onDone?: () => void;
   brand?: { name: string; domain: string };
 }): React.JSX.Element {
   const [selectedSlug, setSelectedSlug] = useState<string>(STUDIO_SITES[0].slug);
-  const [codeHtml, setCodeHtml] = useState<string>('');
-  const [iframeReady, setIframeReady] = useState<boolean>(false);
-  const [progress, setProgress] = useState<number>(0);
-  const [playing, setPlaying] = useState<boolean>(autoPlay);
+  const [code, setCode] = useState<{ slug: string; html: string } | null>(null);
   const [reduced, setReduced] = useState<boolean>(false);
-  const [showCodePane, setShowCodePane] = useState<boolean>(true);
-  const [agentVisuals, setAgentVisuals] = useState<AgentLiveDrawState[]>([]);
+  const [showCodePane, setShowCodePane] = useState<boolean>(defaultCodeVisible);
+  const [playing, setPlaying] = useState<boolean>(autoPlay);
+  const [stage, setStage] = useState<Stage>('loading');
+  const [stats, setStats] = useState<DirectorStats | null>(null);
 
   const simRootRef = useRef<HTMLDivElement | null>(null);
-  const codePreRef = useRef<HTMLPreElement | null>(null);
-  const barFillRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const domTargetsRef = useRef<DomBuildTarget[]>([]);
-  const rafRef = useRef<number | null>(null);
-  const lastTickRef = useRef<number | null>(null);
-  const lastStateCommitRef = useRef<number>(0);
-  const progressRef = useRef<number>(0);
-  const inViewRef = useRef<boolean>(true);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const barFillRef = useRef<HTMLDivElement | null>(null);
+  const codePreRef = useRef<HTMLPreElement | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
+  const finishRef = useRef<HTMLButtonElement | null>(null);
+  const directorRef = useRef<BuildDirector | null>(null);
+  /** the iframe document the current director is drawing */
+  const builtDocRef = useRef<Document | null>(null);
+  const inViewRef = useRef<boolean>(false);
+  const playingRef = useRef<boolean>(autoPlay);
+  const reducedRef = useRef<boolean>(false);
   const userScrolledCodeRef = useRef<boolean>(false);
   const autoScrollingCodeRef = useRef<boolean>(false);
-  const smoothScrollRef = useRef<number | null>(null);
-  const smoothedAgentsRef = useRef<
-    Map<
-      string,
-      {
-        x: number;
-        y: number;
-        left: number;
-        top: number;
-        width: number;
-        height: number;
-      }
-    >
-  >(new Map());
   const onDoneRef = useRef(onDone);
-  onDoneRef.current = onDone;
+
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
 
   const activeSite = useMemo(
     () => STUDIO_SITES.find((s) => s.slug === selectedSlug) ?? STUDIO_SITES[0],
     [selectedSlug]
   );
 
-  /* Respect prefers-reduced-motion */
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReduced(mq.matches);
-    const fn = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener('change', fn);
-    return () => mq.removeEventListener('change', fn);
+  const syncVisibility = useCallback(() => {
+    directorRef.current?.setVisible(inViewRef.current && !document.hidden);
   }, []);
 
-  /* Pause simulation ticks when scrolled out of viewport so the build awaits the visitor */
+  /* Reduced motion: no build, the finished site as it is */
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = (on: boolean) => {
+      reducedRef.current = on;
+      setReduced(on);
+      if (on) directorRef.current?.finish();
+    };
+    apply(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => apply(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  /* Build only while the simulator is on screen and the tab is in front */
   useEffect(() => {
     const node = simRootRef.current;
-    if (!node || typeof IntersectionObserver === 'undefined') return;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      inViewRef.current = true;
+      return;
+    }
     const obs = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
         if (!entry) return;
-        inViewRef.current = entry.isIntersecting;
-        if (!entry.isIntersecting) {
-          lastTickRef.current = null;
-        }
+        if (entry.intersectionRatio >= 0.25) inViewRef.current = true;
+        else if (entry.intersectionRatio < 0.05) inViewRef.current = false;
+        syncVisibility();
       },
-      { threshold: 0.08 }
+      { threshold: [0, 0.05, 0.25, 0.5] }
     );
     obs.observe(node);
-    return () => obs.disconnect();
-  }, []);
+    document.addEventListener('visibilitychange', syncVisibility);
+    return () => {
+      obs.disconnect();
+      document.removeEventListener('visibilitychange', syncVisibility);
+    };
+  }, [syncVisibility]);
 
-  /* Fetch HTML source for the streaming code pane & reset build when site changes */
+  /* A new site: tear the old build down; the new iframe's load starts the next one */
   useEffect(() => {
-    let cancelled = false;
-    setIframeReady(false);
-    domTargetsRef.current = [];
-    const initialProgress = reduced ? 1 : 0;
-    progressRef.current = initialProgress;
-    setProgress(initialProgress);
-    setPlaying(reduced ? false : autoPlay);
-    lastTickRef.current = null;
-    lastStateCommitRef.current = 0;
-    smoothScrollRef.current = null;
-    smoothedAgentsRef.current.clear();
+    setStage('loading');
+    setStats(null);
     userScrolledCodeRef.current = false;
+    return () => {
+      directorRef.current?.destroy();
+      directorRef.current = null;
+    };
+  }, [activeSite.slug]);
 
+  /* The streaming source pane fetches the file only once someone opens it */
+  useEffect(() => {
+    if (!showCodePane || code?.slug === activeSite.slug) return;
+    let cancelled = false;
+    const slug = activeSite.slug;
     fetch(activeSite.file)
       .then((res) => (res.ok ? res.text() : ''))
       .then((html) => {
-        if (cancelled || !html) return;
-        setCodeHtml(stripBundledRuntimeForCodeView(html));
+        if (!cancelled && html) setCode({ slug, html: stripBundledRuntimeForCodeView(html) });
       })
       .catch(() => {
-        /* ignore code preview fetch errors */
+        /* the live render works without the source pane */
       });
-
     return () => {
       cancelled = true;
     };
-  }, [activeSite.file, autoPlay, reduced]);
+  }, [showCodePane, activeSite.slug, activeSite.file, code?.slug]);
 
-  /* Collect real renderable DOM elements inside the live iframe when it loads */
-  const collectIframeTargets = useCallback(() => {
+  useEffect(() => {
+    playingRef.current = playing;
+    const director = directorRef.current;
+    if (!director) return;
+    if (playing) director.play();
+    else director.pause();
+  }, [playing]);
+
+  const handleLoad = useCallback(() => {
     const iframe = iframeRef.current;
-    const doc = iframe?.contentDocument;
-    const win = iframe?.contentWindow;
-    if (!doc || !win || !doc.body) return;
-
-    /* Inject progressive build stylesheet into the iframe document */
-    let styleEl = doc.getElementById('kit-sim-build-style') as HTMLStyleElement | null;
-    if (!styleEl) {
-      styleEl = doc.createElement('style');
-      styleEl.id = 'kit-sim-build-style';
-      styleEl.textContent = `
-        [data-sim-stage="pending"] {
-          opacity: 0 !important;
-          transform: translateY(18px) scale(0.985) !important;
-          pointer-events: none !important;
-        }
-        [data-sim-stage="building"] {
-          opacity: 0.9 !important;
-          transform: translateY(2px) scale(0.997) !important;
-          transition: opacity 1.6s cubic-bezier(0.16, 1, 0.3, 1), transform 1.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
-        [data-sim-stage="done"] {
-          opacity: 1 !important;
-          transform: none !important;
-          transition: opacity 1.2s ease, transform 1.2s ease !important;
-        }
-      `;
-      doc.head.appendChild(styleEl);
-    }
-
-    /* Force any scroll-triggered reveal elements (.rv, .reveal) to be visible once built */
-    doc.querySelectorAll('.rv, .reveal').forEach((el) => el.classList.add('in'));
-
-    const selector = [
-      'header',
-      'h1',
-      'h2',
-      'h3',
-      'p',
-      'figure',
-      'img',
-      'canvas',
-      'svg',
-      'article',
-      'form',
-      'table',
-      'dl',
-      '.flacon',
-      '.sys',
-      '.course',
-      '.piece',
-      '.work-entry',
-      '.tech-item',
-      '.prog',
-      'footer',
-    ].join(', ');
-
-    const rawNodes = Array.from(doc.body.querySelectorAll<HTMLElement>(selector));
-    const filtered: DomBuildTarget[] = [];
-
-    for (const el of rawNodes) {
-      if (
-        el.closest(
-          '#concierge-root, [hidden], dialog, .dlg, .view, .sheet, .drawer, .mnav, .menu, .dossier-backdrop, template'
-        )
-      ) {
-        continue;
-      }
-      /* Skip child SVG icons inside buttons or links so we target meaningful blocks */
-      if (el.tagName.toLowerCase() === 'svg' && el.closest('a, button')) {
-        continue;
-      }
-      /* Skip nested elements if an ancestor card/article is already in our list */
-      const rect = el.getBoundingClientRect();
-      if (rect.width < 28 || rect.height < 14) continue;
-      if (rect.height > win.innerHeight * 2.2 && el.tagName.toLowerCase() !== 'section') continue;
-
-      const docTop = rect.top + win.scrollY;
-      filtered.push({
-        el,
-        docTop,
-        label: describeElement(el),
-      });
-    }
-
-    filtered.sort((a, b) => a.docTop - b.docTop);
-
-    /* Deduplicate closely overlapping parent/child targets so each step is visually distinct */
-    const deduped: DomBuildTarget[] = [];
-    for (const item of filtered) {
-      const prev = deduped[deduped.length - 1];
-      if (prev && prev.el.contains(item.el) && Math.abs(prev.docTop - item.docTop) < 18) {
-        /* Prefer the more specific child element (e.g. h1, img, canvas) */
-        deduped[deduped.length - 1] = item;
-      } else {
-        deduped.push(item);
-      }
-    }
-
-    domTargetsRef.current = deduped;
-    smoothScrollRef.current = 0;
-    smoothedAgentsRef.current.clear();
-    setIframeReady(true);
-  }, []);
-
-  /* Clean up build attributes once complete */
-  const restoreFullDocument = useCallback(() => {
-    const iframe = iframeRef.current;
-    const doc = iframe?.contentDocument;
-    const win = iframe?.contentWindow;
-    if (!doc || !win) return;
-    doc.querySelectorAll('[data-sim-stage]').forEach((el) => {
-      el.removeAttribute('data-sim-stage');
-    });
-    const styleEl = doc.getElementById('kit-sim-build-style');
-    if (styleEl) styleEl.remove();
+    const overlay = overlayRef.current;
+    if (!iframe || !overlay) return;
+    let path = '';
+    let doc: Document | null = null;
     try {
-      win.scrollTo({ top: 0, behavior: 'smooth' });
+      path = iframe.contentWindow?.location.pathname ?? '';
+      doc = iframe.contentDocument;
     } catch {
-      /* ignore */
-    }
-  }, []);
-
-  /* Synchronize DOM element reveal states + agent cursor coordinates with live iframe DOM */
-  useEffect(() => {
-    if (!iframeReady) return;
-    const iframe = iframeRef.current;
-    const doc = iframe?.contentDocument;
-    const win = iframe?.contentWindow;
-    if (!doc || !win) return;
-
-    if (progress >= 1) {
-      restoreFullDocument();
-      setAgentVisuals([]);
       return;
     }
-
-    /* Ensure build style exists when replaying */
-    if (!doc.getElementById('kit-sim-build-style')) {
-      collectIframeTargets();
+    // a link followed inside the finished site: leave the visitor to it
+    if (path !== activeSite.file || !doc) return;
+    // the same page can be reported twice (its load event, and the check below for a page that
+    // loaded before hydration): one build per page
+    if (directorRef.current && builtDocRef.current === doc) return;
+    directorRef.current?.destroy();
+    directorRef.current = null;
+    builtDocRef.current = doc;
+    // no build for this page (reduced motion, or it can't be measured): show it finished, with
+    // the toggle offering to build it
+    const showFinished = () => {
+      playingRef.current = false;
+      setPlaying(false);
+      setStage('complete');
+    };
+    if (reducedRef.current) {
+      showFinished();
+      return;
     }
-
-    const targets = domTargetsRef.current;
-    if (!targets.length) return;
-
-    const total = targets.length;
-    const headFloat = progress * total;
-    const headIdx = Math.min(total - 1, Math.max(0, Math.floor(headFloat)));
-    const nextIdx = Math.min(total - 1, headIdx + 1);
-    const localPhase = headFloat - Math.floor(headFloat);
-    const smoothLocal = localPhase * localPhase * (3 - 2 * localPhase);
-
-    /* Assign the 4 agents to the 4 elements currently rendering at the build frontier */
-    const activeIndices = agents.map((_, aIdx) =>
-      Math.max(0, Math.min(total - 1, headIdx - (agents.length - 1 - aIdx)))
-    );
-    const activeSet = new Set(activeIndices);
-
-    for (let i = 0; i < total; i++) {
-      const node = targets[i].el;
-      const desired =
-        i > headIdx ? 'pending' : activeSet.has(i) ? 'building' : 'done';
-      if (node.getAttribute('data-sim-stage') !== desired) {
-        node.setAttribute('data-sim-stage', desired);
-      }
-    }
-
-    /* Smoothly interpolate and damp iframe scroll between current and next build target */
-    const leadTarget = targets[headIdx];
-    const nextTarget = targets[nextIdx] ?? leadTarget;
-    if (leadTarget && playing) {
-      const interpolatedDocTop =
-        leadTarget.docTop + (nextTarget.docTop - leadTarget.docTop) * smoothLocal;
-      const maxScroll = Math.max(0, doc.documentElement.scrollHeight - win.innerHeight);
-      const desiredScroll = Math.max(
-        0,
-        Math.min(maxScroll, interpolatedDocTop - win.innerHeight * 0.48)
-      );
-      const prevScroll = smoothScrollRef.current ?? win.scrollY;
-      const nextScroll = prevScroll + (desiredScroll - prevScroll) * 0.14;
-      smoothScrollRef.current = nextScroll;
-      win.scrollTo({ top: nextScroll, behavior: 'auto' });
-    }
-
-    /* Measure the live viewport bounding boxes of the 4 active elements */
-    const vw = Math.max(1, win.innerWidth);
-    const vh = Math.max(1, win.innerHeight);
-
-    const nextVisuals: AgentLiveDrawState[] = agents.map((agent, aIdx) => {
-      const targetIdx = activeIndices[aIdx];
-      const target = targets[targetIdx];
-      if (!target) {
-        return {
-          agent,
-          x: 20 + aIdx * 18,
-          y: 30,
-          task: ' Rendering DOM',
-          box: null,
-        };
-      }
-
-      const rect = target.el.getBoundingClientRect();
-      const rawLeftPct = Math.max(1, Math.min(94, (rect.left / vw) * 100));
-      const rawTopPct = Math.max(2, Math.min(92, (rect.top / vh) * 100));
-      const rawWidthPct = Math.max(4, Math.min(98 - rawLeftPct, (rect.width / vw) * 100));
-      const rawHeightPct = Math.max(3, Math.min(96 - rawTopPct, (rect.height / vh) * 100));
-
-      /* Trace the agent cursor along a continuous Lissajous path inside the active bounding box */
-      const orbitAngle = localPhase * Math.PI * 2 + aIdx * 1.57;
-      const sweepX = 0.5 + 0.34 * Math.sin(orbitAngle);
-      const sweepY = 0.5 + 0.32 * Math.cos(orbitAngle * 0.75 + aIdx * 0.9);
-      const rawCursorX = Math.max(3, Math.min(84, rawLeftPct + rawWidthPct * sweepX));
-      const rawCursorY = Math.max(6, Math.min(91, rawTopPct + rawHeightPct * sweepY));
-
-      const prevAgent = smoothedAgentsRef.current.get(agent.id);
-      const lerpFactor = 0.22;
-      const smoothed = prevAgent
-        ? {
-            x: prevAgent.x + (rawCursorX - prevAgent.x) * lerpFactor,
-            y: prevAgent.y + (rawCursorY - prevAgent.y) * lerpFactor,
-            left: prevAgent.left + (rawLeftPct - prevAgent.left) * lerpFactor,
-            top: prevAgent.top + (rawTopPct - prevAgent.top) * lerpFactor,
-            width: prevAgent.width + (rawWidthPct - prevAgent.width) * lerpFactor,
-            height: prevAgent.height + (rawHeightPct - prevAgent.height) * lerpFactor,
-          }
-        : {
-            x: rawCursorX,
-            y: rawCursorY,
-            left: rawLeftPct,
-            top: rawTopPct,
-            width: rawWidthPct,
-            height: rawHeightPct,
-          };
-      smoothedAgentsRef.current.set(agent.id, smoothed);
-
-      return {
-        agent,
-        x: smoothed.x,
-        y: smoothed.y,
-        task: ` ${target.label}`,
-        box: {
-          left: smoothed.left,
-          top: smoothed.top,
-          width: smoothed.width,
-          height: smoothed.height,
-          tag: `${agent.name} · ${target.label}`,
+    let director: BuildDirector;
+    try {
+      director = new BuildDirector({
+        iframe,
+        overlay,
+        agents,
+        bar: barFillRef.current,
+        onStats: setStats,
+        onComplete: () => {
+          playingRef.current = false;
+          setStage('complete');
+          setPlaying(false);
+          onDoneRef.current?.();
         },
-      };
-    });
-
-    setAgentVisuals(nextVisuals);
-  }, [progress, iframeReady, playing, agents, collectIframeTargets, restoreFullDocument]);
-
-  /*
-   * Animate progressive DOM build & HTML code stream over ~150 seconds (~13.6x slower than 11s).
-   * Uses delta-time clamping (max 100ms per frame) to prevent tab-switch jumps and throttled
-   * React state commits (~24fps) to avoid main-thread layout thrashing on 70–90KB HTML strings.
-   */
-  useEffect(() => {
-    if (!iframeReady || !playing || reduced) {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-      lastTickRef.current = null;
+      });
+    } catch {
+      showFinished();
       return;
     }
+    directorRef.current = director;
+    director.setVisible(inViewRef.current && !document.hidden);
+    if (playingRef.current) director.play();
+    director
+      .prepare()
+      .then(() => {
+        if (directorRef.current === director && !director.isComplete) setStage('building');
+      })
+      .catch(() => {
+        // the page went away mid-measure: show it as it is rather than a veil that never lifts
+        if (directorRef.current !== director) return;
+        director.destroy();
+        directorRef.current = null;
+        showFinished();
+      });
+  }, [activeSite.file, agents]);
 
-    const BUILD_DURATION_MS = 150_000;
-    const STATE_COMMIT_INTERVAL_MS = 42;
+  /* A page that finished loading before hydration (a cached revisit) fired its load event before
+     React was listening, so look for it: otherwise the veil would never lift */
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    let ready = false;
+    try {
+      ready = iframe.contentDocument?.readyState === 'complete';
+    } catch {
+      return;
+    }
+    if (ready) handleLoad();
+  }, [handleLoad]);
 
-    const step = (now: number) => {
-      if (!inViewRef.current || document.hidden) {
-        lastTickRef.current = now;
-        rafRef.current = requestAnimationFrame(step);
-        return;
-      }
+  const isComplete = stage === 'complete';
+  const progress = isComplete ? 1 : stats?.progress ?? 0;
 
-      if (lastTickRef.current === null) {
-        lastTickRef.current = now;
-      }
-      const rawDt = now - lastTickRef.current;
-      const dt = Math.min(100, Math.max(0, rawDt));
-      lastTickRef.current = now;
+  /* A site picked from the list is a site someone wants to watch being drawn: it plays */
+  const chooseSite = (slug: string) => {
+    playingRef.current = true;
+    setPlaying(true);
+    setSelectedSlug(slug);
+  };
 
-      const next = Math.min(1, progressRef.current + dt / BUILD_DURATION_MS);
-      progressRef.current = next;
+  /* Replay starts over on a fresh copy of the page: whatever the visitor opened in the finished
+     site (a menu, a routed view, a dialog) closes, and the agents begin again on a blank canvas.
+     The reload's load event builds the new director. */
+  const replay = () => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    userScrolledCodeRef.current = false;
+    directorRef.current?.destroy();
+    directorRef.current = null;
+    playingRef.current = true;
+    setPlaying(true);
+    setStats(null);
+    setStage('loading');
+    try {
+      iframe.contentWindow?.location.replace(activeSite.file);
+    } catch {
+      iframe.src = activeSite.file;
+    }
+  };
 
-      if (barFillRef.current) {
-        barFillRef.current.style.transform = `scaleX(${next})`;
-      }
+  const togglePlay = () => {
+    if (isComplete) replay();
+    else setPlaying((p) => !p);
+  };
 
-      if (next >= 1) {
-        setProgress(1);
-        setPlaying(false);
-        onDoneRef.current?.();
-        return;
-      }
+  const finishNow = () => {
+    // the Finish button leaves with the build: keep keyboard focus in the controls
+    const hadFocus = document.activeElement === finishRef.current;
+    directorRef.current?.finish();
+    if (hadFocus) toggleRef.current?.focus();
+  };
 
-      if (now - lastStateCommitRef.current >= STATE_COMMIT_INTERVAL_MS) {
-        lastStateCommitRef.current = now;
-        setProgress(next);
-      }
-
-      rafRef.current = requestAnimationFrame(step);
-    };
-
-    rafRef.current = requestAnimationFrame(step);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-      lastTickRef.current = null;
-    };
-  }, [iframeReady, playing, reduced]);
-
-  /* Auto-scroll the streaming HTML code pane unless the user manually scrolled up to read */
+  /* Source pane: the file streams in step with the drawing */
   const streamedCode = useMemo(() => {
-    if (!codeHtml) return '';
-    const charCount = Math.max(120, Math.floor(codeHtml.length * progress));
-    return codeHtml.slice(0, charCount);
-  }, [codeHtml, progress]);
+    if (!showCodePane || !code || code.slug !== activeSite.slug) return '';
+    return code.html.slice(0, Math.max(120, Math.floor(code.html.length * progress)));
+  }, [showCodePane, code, activeSite.slug, progress]);
 
-  const lineCount = useMemo(() => {
-    if (!streamedCode) return 0;
-    return streamedCode.split('\n').length;
-  }, [streamedCode]);
+  const lineCount = useMemo(() => (streamedCode ? streamedCode.split('\n').length : 0), [streamedCode]);
 
   const handleCodePaneScroll = useCallback(() => {
     if (autoScrollingCodeRef.current) return;
     const pre = codePreRef.current;
     if (!pre) return;
-    const distanceFromBottom = pre.scrollHeight - pre.scrollTop - pre.clientHeight;
-    userScrolledCodeRef.current = distanceFromBottom > 48;
+    userScrolledCodeRef.current = pre.scrollHeight - pre.scrollTop - pre.clientHeight > 48;
   }, []);
 
   useEffect(() => {
     const pre = codePreRef.current;
-    if (pre && playing && !userScrolledCodeRef.current) {
-      autoScrollingCodeRef.current = true;
-      pre.scrollTop = pre.scrollHeight;
-      requestAnimationFrame(() => {
-        autoScrollingCodeRef.current = false;
-      });
-    }
-  }, [streamedCode, playing]);
+    if (!pre || isComplete || userScrolledCodeRef.current) return;
+    autoScrollingCodeRef.current = true;
+    pre.scrollTop = pre.scrollHeight;
+    const id = requestAnimationFrame(() => {
+      autoScrollingCodeRef.current = false;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [streamedCode, isComplete]);
 
-  const togglePlay = () => {
-    if (progress >= 1) {
-      collectIframeTargets();
-      progressRef.current = 0;
-      setProgress(0);
-      lastTickRef.current = null;
-      userScrolledCodeRef.current = false;
-      setPlaying(true);
-    } else {
-      lastTickRef.current = null;
-      setPlaying((p) => !p);
-    }
-  };
-
-  const replay = () => {
-    collectIframeTargets();
-    progressRef.current = 0;
-    setProgress(0);
-    lastTickRef.current = null;
-    userScrolledCodeRef.current = false;
-    setPlaying(true);
-  };
-
-  const finishImmediately = () => {
-    progressRef.current = 1;
-    setProgress(1);
-    setPlaying(false);
-    restoreFullDocument();
-    onDoneRef.current?.();
-  };
-
-  const isComplete = progress >= 1;
+  const status =
+    stage === 'loading'
+      ? 'Preparing the canvas'
+      : isComplete
+        ? 'Every section drawn'
+        : stats
+          ? `Section ${stats.section.index} of ${stats.section.total} · ${stats.section.label}`
+          : '';
 
   return (
     <div
@@ -713,7 +474,7 @@ export function StreamSimulator({
           <select
             className="kit-sim-select"
             value={selectedSlug}
-            onChange={(e) => setSelectedSlug(e.target.value)}
+            onChange={(e) => chooseSite(e.target.value)}
             aria-label="Choose a website to watch being built"
           >
             {STUDIO_SITES.map((s, idx) => (
@@ -733,7 +494,6 @@ export function StreamSimulator({
             type="button"
             className="kit-mini-btn"
             onClick={() => setShowCodePane((v) => !v)}
-            aria-pressed={showCodePane}
           >
             {showCodePane ? 'Hide HTML Stream' : 'Show HTML Stream'}
           </button>
@@ -748,7 +508,7 @@ export function StreamSimulator({
         </div>
       </div>
 
-      {/* Main split stage: streaming HTML source + live rendering iframe with agent cursors */}
+      {/* Main split stage: streaming HTML source + the live site the agents draw into */}
       <div className={`kit-sim-stage kit-sim-stage--live ${showCodePane ? 'is-split' : ''}`}>
         {showCodePane && (
           <div className="kit-sim-codepane" aria-label="Streaming HTML file source">
@@ -769,113 +529,91 @@ export function StreamSimulator({
           </div>
         )}
 
-        <div className="kit-sim-renderpane">
+        <div className={`kit-sim-renderpane ${isComplete ? '' : 'is-building'}`}>
           <iframe
             ref={iframeRef}
             key={activeSite.slug}
             src={activeSite.file}
-            onLoad={collectIframeTargets}
+            onLoad={handleLoad}
             title={`${activeSite.name} rendered website`}
             className="kit-sim-iframe"
+            tabIndex={isComplete ? 0 : -1}
           />
-
-          {/* Live DOM bounding-box highlights + 4 agent cursors drawing directly over the rendering elements */}
-          {!isComplete && agentVisuals.length > 0 && (
-            <div className="kit-sim-overlay" aria-hidden="true">
-              {agentVisuals.map(
-                ({ agent, box }) =>
-                  box && (
-                    <div
-                      key={`box-${agent.id}`}
-                      className="kit-sim-target-box"
-                      style={
-                        {
-                          left: `${box.left}%`,
-                          top: `${box.top}%`,
-                          width: `${box.width}%`,
-                          height: `${box.height}%`,
-                          '--agent-color': agent.color,
-                        } as React.CSSProperties
-                      }
-                    >
-                      <span className="kit-sim-target-box__tag">{box.tag}</span>
-                    </div>
-                  )
-              )}
-              {agentVisuals.map(({ agent, x, y, task }) => (
-                <div
-                  key={agent.id}
-                  className="kit-sim-cursor"
-                  style={{
-                    left: `${x}%`,
-                    top: `${y}%`,
-                    transition:
-                      'left 0.28s cubic-bezier(0.22, 1, 0.36, 1), top 0.28s cubic-bezier(0.22, 1, 0.36, 1)',
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14">
-                    <path
-                      d="M1 1 L12.2 6.2 L6.9 7.6 L5.1 13 Z"
-                      fill={agent.color}
-                      stroke="#fff"
-                      strokeWidth="1"
-                    />
-                  </svg>
-                  <span className="kit-sim-chip" style={{ background: agent.color }}>
-                    {agent.name}
-                    <em className="kit-sim-chip__task">{task}</em>
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* the build director draws the agents, their outlines and labels into this layer */}
+          <div ref={overlayRef} className="kit-sim-overlay" aria-hidden="true" />
+          <div className={`kit-sim-veil ${stage === 'loading' ? '' : 'is-off'}`} aria-hidden="true">
+            <span className="kit-sim-veil__name">{activeSite.name}</span>
+            <span className="kit-sim-veil__domain">{activeSite.domain}</span>
+            <span className="kit-sim-veil__bar" />
+          </div>
         </div>
       </div>
 
-      {/* Progress hairline */}
-      <div className="kit-sim-bar" aria-hidden="true">
-        <div ref={barFillRef} style={{ transform: `scaleX(${progress})` }} />
+      {/* Progress hairline (the director moves it every frame) */}
+      <div className={`kit-sim-bar ${isComplete ? 'is-full' : ''}`} aria-hidden="true">
+        <div ref={barFillRef} />
       </div>
 
-      {/* Controls & agent legend */}
+      {/* Agents, what they've drawn, and the controls */}
       <div className="kit-sim-controls">
         <div className="kit-sim-legend">
-          {agents.map((a) => (
-            <span className="kit-sim-agent" key={a.id}>
-              <i style={{ background: a.color }} aria-hidden="true" />
-              {a.name} <span>· {a.role}</span>
-            </span>
-          ))}
+          {agents.map((a) => {
+            const drawn = stats?.drawn[a.id] ?? 0;
+            return (
+              <span className="kit-sim-agent" key={a.id}>
+                <i style={{ background: a.color }} aria-hidden="true" />
+                {a.name} <span>· {a.role}</span>
+                {!reduced && (
+                  <b className="kit-sim-agent__count" title={`${drawn} divs drawn`}>
+                    {drawn}
+                  </b>
+                )}
+              </span>
+            );
+          })}
         </div>
 
-        <div className="kit-sim-btns">
-          <button
-            type="button"
-            className="kit-mini-btn"
-            onClick={togglePlay}
-            aria-label={playing ? 'Pause simulation' : 'Play simulation'}
-            aria-pressed={playing}
-          >
-            {playing ? 'Pause' : isComplete ? 'Rebuild' : 'Play'}
-          </button>
-          {!isComplete && (
-            <button
-              type="button"
-              className="kit-mini-btn"
-              onClick={finishImmediately}
-              aria-label="Finish build immediately"
-            >
-              Finish Build
-            </button>
+        <div className="kit-sim-side">
+          {!reduced && (
+            <span className={`kit-sim-status ${isComplete ? 'is-done' : ''}`}>{status}</span>
           )}
-          <button
-            type="button"
-            className="kit-mini-btn"
-            onClick={replay}
-            aria-label="Replay simulation"
-          >
-            Replay
-          </button>
+          {reduced ? (
+            <span className="kit-sim-note">Motion reduced · the finished site</span>
+          ) : (
+            <div className="kit-sim-btns">
+              <button
+                ref={toggleRef}
+                type="button"
+                className="kit-mini-btn"
+                onClick={togglePlay}
+                disabled={stage === 'loading'}
+                aria-label={playing ? 'Pause the build' : isComplete ? 'Build it again' : 'Play the build'}
+              >
+                {playing ? 'Pause' : isComplete ? 'Rebuild' : 'Play'}
+              </button>
+              {!isComplete && (
+                <button
+                  ref={finishRef}
+                  type="button"
+                  className="kit-mini-btn"
+                  onClick={finishNow}
+                  disabled={stage === 'loading'}
+                  aria-label="Finish the build now"
+                >
+                  Finish Build
+                </button>
+              )}
+              <button
+                type="button"
+                className="kit-mini-btn"
+                onClick={replay}
+                disabled={stage === 'loading'}
+                aria-label="Replay the build from the start"
+              >
+                Replay
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { industries } from '@/lib/content/industries';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
+import MomentRail from '@/components/webgl/scenes/industries/lib-b/MomentRail';
 import './page.css';
 
 const copy = industries.find((i) => i.slug === 'home-services')!;
@@ -54,6 +55,7 @@ export default function Page() {
       cta={copy.cta}
     >
       <JsonLd data={jsonLd} />
+      <MomentRail label={copy.crumbLabel} />
       {/* ---------- market-truth — the blunt statement ---------- */}
       <section
         data-scene-section="market-truth"

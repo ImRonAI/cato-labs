@@ -1,9 +1,11 @@
-import { childPageJsonLd, pageMetadata } from '@/lib/seo';
+import { pageMetadata } from '@/lib/seo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { regions, type RegionCopy } from '@/lib/content/regions';
 import ChildPageShell from '@/components/ui/ChildPageShell';
 import Reveal from '@/components/ui/Reveal';
 import ProximityType from '@/components/webgl/kit/ProximityType';
+import RegionMoment from '@/components/webgl/scenes/regions/lib-a/RegionMomentPage';
+import { regionChildJsonLd, regionGeoMeta } from '../_geo';
 import './page.css';
 
 function regionCopy(slug: string): RegionCopy {
@@ -14,18 +16,13 @@ function regionCopy(slug: string): RegionCopy {
 
 const copy = regionCopy('san-francisco');
 
-const jsonLd = childPageJsonLd({
-  crumbs: [
-    { name: 'Regions', path: '/regions' },
-    { name: copy.crumbLabel, path: `/regions/${copy.slug}` },
-  ],
-  faq: copy.faq,
-});
+const jsonLd = regionChildJsonLd(copy);
 
 export const metadata = pageMetadata({
   title: `AI-native consulting in ${copy.city}`,
   description: copy.lede,
   path: '/regions/san-francisco',
+  geo: regionGeoMeta(copy),
   keywords: [
     'AI consulting San Francisco',
     'category design & narrative',
@@ -40,13 +37,13 @@ export const metadata = pageMetadata({
 
 /**
  * /regions/san-francisco — buyers who read the docs.
- * Scene: SanFranciscoScene ("The Fog") — an ice-colored fog band rolls
- * through the Transamerica skyline, parting around the pyramid, while a
- * tiny cable-car marker glides along its wire on the hillside; on the
- * `angles` beat the fog thins and the skyline brightens. Hotspot
- * 'sf-skyline' rides the pyramid apex.
- * Section ids are CONTRACT: hero (shell), stats, angles, feature, build,
- * detail, faq/cta (shell).
+ * Scene: SanFranciscoScene ("Above the Marine Layer") — layered translucent
+ * marine mist planes drift through twin Art Deco suspension towers and
+ * catenary cables; during `moment`, the camera climbs out of the fog layer
+ * past the towers while a luminous glass cable-car prism crests the steep
+ * street grid below. Hotspot 'sf-skyline' rides the Transamerica apex.
+ * Section ids are CONTRACT: hero (shell), stats, moment, angles, feature,
+ * build, detail, faq/cta (shell).
  */
 export default function SanFranciscoPage() {
   return (
@@ -87,6 +84,9 @@ export default function SanFranciscoPage() {
         </section>
       )}
 
+      {/* ---------- moment — the signature scroll moment (dwell) ---------- */}
+      <RegionMoment copy={copy} />
+
       {/* ---------- angles — the market, four ways ---------- */}
       <section
         data-scene-section="angles"
@@ -97,8 +97,11 @@ export default function SanFranciscoPage() {
           {copy.region}
         </Reveal>
         <div className="sfr-angles__grid">
-          {copy.localAngles.map((a) => (
+          {copy.localAngles.map((a, i) => (
             <article key={a.title} className="sfr-angle">
+              <Reveal className="index-no" delay={0}>
+                {String(i + 1).padStart(2, '0')}
+              </Reveal>
               <Reveal as="h3" className="h3 sfr-angle__title" delay={0.06}>
                 {a.title}
               </Reveal>

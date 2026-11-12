@@ -1,271 +1,328 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import SceneLightRig from '../../shared/SceneLightRig';
 import ParticleField from '../../shared/ParticleField';
-import { GlassMaterial } from '../../../lib/materials';
 import { useQuality } from '../../../lib/quality';
-import { pointer, smooth } from '../../../scroll-store';
+import { getSectionProgress, pointer, sectionRange, smooth } from '../../../scroll-store';
 import { useHotspotReporter } from '../../../kit/ProximityType';
-import { createStageState, readStage, damp } from '../lib-a/dwell';
-import { placeStage, type Placement } from '../lib-a/place';
+import CatoBody, { type CatoBodyHandle } from '../../../kit/cato/CatoBody';
+import { createStageState, damp, readStage } from '../lib-a/dwell';
+import EmpirePlinth, { type EmpirePlinthHandle } from './indio/EmpirePlinth';
+import FestivalWheel, { type FestivalWheelHandle } from './indio/FestivalWheel';
+import FestivalStage, { type FestivalStageHandle } from './indio/FestivalStage';
+import DatePalmGrove, { type DatePalmGroveHandle } from './indio/DatePalmGrove';
 
 /**
- * IndioScene — "Ferris wheel".
+ * IndioScene — "The City of Festivals: Empire Polo Grounds & Date Palm Grove".
  *
- * A glass festival wheel stands dark against pale dusk dust. The `moment`
- * dwell turns it through one slow revolution; the rim bulbs light one by
- * one as they pass the top, until the whole wheel glows. The wheel's angle
- * follows scroll through a damped spring, so the gondolas, hung on pivots,
- * swing with the wheel's real angular acceleration and settle when you stop.
- * Scrolling up turns it back and the lights go out in reverse.
- *
- * Pointer: the wheel turns a few degrees toward the cursor in 3D.
- * Reduced motion: the wheel fully lit, at rest, gondolas hanging plumb.
+ * A crafted glass-and-porcelain architectural miniature of Indio's signature
+ * landmarks:
+ *   1. The Grand Glass Ferris Wheel above the Empire Polo Club lawns, with
+ *      3D A-frame support towers, boarding deck, 12 swinging passenger
+ *      gondolas, and 72 rim/star chase bulbs.
+ *   2. The Festival Main Stage Pavilion with three sweeping parabolic glass
+ *      arches, space-frame truss lattice, line-array speaker towers, 24-bar
+ *      curved LED equalizer wall, and 7 volumetric sweeping stage light beams.
+ *   3. Cato the Robot on the forestage deck behind his turntables & VU-meter
+ *      DJ booth ('dj' move), scratching records and dropping the beat.
+ *   4. A sculpted Medjool Date Palm Grove (Phoenix dactylifera) with diamond-
+ *      faceted trunks, arching pinnate fronds, and glowing sapphire date
+ *      clusters — referencing Indio's National Date Festival & east-valley
+ *      agricultural heritage — backed by the faceted Coachella Valley mountains.
  */
 
-const R = 1.55;
-const SPOKES = 16;
-const CARS = 8;
-const BULBS = 64;
-const HUB_Y = 0.25;
-
-const PLACE: Placement = {
-  hero: { x: 2.2, y: -0.1, z: -1.4, s: 0.82 },
-  center: { x: 0, y: 0, z: 0, s: 1 },
-  compactHero: { x: 0.35, y: -1.6, z: -1.6, s: 0.5 },
-  compactCenter: { x: 0, y: 0.1, z: 0, s: 0.62 },
-  still: { x: 2.2, y: -0.1, z: -1.4, s: 0.82 },
-  compactStill: { x: 0, y: 0.1, z: 0, s: 0.62 },
-};
-
 const _cam = new THREE.Vector3();
-const _m = new THREE.Matrix4();
-const _c = new THREE.Color();
-const _dim = new THREE.Color('#c9d4ff');
-const _lit = new THREE.Color('#5d7bff').multiplyScalar(2.6);
-const _hot = new THREE.Color('#ffffff').multiplyScalar(3.2);
+const _look = new THREE.Vector3();
 
 export default function IndioScene() {
   const q = useQuality();
   const rig = useRef<THREE.Group>(null);
-  const wheel = useRef<THREE.Group>(null);
   const tilt = useRef<THREE.Group>(null);
-  const carRefs = useRef<(THREE.Group | null)[]>([]);
-  const bulbs = useRef<THREE.InstancedMesh>(null);
-  const hub = useRef<THREE.Mesh>(null);
+  const catoGroup = useRef<THREE.Group>(null);
+  const bodyRef = useRef<CatoBodyHandle>(null);
+  const plinthRef = useRef<EmpirePlinthHandle>(null);
+  const wheelRef = useRef<FestivalWheelHandle>(null);
+  const stageRef = useRef<FestivalStageHandle>(null);
+  const groveRef = useRef<DatePalmGroveHandle>(null);
+
   const stage = useMemo(createStageState, []);
-  const live = useRef({ angle: 0, vel: 0, prevVel: 0, swing: 0, swingV: 0, ry: 0 });
   const report = useHotspotReporter('indio-skyline');
 
-  /* rim + spokes as one line geometry — one draw call, hairline glass */
-  const frame = useMemo(() => {
-    const pts: number[] = [];
-    const ring = (r: number, z: number) => {
-      const n = 128;
-      for (let i = 0; i < n; i++) {
-        const a0 = (i / n) * Math.PI * 2;
-        const a1 = ((i + 1) / n) * Math.PI * 2;
-        pts.push(Math.cos(a0) * r, Math.sin(a0) * r, z, Math.cos(a1) * r, Math.sin(a1) * r, z);
-      }
-    };
-    ring(R, 0.12);
-    ring(R, -0.12);
-    ring(R * 0.92, 0.12);
-    ring(R * 0.92, -0.12);
-    for (let i = 0; i < SPOKES; i++) {
-      const a = (i / SPOKES) * Math.PI * 2;
-      const z = i % 2 ? 0.12 : -0.12;
-      pts.push(0, 0, z * 0.5, Math.cos(a) * R * 0.92, Math.sin(a) * R * 0.92, z);
-      /* rim lattice */
-      const b = ((i + 1) / SPOKES) * Math.PI * 2;
-      pts.push(Math.cos(a) * R, Math.sin(a) * R, 0.12, Math.cos(b) * R * 0.92, Math.sin(b) * R * 0.92, -0.12);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-    return g;
-  }, []);
-  const lineMat = useMemo(
-    () => new THREE.LineBasicMaterial({ color: '#6b87ff', transparent: true, opacity: 0.7 }),
-    [],
-  );
-  /* the A-frame legs */
-  const legs = useMemo(() => {
-    const g = new THREE.BufferGeometry();
-    const y0 = -HUB_Y - R - 0.55;
-    g.setAttribute(
-      'position',
-      new THREE.Float32BufferAttribute(
-        [
-          0, 0, 0.2, -1.05, y0, 0.45, 0, 0, 0.2, 1.05, y0, 0.45,
-          0, 0, -0.2, -1.05, y0, -0.45, 0, 0, -0.2, 1.05, y0, -0.45,
-          -0.6, y0 * 0.58, 0.32, 0.6, y0 * 0.58, 0.32,
-          -0.6, y0 * 0.58, -0.32, 0.6, y0 * 0.58, -0.32,
-          -2.4, y0, 0, 2.4, y0, 0,
-        ],
-        3,
-      ),
-    );
-    return g;
-  }, []);
-  const legMat = useMemo(
-    () => new THREE.LineBasicMaterial({ color: '#2e4bff', transparent: true, opacity: 0.55 }),
-    [],
-  );
-  const bulbMat = useMemo(() => new THREE.MeshBasicMaterial({ toneMapped: false }), []);
-  useEffect(
-    () => () => {
-      frame.dispose();
-      lineMat.dispose();
-      legs.dispose();
-      legMat.dispose();
-      bulbMat.dispose();
-    },
-    [frame, lineMat, legs, legMat, bulbMat],
-  );
-
-  /* bulbs — instanced around the outer rim, both faces */
-  useEffect(() => {
-    const b = bulbs.current;
-    if (!b) return;
-    for (let i = 0; i < BULBS; i++) {
-      const a = (i / (BULBS / 2)) * Math.PI * 2;
-      const z = i < BULBS / 2 ? 0.12 : -0.12;
-      _m.makeTranslation(Math.cos(a) * R, Math.sin(a) * R, z);
-      b.setMatrixAt(i, _m);
-      b.setColorAt(i, _dim);
-    }
-    b.instanceMatrix.needsUpdate = true;
-    if (b.instanceColor) b.instanceColor.needsUpdate = true;
-  }, []);
+  const live = useRef({
+    init: false,
+    mode: '',
+    angle: 0,
+    prevVel: 0,
+    swing: 0,
+    swingV: 0,
+    rx: 0.08,
+    ry: -0.28,
+    x: 1.55,
+    y: 0.05,
+    z: 0.25,
+    s: 0.78,
+  });
 
   useFrame((state, delta) => {
     const el = state.clock.elapsedTime;
     const anim = q.animate;
+    const compact = q.compact;
     const dt = Math.min(delta, 1 / 30);
-    readStage(stage, q);
-    const intro = anim ? smooth(Math.min(el / 1.8, 1)) : 1;
-    const t = stage.t;
     const L = live.current;
 
-    if (rig.current) placeStage(rig.current, stage, q, PLACE, intro);
+    // Initialize Cato's DJ booth & lock Cato's internal scene palette to Cato blue-only
+    const core = bodyRef.current?.core;
+    if (core) {
+      if (!L.init) {
+        L.init = true;
+        const sc = core.lights?.scene as Record<string, unknown> | undefined;
+        if (sc) {
+          Object.defineProperty(sc, 'ledA', {
+            get: () => 'rgb(147,169,255)',
+            set: () => {},
+            configurable: true,
+          });
+          Object.defineProperty(sc, 'ledB', {
+            get: () => 'rgb(46,75,255)',
+            set: () => {},
+            configurable: true,
+          });
+          Object.defineProperty(sc, 'light', {
+            get: () => 'desk',
+            set: () => {},
+            configurable: true,
+          });
+        }
+        // Recolor the DJ booth body ('#22252C' / '#121418') to deep Cato sapphire blue
+        catoGroup.current?.traverse((obj) => {
+          const mat = (obj as THREE.Mesh).material as THREE.ShaderMaterial | undefined;
+          const uC = mat?.uniforms?.uC?.value as THREE.Vector3 | undefined;
+          if (!uC) return;
+          if (Math.abs(uC.x - 0.0119) < 0.0025 && Math.abs(uC.z - 0.021) < 0.003) {
+            uC.set(0.055, 0.135, 0.58);
+          } else if (Math.abs(uC.x - 0.003) < 0.0015 && Math.abs(uC.z - 0.0056) < 0.002) {
+            uC.set(0.028, 0.072, 0.36);
+          }
+        });
+      }
+      const wantMode = anim ? 'play:dj' : 'scrub:dj';
+      if (L.mode !== wantMode) {
+        L.mode = wantMode;
+        if (anim) {
+          core.release();
+          core.play('dj');
+        } else {
+          core.scrub('dj', 2.4);
+        }
+      }
+    }
 
-    /* one revolution across the dwell (clockwise), via a critically-damped follow */
-    const target = anim ? -smooth(t) * Math.PI * 2 - t * 0.4 : 0;
+    // Read scroll sections for multi-beat choreography across the whole page
+    readStage(stage, q);
+    const pStats = smooth(sectionRange(getSectionProgress('stats'), 0.05, 0.85));
+    const pAngles = smooth(sectionRange(getSectionProgress('angles'), 0.05, 0.9));
+    const pFeature = smooth(sectionRange(getSectionProgress('feature'), 0.05, 0.9));
+    const pBuild = smooth(sectionRange(getSectionProgress('build'), 0.05, 0.9));
+    const pDetail = smooth(sectionRange(getSectionProgress('detail'), 0.05, 0.9));
+    const pEnd = smooth(sectionRange(getSectionProgress('faq'), 0.0, 1.0));
+
+    const intro = anim ? smooth(Math.min(el / 1.6, 1)) : 1;
+    const into = stage.into;
+    const out = stage.out;
+    const t = stage.t;
+
+    // Compute target diorama pose per scroll beat (never vanishes after `moment`)
+    let tx: number;
+    let ty: number;
+    let tz: number;
+    let ts: number;
+    let tryYaw: number;
+    let trxPitch: number;
+
+    if (compact) {
+      // Mobile / portrait choreography: tucked into the lower stage on hero & post-moment,
+      // rising to center stage during the pinned `moment` dwell.
+      const heroX = 0.04;
+      const heroY = -1.16;
+      const heroZ = -0.45;
+      const heroS = 0.39;
+
+      const momX = 0.04;
+      const momY = 0.02;
+      const momZ = 0.25;
+      const momS = 0.48;
+
+      const postX = 0.05 - 0.06 * pFeature;
+      const postY = -1.24 + 0.12 * pDetail;
+      const postZ = -0.55;
+      const postS = 0.36;
+
+      const preX = heroX + (momX - heroX) * into;
+      const preY = heroY + (momY - heroY) * into;
+      const preZ = heroZ + (momZ - heroZ) * into;
+      const preS = heroS + (momS - heroS) * into;
+
+      tx = preX + (postX - preX) * out;
+      ty = preY + (postY - preY) * out;
+      tz = preZ + (postZ - preZ) * out;
+      ts = preS + (postS - preS) * out;
+      tryYaw = -0.22 + into * (0.34 * smooth(t) - 0.12) + out * (0.38 * pAngles - 0.25 * pDetail);
+      trxPitch = 0.10 + 0.04 * pFeature;
+    } else {
+      // Desktop choreography:
+      // 1. Hero + Stats: Right-hand showcase beside the hero headline & 3-stat row
+      const heroX = 2.02 - 0.06 * pStats;
+      const heroY = -0.14 + 0.18 * pStats;
+      const heroZ = 0.18 + 0.14 * pStats;
+      const heroS = 0.72 + 0.03 * pStats;
+
+      // 2. Moment dwell: Centered full-stage festival diorama
+      const momX = 0.06;
+      const momY = 0.04;
+      const momZ = 1.12;
+      const momS = 0.95;
+
+      // 3. Post-moment beats (angles -> feature -> build -> detail -> faq/cta):
+      //    Occupies the dedicated right-hand stage column (x ~ 2.04..2.14) while
+      //    the editorial copy occupies the left 47% column.
+      const postX = 2.06 + 0.08 * pFeature - 0.04 * pBuild + 0.06 * pDetail + 0.18 * pEnd;
+      const postY = -0.06 + 0.18 * pFeature - 0.12 * pBuild + 0.14 * pEnd;
+      const postZ = 0.22 - 0.30 * pFeature + 0.20 * pDetail;
+      const postS = 0.72 - 0.03 * pFeature + 0.03 * pDetail - 0.06 * pEnd;
+
+      const preX = heroX + (momX - heroX) * into;
+      const preY = heroY + (momY - heroY) * into;
+      const preZ = heroZ + (momZ - heroZ) * into;
+      const preS = heroS + (momS - heroS) * into;
+
+      tx = preX + (postX - preX) * out;
+      ty = preY + (postY - preY) * out - (1 - intro) * 0.45;
+      tz = preZ + (postZ - preZ) * out;
+      ts = (preS + (postS - preS) * out) * (0.92 + 0.08 * intro);
+
+      const momSweep = -0.34 + smooth(t) * 0.48;
+      const preYaw = -0.26 * (1 - into) + momSweep * into;
+      const postYaw = 0.22 - 0.48 * pFeature + 0.18 * pBuild - 0.24 * pDetail;
+      tryYaw = preYaw + (postYaw - preYaw) * out + (anim ? pointer.x * 0.16 : 0);
+      trxPitch = 0.08 + 0.08 * pFeature - 0.04 * pDetail + (anim ? -pointer.y * 0.04 : 0);
+    }
+
+    if (!anim) {
+      L.x = compact ? 0.04 : 2.02;
+      L.y = compact ? -1.16 : -0.12;
+      L.z = compact ? -0.45 : 0.20;
+      L.s = compact ? 0.39 : 0.72;
+      L.ry = -0.26;
+      L.rx = 0.09;
+    } else {
+      L.x = damp(L.x, tx, 5.5, dt);
+      L.y = damp(L.y, ty, 5.5, dt);
+      L.z = damp(L.z, tz, 5.5, dt);
+      L.s = damp(L.s, ts, 5.5, dt);
+      L.ry = damp(L.ry, tryYaw, 4.2, dt);
+      L.rx = damp(L.rx, trxPitch, 4.2, dt);
+    }
+
+    if (rig.current) {
+      rig.current.position.set(L.x, L.y, L.z);
+      rig.current.scale.setScalar(L.s);
+    }
+    if (tilt.current) {
+      tilt.current.rotation.y = L.ry;
+      tilt.current.rotation.x = L.rx;
+    }
+
+    // Wheel rotation: continuous slow festival turn + full revolution across the moment dwell
+    const scrollTurn =
+      into * (-smooth(t) * Math.PI * 2) -
+      pStats * 0.65 -
+      out * (pAngles * 1.4 + pFeature * 1.2 + pBuild * 1.2 + pDetail * 1.4);
+    const targetAngle = anim ? scrollTurn - el * 0.22 : -Math.PI * 0.65;
     const prevAngle = L.angle;
-    L.angle = anim ? damp(L.angle, target, 3.2, dt) : target;
+    L.angle = anim ? damp(L.angle, targetAngle, 3.6, dt) : targetAngle;
     const vel = dt > 0 ? (L.angle - prevAngle) / dt : 0;
     const acc = dt > 0 ? (vel - L.prevVel) / dt : 0;
     L.prevVel = vel;
-    if (wheel.current) wheel.current.rotation.z = L.angle;
 
-    /* gondola pendulum: driven by tangential acceleration, lightly damped */
+    // Gondola pendulum swing driven by angular acceleration
     if (anim) {
-      const force = -acc * 0.06 - L.swing * 9 - L.swingV * 2.2;
+      const force = -acc * 0.055 - L.swing * 9.2 - L.swingV * 2.3;
       L.swingV += force * dt;
       L.swing += L.swingV * dt;
-      L.swing = Math.max(-0.5, Math.min(0.5, L.swing));
+      L.swing = Math.max(-0.48, Math.min(0.48, L.swing));
     } else {
       L.swing = 0;
     }
-    for (let i = 0; i < CARS; i++) {
-      const c = carRefs.current[i];
-      if (!c) continue;
-      /* counter-rotate to hang plumb, plus the swing */
-      c.rotation.z = -L.angle + L.swing * (0.8 + 0.4 * Math.sin(i * 1.7));
+
+    // Synchronize beat clock with Cato's 124 BPM DJ engine
+    const sceneBeat = (core?.lights?.scene as { beat?: number; beatPulse?: number } | undefined);
+    const beat = anim ? (sceneBeat?.beat ?? (el * 124) / 60) : 1.0;
+    const beatPulse = anim
+      ? (sceneBeat?.beatPulse ?? Math.pow(1 - (beat % 1), 3))
+      : 0.65;
+
+    const reveal = anim ? Math.min(1, 0.45 + pStats * 0.35 + into * 0.5) : 1;
+
+    // Update sub-assemblies (zero React re-renders, direct GPU buffer updates)
+    plinthRef.current?.update(el, beat, beatPulse, reveal, anim);
+    wheelRef.current?.update(L.angle, L.swing, beat, beatPulse, anim);
+    stageRef.current?.update(el, beat, beatPulse, stage.focus, anim);
+    groveRef.current?.update(el, beatPulse, anim);
+
+    const hub = wheelRef.current?.hubMesh;
+    if (hub) {
+      report(hub, state.camera, 0.55 + 0.35 * stage.focus);
     }
 
-    /* lights: each bulb comes on as it first crosses the top of the wheel */
-    const b = bulbs.current;
-    if (b) {
-      const turned = -L.angle; // radians travelled
-      for (let i = 0; i < BULBS; i++) {
-        const k = i % (BULBS / 2);
-        const a0 = (k / (BULBS / 2)) * Math.PI * 2; // bulb angle at rest
-        /* clockwise travel needed for this bulb to reach the top (π/2) */
-        let need = a0 - Math.PI / 2;
-        need = ((need % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-        const on = anim ? Math.min(Math.max((turned - need) / 0.35, 0), 1) : 1;
-        const fresh = anim ? Math.exp(-Math.max(turned - need, 0) * 3) * on : 0;
-        _c.copy(_dim).lerp(_lit, on).lerp(_hot, fresh * 0.6);
-        b.setColorAt(i, _c);
-      }
-      if (b.instanceColor) b.instanceColor.needsUpdate = true;
-    }
-
-    if (hub.current) {
-      const m = hub.current.material as THREE.MeshPhysicalMaterial;
-      m.emissiveIntensity = 0.2 + (anim ? smooth(t) : 1) * 0.9;
-      report(hub.current, state.camera, 0.45 + 0.4 * stage.focus);
-    }
-
-    L.ry = anim ? damp(L.ry, pointer.x * 0.22 - 0.12, 2, delta) : -0.18;
-    if (tilt.current) {
-      tilt.current.rotation.y = L.ry;
-      tilt.current.rotation.x = anim ? pointer.y * -0.05 : 0;
-    }
-
-    _cam.set(anim ? pointer.x * 0.3 : 0, anim ? pointer.y * 0.18 : 0, 9);
-    state.camera.position.lerp(_cam, 0.05);
-    state.camera.lookAt(0, 0, 0);
+    // Subtle camera parallax + smooth moment dolly & detail/cta handoff
+    const camZ = anim ? 9.06 - 0.50 * stage.focus + 0.12 * pEnd : 9.0;
+    const camY = anim ? pointer.y * 0.14 + 0.08 + 0.10 * stage.focus : 0.08;
+    _cam.set(anim ? pointer.x * 0.24 : 0, camY, camZ);
+    state.camera.position.lerp(_cam, 0.06);
+    _look.set(0, -0.06 + 0.05 * stage.focus, 0);
+    state.camera.lookAt(_look);
   });
 
   return (
     <>
       <SceneLightRig />
       <group ref={rig}>
-        <group ref={tilt} position={[0, HUB_Y, 0]}>
-          <lineSegments geometry={legs} material={legMat} />
-          <group ref={wheel}>
-            <lineSegments geometry={frame} material={lineMat} />
-            {/* glass rim — the wheel's body catches the rig light */}
-            <mesh>
-              <torusGeometry args={[R, 0.028, 12, 160]} />
-              <GlassMaterial kind="azure" />
-            </mesh>
-            <instancedMesh ref={bulbs} args={[undefined, undefined, BULBS]} material={bulbMat}>
-              <sphereGeometry args={[0.03, 10, 8]} />
-            </instancedMesh>
-            {Array.from({ length: CARS }, (_, i) => {
-              const a = (i / CARS) * Math.PI * 2 + Math.PI / CARS;
-              return (
-                <group
-                  key={i}
-                  position={[Math.cos(a) * R, Math.sin(a) * R, 0]}
-                  ref={(g) => {
-                    carRefs.current[i] = g;
-                  }}
-                >
-                  <mesh position={[0, -0.13, 0]}>
-                    <cylinderGeometry args={[0.004, 0.004, 0.16, 6]} />
-                    <meshBasicMaterial color="#6b87ff" />
-                  </mesh>
-                  <mesh position={[0, -0.27, 0]}>
-                    <capsuleGeometry args={[0.085, 0.07, 6, 16]} />
-                    <GlassMaterial kind={i % 2 ? 'ice' : 'crystal'} />
-                  </mesh>
-                </group>
-              );
-            })}
-          </group>
-          <mesh ref={hub}>
-            <sphereGeometry args={[0.11, 32, 24]} />
-            <GlassMaterial kind="deep" emissive="#2e4bff" emissiveIntensity={0.2} />
-          </mesh>
+        <group ref={tilt}>
+          {/* 1. Empire Polo Club Plinth, Mountain Ridge, Promenade Lanterns & Bass Rings */}
+          <EmpirePlinth ref={plinthRef} />
+
+          {/* 2. Grand Glass Ferris Wheel Miniature (left-back of polo lawn) */}
+          <FestivalWheel ref={wheelRef} position={[-1.08, 0.22, -0.38]} />
+
+          {/* 3. Main Festival Stage Pavilion, Light Beams & Cato DJing on the Forestage */}
+          <FestivalStage ref={stageRef} position={[0.88, -1.325, 0.28]} rotationY={-0.22}>
+            <group ref={catoGroup} position={[0, 0, 0.04]} scale={0.66}>
+              <CatoBody ref={bodyRef} paused={!q.animate} />
+            </group>
+          </FestivalStage>
+
+          {/* 4. Medjool Date Palm Grove (Indio = Date Capital / National Date Festival) */}
+          <DatePalmGrove ref={groveRef} />
         </group>
       </group>
-      {/* dusk dust — a warmer, denser drift low in the frame */}
+
+      {/* Evening desert dust & festival light motes */}
       <ParticleField
-        count={Math.floor(1500 * q.particles)}
-        spread={[10, 3, 5]}
-        position={[0, -2.2, -1]}
-        drift={q.animate ? 0.12 : 0}
-        opacity={0.3}
+        count={Math.floor(1100 * q.particles)}
+        spread={[10, 3.2, 5]}
+        position={[0, -2.0, -0.8]}
+        drift={q.animate ? 0.1 : 0}
+        opacity={0.26}
         colorB="#c9d4ff"
       />
-      <ParticleField count={Math.floor(600 * q.particles)} drift={q.animate ? 0.08 : 0} opacity={0.2} />
+      <ParticleField
+        count={Math.floor(450 * q.particles)}
+        drift={q.animate ? 0.07 : 0}
+        opacity={0.18}
+      />
     </>
   );
 }

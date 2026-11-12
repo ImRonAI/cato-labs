@@ -26,10 +26,12 @@
 .reg-hero__lede {
   max-width: 36rem;
   margin-top: 2.2rem;
+  text-shadow: 0 1px 18px rgba(250, 251, 254, 0.92);
 }
 
 /* ---------- feature — the editorial index of eleven ---------- */
 .reg-index {
+  position: relative;
   padding-block: calc(var(--section-y) * 0.4) calc(var(--section-y) * 0.35);
 }
 .reg-list {
@@ -82,6 +84,7 @@
 }
 .reg-row__title {
   transition: transform 0.55s var(--ease-out);
+  text-shadow: 0 1px 14px rgba(250, 251, 254, 0.9);
 }
 .reg-row:hover .reg-row__title,
 .reg-row:focus-visible .reg-row__title {
@@ -106,6 +109,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 16px rgba(250, 251, 254, 0.94);
 }
 .reg-row__arrow {
   justify-self: end;

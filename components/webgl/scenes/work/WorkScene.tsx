@@ -9,7 +9,12 @@ import SceneLightRig from '../shared/SceneLightRig';
 import ParticleField from '../shared/ParticleField';
 import { GlassMaterial, type GlassKind } from '../../lib/materials';
 import { useQuality } from '../../lib/quality';
-import { getSectionProgress, sectionRange, smooth, pointer } from '../../scroll-store';
+import {
+  getSectionProgress,
+  sectionRange,
+  smooth,
+  pointer,
+} from '../../scroll-store';
 import { useHotspotReporter } from '../../kit/ProximityType';
 import { DEAL_DUR, DEAL_FROM, DEAL_STAGGER } from './deal';
 
@@ -17,18 +22,16 @@ import { DEAL_DUR, DEAL_FROM, DEAL_STAGGER } from './deal';
  * WorkScene — "The Deal".
  *
  * Five glass case cards — one per engagement — rest face-down in a squared
- * deck beside the hero. Through the pinned `deal` dwell they are dealt one
- * by one: each card lifts off the deck, arcs toward the lens, turns face-up
- * mid-flight and lands in a fanned hand. Resting Art is dealt first, into
- * the centre, and at the last beat rises out of the hand — the documented
- * case. Fully scrubbed by section progress, so scrolling up gathers the hand
- * back into the deck. While the index is read (`feature`) the hand recedes
- * into the fog.
+ * deck beside `hero`. Through the pinned `deal` dwell they are dealt one by
+ * one: each card lifts off the deck, arcs toward the lens, turns face-up mid-
+ * flight and lands in a fanned hand. Resting Art is dealt first, into the
+ * centre, and at the last beat rises out of the hand — the documented case.
+ * While the index is read (`feature`) the hand recedes softly into the fog,
+ * then re-poises in the upper margin across `detail` ("How we work") and
+ * `cta`.
  *
- * Face print: an opaque merged hairline layout per card (meta, headline,
- * text lines, metric block) — opaque so it refracts through the glass when
- * the card is face-down. Zero allocations in useFrame; reduced motion shows
- * the finished hand.
+ * Zero allocations in useFrame; mount-relative intro; reduced motion renders
+ * the finished hand immediately.
  */
 
 const CARD_W = 1.3;
@@ -37,10 +40,15 @@ const CARD_D = 0.05;
 
 /** deal order k (= case order) → fan slot; fills the centre then outward */
 const SLOT_OF = [2, 1, 3, 0, 4] as const;
-const KINDS: readonly GlassKind[] = ['deep', 'ice', 'azure', 'crystal', 'pane'];
+const KINDS: readonly GlassKind[] = [
+  'deep',
+  'ice',
+  'azure',
+  'crystal',
+  'pane',
+];
 const FAN_STEP = 0.22;
 const FAN_R = 3.2;
-
 
 /** pinned window of a 300vh dwell with a 100vh sticky stage */
 const PIN_FROM = 0.25;
@@ -48,8 +56,8 @@ const PIN_TO = 0.75;
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
+const easeInOut = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 /* deterministic deck jitter */
 const DECK_ROT = [0.012, -0.028, 0.021, -0.016, 0.031];
@@ -64,7 +72,6 @@ function buildPrint(featured: boolean) {
   const soft = new THREE.Color(featured ? '#6f88ff' : '#a9bbff');
   const faint = new THREE.Color(featured ? '#94a8ff' : '#c5d2ff');
   const bars: [number, number, number, number, THREE.Color][] = [
-    // x (left edge), y, w, h, colour
     [-0.5, 0.74, 0.36, 0.03, soft],
     [-0.5, 0.5, 0.86, 0.085, ink],
     [-0.5, 0.37, 0.58, 0.085, ink],
@@ -94,6 +101,7 @@ function buildPrint(featured: boolean) {
 
 export default function WorkScene() {
   const q = useQuality();
+  const startAt = useRef<number | null>(null);
   const hand = useRef<THREE.Group>(null);
   const cardRefs = useRef<(THREE.Group | null)[]>([]);
   const report = useHotspotReporter('work-featured');
@@ -114,26 +122,61 @@ export default function WorkScene() {
   );
 
   useFrame((state) => {
-    const el = state.clock.elapsedTime;
+    if (startAt.current === null) startAt.current = state.clock.elapsedTime;
+    const el = state.clock.elapsedTime - startAt.current;
     const anim = q.animate;
     const g = hand.current;
     if (!g) return;
 
-    const dealP = anim ? sectionRange(getSectionProgress('deal'), PIN_FROM, PIN_TO) : 1;
-    const recede = anim ? smooth(sectionRange(getSectionProgress('feature'), 0.02, 0.4)) : 0;
-    const intro = anim ? smooth(Math.min(el / 2.0, 1)) : 1;
+    const hero = anim ? getSectionProgress('hero') : 1;
+    const dealP = anim
+      ? sectionRange(getSectionProgress('deal'), PIN_FROM, PIN_TO)
+      : 1;
+    const feature = anim ? getSectionProgress('feature') : 0;
+    const detail = anim ? getSectionProgress('detail') : 0;
+    const cta = anim ? getSectionProgress('cta') : 0;
+
+    const heroLead = smooth(sectionRange(hero, 0.45, 0.98));
+    const recedeIn = smooth(sectionRange(feature, 0.02, 0.38));
+    const detailReturn = smooth(sectionRange(detail, 0.08, 0.55));
+    const ctaCalm = smooth(sectionRange(cta, 0.08, 0.72));
+    const recede = anim ? recedeIn * (1 - detailReturn * 0.48 - ctaCalm * 0.18) : 0;
+
+    const intro = anim ? smooth(Math.min(el / 1.9, 1)) : 1;
     const lift = smooth(sectionRange(dealP, 0.84, 0.98));
 
-    /* hand placement — right of the copy; recede into the fog for the index */
+    /* hand placement — right of the copy; recedes for index, re-poises on detail/cta */
     const compact = q.compact;
-    const baseX = compact ? 0 : 2.05 - smooth(sectionRange(dealP, 0, 0.3)) * 0.2 + (1 - smooth(sectionRange(dealP, 0, 0.3))) * 0.35;
+    const dealStart = smooth(sectionRange(dealP, 0, 0.3));
+    const baseX = compact
+      ? 0
+      : 2.05 - dealStart * 0.2 + (1 - dealStart) * 0.35;
+    const targetX = baseX + recede * (compact ? 0 : 0.7) + ctaCalm * 0.15;
+    const targetRotX =
+      -0.1 +
+      heroLead * 0.03 * (1 - dealStart) +
+      detailReturn * 0.04 -
+      (anim ? pointer.y * 0.06 : 0);
+    const targetRotY =
+      -0.12 -
+      detailReturn * 0.1 +
+      ctaCalm * 0.08 +
+      (anim ? pointer.x * 0.12 : 0);
+
+    if (anim) {
+      g.position.x += (targetX - g.position.x) * 0.06;
+      g.rotation.x += (targetRotX - g.rotation.x) * 0.05;
+      g.rotation.y += (targetRotY - g.rotation.y) * 0.05;
+    } else {
+      g.position.x = targetX;
+      g.rotation.x = targetRotX;
+      g.rotation.y = targetRotY;
+    }
     const baseY = compact ? -1.05 : -0.05;
-    g.position.x += (baseX + recede * (compact ? 0 : 0.7) - g.position.x) * 0.06;
-    g.position.y = baseY + recede * 1.3 - (1 - intro) * 1.2;
+    g.position.y =
+      baseY + recede * 1.3 - detailReturn * 0.25 - (1 - intro) * 1.15;
     g.position.z = -recede * 4.2;
     g.scale.setScalar(compact ? 0.64 : 1);
-    g.rotation.x += ((anim ? -0.1 - pointer.y * 0.06 : -0.1) - g.rotation.x) * 0.05;
-    g.rotation.y += ((anim ? -0.12 + pointer.x * 0.12 : -0.12) - g.rotation.y) * 0.05;
 
     for (let k = 0; k < SLOT_OF.length; k++) {
       const c = cardRefs.current[k];
@@ -144,13 +187,15 @@ export default function WorkScene() {
       const arc = Math.sin(Math.PI * u);
 
       /* deck pose — face-down, top card nearest the lens */
-      const breath = anim ? Math.sin(el * 0.6 + k * 0.7) * 0.012 * (1 - e) : 0;
+      const breath = anim
+        ? Math.sin(el * 0.6 + k * 0.7) * 0.012 * (1 - e)
+        : 0;
       const dx = DECK_OFF[k];
       const dy = 0.55 + DECK_OFF[(k + 2) % 5] * 0.6 + breath;
       const dz = 0.32 - k * 0.07;
 
       /* fan slot */
-      const a = (j - 2) * FAN_STEP;
+      const a = (j - 2) * (FAN_STEP + detailReturn * 0.025);
       const fx = FAN_R * Math.sin(a);
       const fy = -FAN_R + FAN_R * Math.cos(a) + 0.2;
       const fz = 0.03 * j + (k === 0 ? 0.14 + lift * 0.5 : 0);
@@ -167,21 +212,31 @@ export default function WorkScene() {
         lerp(DECK_ROT[k], -a, e) * (k === 0 ? 1 - lift : 1),
         'ZYX',
       );
-      const pop = anim ? smooth(clamp01((el - 0.2 - (4 - k) * 0.12) / 0.9)) : 1;
+      const pop = anim
+        ? smooth(clamp01((el - 0.16 - (4 - k) * 0.11) / 0.85))
+        : 1;
       c.scale.setScalar(Math.max(pop, 0.001));
     }
 
     const featured = cardRefs.current[0];
-    if (featured) report(featured, state.camera, (0.5 + 0.4 * lift) * intro * (1 - recede * 0.7));
+    if (featured) {
+      report(
+        featured,
+        state.camera,
+        (0.5 + 0.4 * lift) * intro * (1 - recede * 0.7),
+      );
+    }
 
-    /* camera — a quiet push-in through the deal, pointer parallax */
+    /* camera — quiet push-in through the deal, pointer parallax */
     const push = smooth(dealP);
     _cam.set(
       anim ? pointer.x * 0.35 : 0,
-      0.2 + (anim ? pointer.y * 0.22 : 0),
-      (compact ? 10.8 : 9.4) - push * 0.7 - intro * 0.3,
+      0.2 + detailReturn * 0.12 + (anim ? pointer.y * 0.22 : 0),
+      (compact ? 10.8 : 9.4) - push * 0.7 + ctaCalm * 0.35 - intro * 0.3,
     );
-    state.camera.position.lerp(_cam, 0.05);
+    if (anim) state.camera.position.lerp(_cam, 0.05);
+    else state.camera.position.copy(_cam);
+
     _look.set(compact ? 0 : 0.7, compact ? -0.5 : 0, 0);
     state.camera.lookAt(_look);
   });
@@ -197,7 +252,11 @@ export default function WorkScene() {
               cardRefs.current[k] = m;
             }}
           >
-            <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={0.022} smoothness={4}>
+            <RoundedBox
+              args={[CARD_W, CARD_H, CARD_D]}
+              radius={0.022}
+              smoothness={4}
+            >
               <GlassMaterial kind={KINDS[k]} />
             </RoundedBox>
             <mesh geometry={prints[k]}>

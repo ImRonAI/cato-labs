@@ -70,6 +70,7 @@
   color: var(--ink-2);
   line-height: 1.75;
   font-size: 1.0625rem;
+  text-shadow: 0 1px 16px rgba(250, 251, 254, 0.92);
 }
 
 /* ---------- feature — the pillars, alternating editorial blocks ---------- */
@@ -103,6 +104,7 @@
   color: var(--ink-2);
   line-height: 1.75;
   font-size: 1.0625rem;
+  text-shadow: 0 1px 16px rgba(250, 251, 254, 0.92);
 }
 
 /* ---------- detail — the work + two-column hairline list ---------- */

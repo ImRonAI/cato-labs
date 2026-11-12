@@ -1,6 +1,6 @@
 import React from 'react';
 import MomentMeter from './MomentMeter';
-import { DWELL_VH, MOMENT_ID } from './moment';
+import { MOMENT_ID } from './moment';
 import './moment.css';
 
 /**
@@ -16,12 +16,11 @@ export default function MomentDwell({ city, region }: { city: string; region: st
     <section
       data-scene-section={MOMENT_ID}
       className="rb-moment"
-      style={{ minHeight: `${DWELL_VH}vh` }}
-      aria-hidden="true"
+      aria-label={`${city} — ${region}`}
     >
       <div className="rb-moment__stage">
         <MomentMeter>
-          <div className="container-x rb-moment__foot">
+          <div className="container-x rb-moment__foot" aria-hidden="true">
             <span className="micro-label micro-label--ink rb-moment__caption">
               {city}
               <span className="rb-moment__sep">/</span>

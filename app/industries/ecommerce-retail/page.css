@@ -4,16 +4,38 @@
    Uses the design tokens from app/globals.css.
    ============================================================ */
 
+/* ---------- hero headline framing — clean gutter before right-stage miniature ---------- */
+.child-hero .display-1 {
+  font-size: clamp(3.2rem, 7.5vw, 7.35rem);
+  max-width: 11ch;
+}
+
+@keyframes ecrHeroReveal {
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.child-hero .reveal:not(.is-in),
+.child-hero .reveal-line:not(.is-in) > span {
+  animation: ecrHeroReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
+}
+
 /* ---------- market-truth — the display statement ---------- */
 .ecr-truth {
   padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.3);
 }
 .ecr-truth__statement {
   margin-top: clamp(28px, 4.5vh, 44px);
-  max-width: 24ch;
+  font-size: clamp(2.1rem, 3.85vw, 3.35rem);
+  line-height: 1.08;
+  letter-spacing: -0.038em;
+  max-width: 19.5ch;
 }
 
-/* ---------- feature — the plays, alternating editorial blocks ---------- */
+/* ---------- feature — the plays, stepped left editorial column ---------- */
 .ecr-plays {
   padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.35);
 }
@@ -21,15 +43,16 @@
   margin-top: clamp(56px, 8vw, 100px);
   display: flex;
   flex-direction: column;
-  gap: clamp(72px, 10vw, 140px);
+  gap: clamp(64px, 8.5vw, 120px);
+  max-width: 44rem;
 }
 .ecr-play {
-  max-width: 560px;
+  max-width: 500px;
   border-top: 1px solid var(--line);
   padding-top: 28px;
 }
 .ecr-play:nth-child(even) {
-  align-self: flex-end;
+  margin-left: clamp(24px, 4.5vw, 68px);
 }
 .ecr-play .index-no {
   display: block;
@@ -60,24 +83,28 @@
   font-size: 1.0625rem;
 }
 
-/* ---------- detail — the work + two-column hairline list ---------- */
+/* ---------- detail — the work + left-stage hairline list ---------- */
 .ecr-detail {
   padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.55);
 }
 .ecr-detail__title {
   margin-block: 18px 24px;
-  max-width: 20ch;
+  max-width: 17.5ch;
 }
 .ecr-detail__body {
-  max-width: 44rem;
+  max-width: 36rem;
 }
 .ecr-detail__bullets {
   margin-top: clamp(48px, 7vw, 84px);
+  max-width: 40rem;
   list-style: none;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: clamp(32px, 5vw, 72px);
+  column-gap: clamp(28px, 4vw, 56px);
   border-bottom: 1px solid var(--line);
+  background: rgba(250, 251, 254, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .ecr-detail__bullets li {
   border-top: 1px solid var(--line);
@@ -99,17 +126,65 @@
   transform: translateY(-1px);
 }
 
+/* ---------- FAQ & CTA left-stage framing so right-side GL stays unobstructed ---------- */
+[data-scene-section="faq"] > div {
+  max-width: 42rem;
+}
+
+@media (min-width: 821px) {
+  .cta-band {
+    text-align: left;
+  }
+  .cta-band .display-2 {
+    max-width: 14ch;
+  }
+  .cta-band .lede {
+    margin: 0 0 34px !important;
+    max-width: 32rem !important;
+  }
+}
+
 /* ---------- responsive ---------- */
-@media (max-width: 720px) {
+@media (max-width: 820px) {
+  .child-hero {
+    justify-content: flex-start;
+    padding-top: 114px;
+    padding-bottom: 42vh;
+  }
+  .child-hero .display-1 {
+    font-size: clamp(2.65rem, 10.5vw, 3.6rem);
+    max-width: 11ch;
+  }
+  .ecr-truth,
+  .ecr-play,
+  .ecr-detail {
+    background: rgba(250, 251, 254, 0.90);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 16px;
+  }
   .ecr-truth__statement {
+    font-size: clamp(1.75rem, 6.8vw, 2.3rem);
     max-width: none;
   }
   .ecr-play,
   .ecr-play:nth-child(even) {
-    align-self: stretch;
+    margin-left: 0;
     max-width: none;
+    padding: 24px 18px;
   }
   .ecr-detail__bullets {
     grid-template-columns: 1fr;
+    max-width: none;
+  }
+  [data-scene-section="faq"] > div {
+    max-width: none;
+  }
+  .cta-band {
+    background: rgba(250, 251, 254, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding-inline: 16px;
   }
 }

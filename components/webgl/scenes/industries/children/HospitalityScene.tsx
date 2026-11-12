@@ -6,7 +6,11 @@ import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import SceneLightRig from '../../shared/SceneLightRig';
 import ParticleField from '../../shared/ParticleField';
-import { GlassMaterial, type GlassKind } from '../../../lib/materials';
+import {
+  GlassMaterial,
+  GradientGlassMaterial,
+  type GlassKind,
+} from '../../../lib/materials';
 import { useQuality } from '../../../lib/quality';
 import {
   getSectionProgress,
@@ -15,143 +19,197 @@ import {
   pointer,
 } from '../../../scroll-store';
 import { useHotspotReporter } from '../../../kit/ProximityType';
+import {
+  beat,
+  damp,
+  introAt,
+  newMoment,
+  readMoment,
+  useLensShift,
+} from '../lib-b/stage';
+import ShockRing, { useShockMaterial } from '../lib-b/ShockRing';
 
 /**
- * HospitalityScene — "The Welcome Light".
+ * HospitalityScene — "The Atrium Welcome Constellation".
  *
- * A quiet glass lobby: a low concierge-desk slab of frosted pane glass on an
- * ice floor plate, and three pendant lights hanging from a slim canopy bar on
- * hairline rods — ice, azure, and ONE deep-blue pendant. The pendants sway
- * gently out of phase; as `feature` scrolls in, the deep pendant descends
- * slightly and its core brightens (the welcome that notices you); as `detail`
- * arrives, all three converge into one calm, in-phase rhythm. The deep
- * pendant is reported to ProximityType as hotspot 'hospitality-welcome'.
+ * A glass atrium: an ice-glass lobby floor, a frosted pane concierge desk
+ * carrying a direct-booking keycard prism, an overhead gradient-glass canopy
+ * halo, and five suspended glass pendants (one singular deep-sapphire welcome
+ * light at the centre).
  *
- * Camera: slow ±5° drift + pointer parallax. Zero allocations in useFrame;
- * reduced motion renders the final, settled pose as a still.
+ * Across the 280vh `moment` dwell (t: 0 → 1):
+ *   • 0.04 → 0.52: The five pendants unfurl downward from the canopy halo in
+ *     a staggered architectural cascade.
+ *   • 0.44 → 0.88: Out-of-phase sways converge into one serene atrium breath;
+ *     the deep-sapphire welcome pendant descends toward the concierge desk,
+ *     brightening the keycard prism and casting a luminous reflection ring
+ *     across the lobby floor.
+ *
+ * Continues choreographing across `market-truth`, `feature`, `detail`, and
+ * `cta`. Hotspot 'hospitality-welcome' rides the deep pendant.
  */
 
 interface PendantSpec {
-  /** ceiling anchor — the sway pivot (bottom face of the canopy bar) */
   anchor: readonly [number, number, number];
-  /** rod length from anchor to shade centre */
   len: number;
   kind: GlassKind;
-  /** shade radius */
   radius: number;
-  /** idle sway character */
   phase: number;
   amp: number;
   speed: number;
-  /** unlit core tint */
   core: string;
   deep?: boolean;
 }
 
-const CANOPY_Y = 3.05;
-const ANCHOR_Y = CANOPY_Y - 0.03;
+const CANOPY_Y = 2.95;
+const ANCHOR_Y = CANOPY_Y - 0.04;
+const FLOOR_Y = -1.62;
+const WELCOME_AT = 0.72;
+const TAU_RATE = 5.0;
 
 const PENDANTS: readonly PendantSpec[] = [
   {
-    anchor: [-1.55, ANCHOR_Y, -0.1],
-    len: 1.35,
+    anchor: [-1.45, ANCHOR_Y, -0.28],
+    len: 1.32,
     kind: 'ice',
-    radius: 0.16,
-    phase: 0.3,
-    amp: 0.05,
-    speed: 0.9,
+    radius: 0.15,
+    phase: 0.4,
+    amp: 0.055,
+    speed: 0.92,
     core: '#aebdff',
   },
   {
-    anchor: [0.05, ANCHOR_Y, 0.12],
-    len: 1.9,
+    anchor: [-0.72, ANCHOR_Y, 0.48],
+    len: 1.62,
+    kind: 'crystal',
+    radius: 0.16,
+    phase: 1.5,
+    amp: 0.05,
+    speed: 0.86,
+    core: '#c9d7ff',
+  },
+  {
+    anchor: [0.05, ANCHOR_Y, 0.06],
+    len: 1.96,
     kind: 'deep',
-    radius: 0.19,
-    phase: 2.1,
-    amp: 0.062,
-    speed: 0.8,
+    radius: 0.21,
+    phase: 2.3,
+    amp: 0.065,
+    speed: 0.78,
     core: '#2e4bff',
     deep: true,
   },
   {
-    anchor: [1.6, ANCHOR_Y, -0.06],
-    len: 1.05,
+    anchor: [0.82, ANCHOR_Y, -0.44],
+    len: 1.48,
+    kind: 'prism',
+    radius: 0.155,
+    phase: 3.4,
+    amp: 0.048,
+    speed: 0.98,
+    core: '#dce4ff',
+  },
+  {
+    anchor: [1.52, ANCHOR_Y, 0.22],
+    len: 1.15,
     kind: 'azure',
-    radius: 0.15,
-    phase: 4.4,
+    radius: 0.145,
+    phase: 4.5,
     amp: 0.045,
-    speed: 1.05,
+    speed: 1.04,
     core: '#93a9ff',
   },
 ];
 
-const DEEP_INDEX = 1;
-const SHARED_SPEED = 0.85;
-const SHARED_AMP = 0.028;
+const DEEP_INDEX = 2;
+const SHARED_SPEED = 0.82;
+const SHARED_AMP = 0.024;
 
-/* module-scope temps — reused every frame, never allocated per-frame */
-const _camTarget = new THREE.Vector3();
-const _lookTarget = new THREE.Vector3();
+const _cam = new THREE.Vector3();
+const _look = new THREE.Vector3();
 const _dim = new THREE.Color('#2e4bff');
-const _bright = new THREE.Color('#b9ccff');
+const _bright = new THREE.Color('#dce4ff');
 const _core = new THREE.Color();
 
 export default function HospitalityScene() {
   const q = useQuality();
-  const group = useRef<THREE.Group>(null);
+  const lens = useLensShift();
+  const moment = useRef(newMoment());
+  const startAt = useRef<number | null>(null);
+
+  const groupRef = useRef<THREE.Group>(null);
+  const rigRef = useRef<THREE.Group>(null);
   const canopyRef = useRef<THREE.Mesh>(null);
   const deskRef = useRef<THREE.Mesh>(null);
+  const keycardRef = useRef<THREE.Mesh>(null);
+  const keycardMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
   const groupRefs = useRef<(THREE.Group | null)[]>([]);
   const lineRefs = useRef<(THREE.Mesh | null)[]>([]);
   const shadeRefs = useRef<(THREE.Mesh | null)[]>([]);
   const coreRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const tilt = useRef({ x: 0, y: 0 });
+
   const report = useHotspotReporter('hospitality-welcome');
-
   const pendants = useMemo(() => PENDANTS, []);
+  const floorGlow = useShockMaterial({
+    speed: 0.95,
+    width: 0.032,
+    color: '#5f7dff',
+    hot: '#dce4ff',
+  });
 
-  useFrame((state) => {
-    const el = state.clock.elapsedTime;
+  useFrame((state, delta) => {
+    const now = state.clock.elapsedTime;
+    if (startAt.current === null) startAt.current = now;
+    const el = now - startAt.current;
     const anim = q.animate;
-    const feature = anim ? getSectionProgress('feature') : 1;
-    const detail = anim ? getSectionProgress('detail') : 1;
-    const intro = anim ? smooth(Math.min(el / 1.6, 1)) : 1;
+    const dt = Math.min(delta, 0.05);
 
-    /* the lobby assembles out of light — one soft lift */
-    const g = group.current;
-    if (g) g.position.y = -0.9 * (1 - intro);
+    const mo = readMoment(moment.current, anim);
+    const t = mo.t;
+    const settled = anim ? Math.max(t, mo.leave > 0 ? 1 : 0) : 1;
 
-    const canopy = canopyRef.current;
-    if (canopy) {
-      const pop = anim ? smooth(Math.min(Math.max(el / 0.7, 0), 1)) : 1;
-      canopy.scale.set(Math.max(pop, 0.001), 1, 1);
-    }
-    const desk = deskRef.current;
-    if (desk) {
-      const pop = anim ? smooth(Math.min(Math.max((el - 0.55) / 0.8, 0), 1)) : 1;
-      desk.scale.setScalar(Math.max(pop, 0.001));
+    const truth = smooth(sectionRange(getSectionProgress('market-truth'), 0.05, 0.9));
+    const feat = smooth(sectionRange(getSectionProgress('feature'), 0.05, 0.9));
+    const det = smooth(sectionRange(getSectionProgress('detail'), 0.08, 0.88));
+    const cta = smooth(sectionRange(getSectionProgress('cta'), 0.05, 0.85));
+
+    const intro = anim ? introAt(el, 0, 1.55) : 1;
+    if (groupRef.current) {
+      groupRef.current.position.y = -0.85 * (1 - intro);
     }
 
-    /* the welcome notices you — deep pendant descends + brightens on feature */
-    const descend = smooth(sectionRange(feature, 0.15, 0.85));
-    /* detail — every pendant settles into one calm rhythm */
-    const align = smooth(sectionRange(detail, 0.1, 0.75));
+    if (canopyRef.current) {
+      const pop = anim ? introAt(el, 0.05, 0.7) : 1;
+      canopyRef.current.scale.setScalar(Math.max(pop, 0.001));
+    }
+    if (deskRef.current) {
+      const pop = anim ? introAt(el, 0.35, 0.75) : 1;
+      deskRef.current.scale.setScalar(Math.max(pop, 0.001));
+    }
+
+    /* moment beats: cascade unfurl (0.04→0.52), welcome descend & phase-lock (0.44→0.88) */
+    const welcome = beat(settled, 0.44, 0.88);
+    const coherence = Math.min(1, beat(settled, 0.52, 0.92) + det * 0.25);
 
     for (let i = 0; i < pendants.length; i++) {
       const s = pendants[i];
       const pg = groupRefs.current[i];
       if (!pg) continue;
 
-      /* sway: individual phase/speed converge to a shared rhythm at detail */
-      const phase = s.phase * (1 - align);
-      const speed = s.speed + (SHARED_SPEED - s.speed) * align;
-      const amp = anim ? s.amp * (1 - align) + SHARED_AMP * align : 0;
-      pg.rotation.z = Math.sin(el * speed + phase) * amp;
-      pg.rotation.x = Math.cos(el * speed * 0.7 + phase) * amp * 0.4;
-
-      const pop = anim
-        ? smooth(Math.min(Math.max((el - 0.25 - i * 0.14) / 0.75, 0), 1))
+      const unfurl = anim
+        ? 0.42 + 0.58 * beat(settled, 0.04 + i * 0.07, 0.36 + i * 0.07)
         : 1;
-      const len = s.deep ? s.len + descend * 0.38 : s.len;
+      const phase = s.phase * (1 - coherence);
+      const speed = s.speed + (SHARED_SPEED - s.speed) * coherence;
+      const amp = anim ? s.amp * (1 - coherence) + SHARED_AMP * coherence : 0;
+
+      pg.rotation.z = Math.sin(el * speed + phase) * amp;
+      pg.rotation.x = Math.cos(el * speed * 0.7 + phase) * amp * 0.45;
+
+      const pop = anim ? introAt(el, 0.14 + i * 0.08, 0.72) : 1;
+      const len =
+        s.len * unfurl + (s.deep ? welcome * 0.42 : 0);
 
       const line = lineRefs.current[i];
       if (line) {
@@ -161,128 +219,192 @@ export default function HospitalityScene() {
       const shade = shadeRefs.current[i];
       if (shade) {
         shade.position.y = -len;
-        shade.scale.setScalar(Math.max(pop, 0.001));
+        shade.scale.setScalar(Math.max(pop, 0.001) * (s.deep ? 1 + welcome * 0.08 : 1));
       }
       const core = coreRefs.current[i];
       if (core) {
         core.position.y = -len;
         let scale = Math.max(pop, 0.001);
         if (s.deep) {
-          /* the welcome brightens — dim brand blue → lit ice blue */
           const m = core.material as THREE.MeshBasicMaterial;
-          _core.copy(_dim).lerp(_bright, descend);
+          _core.copy(_dim).lerp(_bright, welcome);
           m.color.copy(_core);
-          m.opacity = 0.82 + descend * 0.18;
-          if (anim) scale *= 1 + Math.sin(el * 1.8) * 0.05 * descend;
-          scale *= 1 + descend * 0.35;
+          m.opacity = 0.78 + welcome * 0.22;
+          if (anim) scale *= 1 + Math.sin(el * 1.8) * 0.055 * welcome;
+          scale *= 1 + welcome * 0.38;
         }
         core.scale.setScalar(scale);
       }
     }
 
-    /* hotspot: the deep pendant, always reported, brighter as it wakes */
-    const deepShade = shadeRefs.current[DEEP_INDEX];
-    if (deepShade) report(deepShade, state.camera, 0.5 + 0.5 * descend);
+    /* concierge desk direct-booking keycard prism responds to the welcome light */
+    if (keycardRef.current) {
+      const pop = anim ? introAt(el, 0.5, 0.7) : 1;
+      keycardRef.current.scale.setScalar(Math.max(pop, 0.001));
+      if (anim) {
+        keycardRef.current.rotation.y = Math.PI / 5 + el * 0.22 * welcome;
+      }
+    }
+    if (keycardMatRef.current) {
+      keycardMatRef.current.emissiveIntensity = welcome * 0.65 + det * 0.25;
+    }
 
-    /* camera — slow ±5° drift + pointer parallax, eased */
-    const orbit = anim ? (Math.sin(el * 0.055) * 5 * Math.PI) / 180 : 0.22;
-    const radius = 9.7 - intro * 0.7;
-    _camTarget.set(
-      Math.sin(orbit) * radius + (anim ? pointer.x * 0.4 : 0),
-      4.85 + (anim ? pointer.y * 0.28 : 0),
+    /* floor caustic shock-ring when the welcome light reaches its greeting height */
+    const tau = settled > WELCOME_AT ? (settled - WELCOME_AT) * TAU_RATE : 0;
+    floorGlow.uniforms.uTau.value = anim && mo.leave < 0.8 ? tau : 0;
+
+    const deepShade = shadeRefs.current[DEEP_INDEX];
+    if (deepShade) {
+      report(deepShade, state.camera, 0.52 + 0.42 * welcome + 0.08 * truth);
+    }
+
+    /* pointer tilt on the atrium rig */
+    if (rigRef.current) {
+      tilt.current.x = damp(tilt.current.x, anim ? -pointer.y * 0.05 : 0, 3.2, dt);
+      tilt.current.y = damp(
+        tilt.current.y,
+        (anim ? pointer.x * 0.11 : 0) + feat * 0.2 - det * 0.14,
+        3.2,
+        dt,
+      );
+      rigRef.current.rotation.x = tilt.current.x;
+      rigRef.current.rotation.y = tilt.current.y;
+    }
+
+    /* camera choreography across hero → moment → market-truth → feature → detail → cta */
+    const inMoment = anim ? mo.enter * (1 - mo.leave) : 0;
+    const orbit =
+      (anim ? Math.sin(el * 0.05) * 0.08 : 0.18) -
+      inMoment * 0.08 +
+      feat * 0.16;
+    const radius =
+      (q.compact ? 11.8 : 9.1) -
+      intro * 0.55 -
+      inMoment * 0.75 -
+      det * 0.4 +
+      cta * 0.75;
+
+    _cam.set(
+      Math.sin(orbit) * radius + (anim ? pointer.x * 0.36 : 0),
+      3.85 - inMoment * 0.85 - det * 0.35 + cta * 0.45 + (anim ? pointer.y * 0.24 : 0),
       Math.cos(orbit) * radius,
     );
-    state.camera.position.lerp(_camTarget, 0.05);
-    _lookTarget.set(0, 0.5, 0);
-    state.camera.lookAt(_lookTarget);
+    if (anim) state.camera.position.lerp(_cam, 0.05);
+    else state.camera.position.copy(_cam);
+
+    _look.set(0, 0.35 - welcome * 0.15, 0);
+    state.camera.lookAt(_look);
+
+    /* lens shift: stage-right alongside copy, centred on the pinned moment */
+    if (q.compact) lens(0, -0.08 + inMoment * 0.08);
+    else lens(0.22 * (1 - inMoment), -0.03 * (1 - inMoment));
   });
 
   return (
-    <group ref={group}>
+    <group ref={groupRef}>
       <SceneLightRig />
 
-      {/* lobby floor — one low plate of ice glass */}
-      <RoundedBox args={[5.6, 0.08, 3.6]} radius={0.03} smoothness={4} position={[0, -1.62, 0]}>
-        <GlassMaterial kind="ice" />
-      </RoundedBox>
-
-      {/* the concierge desk — a low slab of frosted pane glass */}
-      <RoundedBox
-        ref={deskRef}
-        args={[3.3, 0.36, 1.15]}
-        radius={0.05}
-        smoothness={4}
-        position={[0, -1.32, 0]}
-      >
-        <GlassMaterial kind="pane" />
-      </RoundedBox>
-
-      {/* a small object on the desk — the bell, in hero crystal */}
-      <RoundedBox
-        args={[0.22, 0.22, 0.22]}
-        radius={0.05}
-        smoothness={4}
-        position={[-0.9, -1.03, 0.12]}
-        rotation={[0, Math.PI / 5, 0]}
-      >
-        <GlassMaterial kind="azure" />
-      </RoundedBox>
-
-      {/* the canopy bar the pendants hang from */}
-      <RoundedBox
-        ref={canopyRef}
-        args={[4.6, 0.06, 0.34]}
-        radius={0.02}
-        smoothness={4}
-        position={[0, CANOPY_Y, 0]}
-      >
-        <GlassMaterial kind="ice" />
-      </RoundedBox>
-
-      {/* pendant lights — hairline rod, glass shade, luminous core */}
-      {pendants.map((s, i) => (
-        <group
-          key={i}
-          ref={(g) => {
-            groupRefs.current[i] = g;
-          }}
-          position={[s.anchor[0], s.anchor[1], s.anchor[2]]}
+      <group ref={rigRef}>
+        {/* lobby floor plate */}
+        <RoundedBox
+          args={[5.6, 0.08, 3.6]}
+          radius={0.03}
+          smoothness={4}
+          position={[0, FLOOR_Y, 0]}
         >
-          <mesh
-            ref={(m) => {
-              lineRefs.current[i] = m;
+          <GlassMaterial kind="ice" />
+        </RoundedBox>
+
+        {/* frosted pane concierge desk */}
+        <RoundedBox
+          ref={deskRef}
+          args={[3.3, 0.36, 1.15]}
+          radius={0.05}
+          smoothness={4}
+          position={[0, -1.32, 0]}
+        >
+          <GlassMaterial kind="pane" />
+        </RoundedBox>
+
+        {/* direct-booking crystal keycard prism on the concierge desk */}
+        <RoundedBox
+          ref={keycardRef}
+          args={[0.26, 0.22, 0.18]}
+          radius={0.04}
+          smoothness={4}
+          position={[-0.82, -1.03, 0.14]}
+          rotation={[0, Math.PI / 5, 0]}
+        >
+          <GlassMaterial
+            ref={keycardMatRef}
+            kind="crystal"
+            emissive="#2e4bff"
+            emissiveIntensity={0}
+          />
+        </RoundedBox>
+
+        {/* overhead gradient-glass atrium canopy ring + bar */}
+        <mesh
+          ref={canopyRef}
+          position={[0, CANOPY_Y, 0]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          <torusGeometry args={[1.65, 0.028, 18, 96]} />
+          <GradientGlassMaterial opacity={0.92} />
+        </mesh>
+
+        {/* 5 suspended atrium pendant lights */}
+        {pendants.map((s, i) => (
+          <group
+            key={i}
+            ref={(g) => {
+              groupRefs.current[i] = g;
             }}
-            position={[0, -s.len / 2, 0]}
-            scale={[1, s.len, 1]}
+            position={[s.anchor[0], s.anchor[1], s.anchor[2]]}
           >
-            <cylinderGeometry args={[0.006, 0.006, 1, 6]} />
-            <meshBasicMaterial color="#93a9ff" transparent opacity={0.5} />
-          </mesh>
-          <mesh
-            ref={(m) => {
-              shadeRefs.current[i] = m;
-            }}
-            position={[0, -s.len, 0]}
-          >
-            <sphereGeometry args={[s.radius, 32, 24]} />
-            <GlassMaterial kind={s.kind} />
-          </mesh>
-          <mesh
-            ref={(m) => {
-              coreRefs.current[i] = m;
-            }}
-            position={[0, -s.len, 0]}
-          >
-            <sphereGeometry args={[s.radius * 0.42, 16, 12]} />
-            <meshBasicMaterial
-              color={s.core}
-              toneMapped={false}
-              transparent
-              opacity={s.deep ? 0.82 : 0.7}
-            />
-          </mesh>
-        </group>
-      ))}
+            <mesh
+              ref={(m) => {
+                lineRefs.current[i] = m;
+              }}
+              position={[0, -s.len / 2, 0]}
+              scale={[1, s.len, 1]}
+            >
+              <cylinderGeometry args={[0.006, 0.006, 1, 8]} />
+              <meshBasicMaterial color="#93a9ff" transparent opacity={0.55} />
+            </mesh>
+            <mesh
+              ref={(m) => {
+                shadeRefs.current[i] = m;
+              }}
+              position={[0, -s.len, 0]}
+            >
+              <sphereGeometry args={[s.radius, 32, 24]} />
+              <GlassMaterial kind={s.kind} />
+            </mesh>
+            <mesh
+              ref={(m) => {
+                coreRefs.current[i] = m;
+              }}
+              position={[0, -s.len, 0]}
+            >
+              <sphereGeometry args={[s.radius * 0.44, 16, 12]} />
+              <meshBasicMaterial
+                color={s.core}
+                toneMapped={false}
+                transparent
+                opacity={s.deep ? 0.84 : 0.68}
+              />
+            </mesh>
+          </group>
+        ))}
+
+        {/* floor welcome reflection ring */}
+        <ShockRing
+          material={floorGlow}
+          radius={2.9}
+          position={[0.05, FLOOR_Y + 0.045, 0.06]}
+        />
+      </group>
 
       <ParticleField
         count={Math.floor(1200 * q.particles)}

@@ -26,6 +26,7 @@
   letter-spacing: -0.04em;
   color: var(--blue);
   display: block;
+  text-shadow: 0 0 22px rgba(250, 251, 254, 0.94);
 }
 .oc-stat__label {
   margin-top: 14px;
@@ -33,11 +34,14 @@
   line-height: 1.6;
   font-size: 0.95rem;
   max-width: 30ch;
+  text-shadow:
+    0 0 18px rgba(250, 251, 254, 0.96),
+    0 0 6px rgba(250, 251, 254, 0.96);
 }
 
 /* ---------- angles — the local read, 2×2 grid ---------- */
 .oc-angles {
-  padding-block: calc(var(--section-y) * 0.3) calc(var(--section-y) * 0.3);
+  padding-block: calc(var(--section-y) * 0.35) calc(var(--section-y) * 0.3);
 }
 .oc-angles__grid {
   margin-top: clamp(48px, 7vw, 84px);
@@ -57,11 +61,15 @@
 .oc-angle__title {
   margin-bottom: 14px;
   max-width: 22ch;
+  text-shadow: 0 0 18px rgba(250, 251, 254, 0.95);
 }
 .oc-angle__body {
   color: var(--ink-2);
   line-height: 1.75;
   font-size: 1.0625rem;
+  text-shadow:
+    0 0 18px rgba(250, 251, 254, 0.96),
+    0 0 6px rgba(250, 251, 254, 0.96);
 }
 
 /* ---------- feature — the pillars, alternating editorial blocks ---------- */
@@ -90,11 +98,15 @@
 .oc-feature__title {
   margin-bottom: 14px;
   max-width: 22ch;
+  text-shadow: 0 0 18px rgba(250, 251, 254, 0.95);
 }
 .oc-feature__body {
   color: var(--ink-2);
   line-height: 1.75;
   font-size: 1.0625rem;
+  text-shadow:
+    0 0 18px rgba(250, 251, 254, 0.96),
+    0 0 6px rgba(250, 251, 254, 0.96);
 }
 
 /* ---------- build — the six practices, hairline ledger ---------- */
@@ -129,11 +141,15 @@
   font-weight: 600;
   letter-spacing: -0.015em;
   margin-bottom: 10px;
+  text-shadow: 0 0 18px rgba(250, 251, 254, 0.95);
 }
 .oc-build__example {
   color: var(--ink-2);
   line-height: 1.7;
   font-size: 1rem;
+  text-shadow:
+    0 0 18px rgba(250, 251, 254, 0.96),
+    0 0 6px rgba(250, 251, 254, 0.96);
 }
 
 /* ---------- detail — the work + two-column hairline list ---------- */
@@ -146,6 +162,9 @@
 }
 .oc-detail__body {
   max-width: 44rem;
+  text-shadow:
+    0 0 18px rgba(250, 251, 254, 0.96),
+    0 0 6px rgba(250, 251, 254, 0.96);
 }
 .oc-detail__bullets {
   margin-top: clamp(48px, 7vw, 84px);
@@ -164,6 +183,9 @@
   display: flex;
   align-items: baseline;
   gap: 14px;
+  text-shadow:
+    0 0 18px rgba(250, 251, 254, 0.96),
+    0 0 6px rgba(250, 251, 254, 0.96);
 }
 .oc-detail__bullets li::before {
   content: '';
@@ -176,13 +198,15 @@
 }
 
 /* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .oc-angles__grid {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 720px) {
   .oc-stats__grid {
     grid-template-columns: 1fr;
     border-bottom: 0;
-  }
-  .oc-angles__grid {
-    grid-template-columns: 1fr;
   }
   .oc-angle__title {
     max-width: none;
