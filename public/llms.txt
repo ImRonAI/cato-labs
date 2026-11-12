@@ -1,0 +1,35 @@
+# Cato Labs
+
+> Cato Labs (https://catolabs.com) is an integrated strategy, brand, digital product engineering, WebGL/3D design, growth distribution, and durable AI agent studio. Every engagement unites senior architecture, bespoke visual systems, search-first semantic HTML, and live AI agent workflows.
+
+## Core Capabilities
+- [Capabilities Overview](https://catolabs.com/capabilities): End-to-end practices across strategy, product engineering, growth, and AI agents.
+- [Strategy & Brand](https://catolabs.com/capabilities/strategy-brand): Positioning, narrative architecture, visual identity, and design systems.
+- [Digital Products](https://catolabs.com/capabilities/digital-products): Flagship web engineering, Next.js App Router, React Three Fiber WebGL worlds, and high-converting product surfaces.
+- [Growth & Distribution](https://catolabs.com/capabilities/growth-distribution): Technical SEO, generative engine optimization (GEO), structured data graphs, and authority compounds.
+- [AI Agent Systems](https://catolabs.com/capabilities/ai-agent-systems): Production multi-connector AI concierges, voice & meeting scribes, generative UI, and durable business workflows.
+  - [Voice & Realtime Agents](https://catolabs.com/capabilities/ai-agent-systems/voice-realtime)
+  - [Knowledge Architecture](https://catolabs.com/capabilities/ai-agent-systems/knowledge-architecture)
+  - [Workflow Orchestration](https://catolabs.com/capabilities/ai-agent-systems/workflow-orchestration)
+  - [Evaluation & Guardrails](https://catolabs.com/capabilities/ai-agent-systems/evaluation-guardrails)
+
+## Studio Flagship Concept Showcases (Engineered by Cato Labs)
+Each flagship showcase below is a complete concept brand designed, art-directed, and engineered by Cato Labs featuring custom editorial typography, scroll choreography, structured `@graph` JSON-LD, and a live Mistral `zai-glm-5-3-flash` AI concierge with interactive Prefab 0.3 generative UI:
+- [Aurelle — Haute Parfumerie Alpine](https://catolabs.com/studio-sites/aurelle.html): Chamonix alpine fragrance house composing numbered extraits de parfum via cryo-enfleurage.
+- [Vespera — Stratospheric & Orbital Systems](https://catolabs.com/studio-sites/vespera.html): Autonomous solar-electric stratollites, optical relay platforms, and suborbital flight systems.
+- [Kuroshio — Ginza Edomae Omakase Counter](https://catolabs.com/studio-sites/kuroshio.html): Twelve-seat seasonal Edomae sushi counter across a 200-year-old Kiso hinoki slab in Ginza, Tokyo.
+- [Solstice Bio — Cellular Longevity & Epigenetic Therapeutics](https://catolabs.com/studio-sites/solstice-bio.html): Transient OSKM mRNA cellular reprogramming measured at single-cell resolution in Zurich and Boston.
+- [Monolith — Brutalist Architectural Practice](https://catolabs.com/studio-sites/monolith.html): Cast-in-place board-formed concrete residences and civic sanctuaries across Zurich and Kyoto.
+- [Velour Capital — Private Credit & Family Office](https://catolabs.com/studio-sites/velour-capital.html): Discreet direct lending, mezzanine capital, and sovereign credit strategies in London and Zurich.
+- [Aether Motors — GT-01 Coachbuilt Electric Grand Tourer](https://catolabs.com/studio-sites/aether-motors.html): Geneva-built 1,420 hp quad-axial-flux electric grand tourer with 0.19 Cd active aerodynamics.
+- [Nocturne Audio — Reference Electro-Acoustic Instruments](https://catolabs.com/studio-sites/nocturne-audio.html): Hand-calibrated planar-magnetic headphones and pure Class-A triode monoblock amplifiers in Geneva.
+- [Helios Grid — High-Field Compact Tokamak Fusion](https://catolabs.com/studio-sites/helios-grid.html): The HG-400 400 MWe compact fusion power plant built on ReBCO high-temperature superconductors.
+- [Maison Verve — Independent Geneva Haute Horlogerie](https://catolabs.com/studio-sites/maison-verve.html): Hand-finished mechanical calibres sealed with the Poinçon de Genève on Quai des Bergues.
+
+## Practice, Work, Industries & Regions
+- [Approach](https://catolabs.com/approach)
+- [Selected Work](https://catolabs.com/work)
+- [Industries Served](https://catolabs.com/industries)
+- [Regions Served](https://catolabs.com/regions)
+- [Journal](https://catolabs.com/blog)
+- [Contact & Discovery](https://catolabs.com/contact)

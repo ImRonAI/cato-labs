@@ -5,6 +5,7 @@ import Reveal from '@/components/ui/Reveal';
 import Marquee from '@/components/ui/Marquee';
 import { CtaButton } from '@/components/ui/Magnetic';
 import ManifestoScrub from '@/components/webgl/scenes/home/ManifestoScrub';
+import FlagshipReel from '@/components/kit/FlagshipReel';
 import './home.css';
 import './motion.css';
 
@@ -57,8 +58,8 @@ const heroAccentEnd = heroLine2.endsWith('.') ? 'home-accent-end' : '';
 
 /**
  * Home — the flagship page.
- * Section ids are CONTRACT: hero, manifesto, practices, approach-teaser, cta.
- * Exactly one h1 (hero). Copy flows from @/lib/content only.
+ * Section ids are CONTRACT: hero, manifesto, practices, flagships, approach-teaser, cta.
+ * Exactly one h1 (hero). Copy flows from @/lib/content and @/lib/content/studio only.
  */
 export default function HomePage() {
   return (
@@ -167,6 +168,9 @@ export default function HomePage() {
           ))}
         </ol>
       </section>
+
+      {/* 3.5 — web design: pinned scroll showcase of the ten real studio flagships */}
+      <FlagshipReel />
 
       {/* 4 — approach teaser: five moves as an inline sequence */}
       <section

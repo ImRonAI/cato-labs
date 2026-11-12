@@ -1,6 +1,7 @@
 'use client';
 
 import React, { Suspense, useEffect, useRef } from 'react';
+import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { usePathname } from 'next/navigation';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
@@ -160,7 +161,11 @@ export default function CanvasProvider() {
   return (
     <>
       <div className="gl-stage" aria-hidden="true">
+        {/* flat keeps gl.toneMapping = THREE.NoToneMapping (with SRGBColorSpace)
+            whether EffectComposer is mounted or disabled on compact/reduced-motion
+            tiers, preserving exact #fafbfe paper parity across every device */}
         <Canvas
+          flat
           dpr={q.dpr}
           camera={{ position: [0, 0, 9], fov: 32, near: 0.1, far: 60 }}
           gl={{
@@ -168,6 +173,7 @@ export default function CanvasProvider() {
             alpha: false,
             powerPreference: 'high-performance',
             stencil: false,
+            toneMapping: THREE.NoToneMapping,
           }}
         >
           <Suspense fallback={null}>

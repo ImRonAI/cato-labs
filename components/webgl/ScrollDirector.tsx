@@ -10,29 +10,66 @@ import { useScrollStore, bindPointer } from './scroll-store';
 gsap.registerPlugin(ScrollTrigger);
 
 let lenisInstance: Lenis | null = null;
+let scrollLocked = false;
 /* only the section trackers this director owns — page-level ScrollTriggers
    (pinned/scrubbed DOM choreography) must survive route re-scans */
 let sectionTriggers: ScrollTrigger[] = [];
 
-/** Smooth-scroll to a target (used by nav anchors, back-to-top, and Cato's journey stops). */
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
+/** Smooth-scroll to a target (used by nav anchors, back-to-top, FlagshipReel, and Cato's journey stops). */
 export function scrollToTarget(
-  target: string | number,
-  options?: { offset?: number; duration?: number; easing?: (t: number) => number },
+  target: string | number | HTMLElement,
+  options?: {
+    offset?: number;
+    duration?: number;
+    easing?: (t: number) => number;
+    immediate?: boolean;
+  },
 ) {
-  const offset = options?.offset ?? (typeof target === 'string' ? -90 : 0);
+  const reduced = prefersReducedMotion();
+  const immediate = options?.immediate ?? reduced;
+  const offset = options?.offset ?? (typeof target === 'number' ? 0 : -90);
   const duration = options?.duration ?? 1.6;
   const easing = options?.easing ?? ((t: number) => 1 - Math.pow(1 - t, 4));
   if (lenisInstance) {
-    lenisInstance.scrollTo(target as never, { offset, duration, easing });
-  } else if (typeof document !== 'undefined' && typeof target === 'string') {
-    document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
+    lenisInstance.scrollTo(target as never, { offset, duration, easing, immediate });
+    return;
+  }
+  if (typeof window === 'undefined') return;
+  if (typeof target === 'number') {
+    window.scrollTo({
+      top: Math.max(0, target + offset),
+      behavior: immediate ? 'auto' : 'smooth',
+    });
+    return;
+  }
+  const el =
+    typeof target === 'string'
+      ? document.querySelector<HTMLElement>(target)
+      : target;
+  if (el) {
+    const top = el.getBoundingClientRect().top + window.scrollY + offset;
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior: immediate ? 'auto' : 'smooth',
+    });
   }
 }
 
 /** Pause/resume smooth scrolling (mobile menu, modals). Safe before Lenis mounts. */
 export function setScrollLocked(locked: boolean) {
+  scrollLocked = locked;
   if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('is-scroll-locked', locked);
+    if (!lenisInstance) {
+      document.documentElement.style.overflow = locked ? 'hidden' : '';
+    }
   }
   if (!lenisInstance) return;
   if (locked) lenisInstance.stop();
@@ -55,24 +92,62 @@ export function getScrollY(): number {
 export default function ScrollDirector() {
   const pathname = usePathname();
 
-  /* Lenis + GSAP core loop — mounted once. */
+  /* Lenis + GSAP core loop — mounted once, respectful of prefers-reduced-motion. */
   useEffect(() => {
     bindPointer();
-    const lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
-    lenisInstance = lenis;
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let cleanupActive: (() => void) | null = null;
 
-    lenis.on('scroll', (e: { scroll: number; velocity: number }) => {
-      useScrollStore.getState().setScroll(e.scroll, e.velocity);
-      ScrollTrigger.update();
-    });
+    const syncMotion = () => {
+      cleanupActive?.();
+      cleanupActive = null;
 
-    const raf = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
+      if (mql.matches) {
+        /* Reduced motion: keep native instant scrolling (no wheel inertia) while
+           still driving ScrollTrigger + scroll-store progress on native scroll. */
+        lenisInstance = null;
+        if (scrollLocked) {
+          document.documentElement.style.overflow = 'hidden';
+        }
+        const onNativeScroll = () => {
+          useScrollStore.getState().setScroll(window.scrollY, 0);
+          ScrollTrigger.update();
+        };
+        window.addEventListener('scroll', onNativeScroll, { passive: true });
+        onNativeScroll();
+        cleanupActive = () => {
+          window.removeEventListener('scroll', onNativeScroll);
+        };
+        return;
+      }
+
+      document.documentElement.style.overflow = '';
+      const lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+      lenisInstance = lenis;
+      if (scrollLocked) lenis.stop();
+
+      lenis.on('scroll', (e: { scroll: number; velocity: number }) => {
+        useScrollStore.getState().setScroll(e.scroll, e.velocity);
+        ScrollTrigger.update();
+      });
+
+      const raf = (time: number) => lenis.raf(time * 1000);
+      gsap.ticker.add(raf);
+      gsap.ticker.lagSmoothing(0);
+
+      cleanupActive = () => {
+        gsap.ticker.remove(raf);
+        lenis.destroy();
+        if (lenisInstance === lenis) lenisInstance = null;
+      };
+    };
+
+    syncMotion();
+    mql.addEventListener('change', syncMotion);
 
     return () => {
-      gsap.ticker.remove(raf);
-      lenis.destroy();
+      mql.removeEventListener('change', syncMotion);
+      cleanupActive?.();
       lenisInstance = null;
     };
   }, []);
@@ -113,6 +188,8 @@ export default function ScrollDirector() {
         }
       } else if (lenisInstance) {
         lenisInstance.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo(0, 0);
       }
 
       /* onUpdate only fires on change, so seed every section's current state

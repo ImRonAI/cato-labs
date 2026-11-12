@@ -15,7 +15,9 @@ output/
 tsconfig.tsbuildinfo
 .vercel
 
-# python bytecode / editor
+# python bytecode / virtualenvs / editor
 __pycache__/
 *.pyc
+.venv/
+**/.venv/
 .vscode/

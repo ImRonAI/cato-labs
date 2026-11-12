@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { ensureMistralBridge } from '@/lib/mistral-bridge';
 import {
   currentWeather,
   describeGeo,
@@ -12,7 +13,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-const MODEL = 'anthropic/claude-haiku-5-5';
 interface SiteLocation {
   name: string;
   lat: number;
@@ -38,28 +38,12 @@ function roundKm(km: number): number {
   return Math.round(km / 50) * 50;
 }
 
-function outputText(response: unknown): string {
-  const out = (response as { output?: unknown[] })?.output;
-  if (!Array.isArray(out)) return '';
-  const parts: string[] = [];
-  for (const item of out) {
-    const content = (item as { type?: string; content?: unknown[] })?.content;
-    if ((item as { type?: string }).type !== 'message' || !Array.isArray(content)) continue;
-    for (const c of content) {
-      const part = c as { type?: string; text?: unknown };
-      if (part.type === 'output_text' && typeof part.text === 'string') parts.push(part.text);
-    }
-  }
-  return parts.join('').trim();
-}
-
 function sanitizeGreeting(text: string): string {
   let t = text
     .replace(/\[(?:web|\d)[^\]]*\]/g, '')
     .replace(/[*_#`]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
-  // Drop any self-talk the model appends (counting words, drafts, notes).
   const leak = t.search(/\b(let me|word count|count:|draft|note:|revised|here is|here's)\b|\(\d+\)|\d+\s*words?\b/i);
   if (leak > 0) t = t.slice(0, leak);
   return t.replace(/^["“'‘]+|["”'’]+$/g, '').trim();
@@ -110,8 +94,7 @@ export async function POST(req: NextRequest) {
     ? `Good ${visitor.partOfDay && visitor.partOfDay !== 'late night' && visitor.partOfDay !== 'late evening' ? visitor.partOfDay : 'evening'}, and welcome from ${place}. I'm ${concierge}. Ask me anything about ${brand}; I'm happy to help you find your way.`
     : `Welcome. I'm ${concierge}. Ask me anything about ${brand}; I'm happy to help you find your way.`;
 
-  const key = process.env.VIBE_PPLX_KEY || process.env.PERPLEXITY_API_KEY;
-  if (!key) {
+  if (!process.env.MISTRAL_API_KEY) {
     return Response.json({ text: fallback, responseId: null, visitor, source: 'template' });
   }
 
@@ -124,7 +107,7 @@ export async function POST(req: NextRequest) {
     .filter(Boolean)
     .join('\n');
 
-  const instructions = `You are "${concierge}", the AI concierge for ${brand}. A visitor has just arrived on the website. Write the very first message you proactively send them.
+  const instructions = `You are "${concierge}", the AI concierge for ${brand} (a flagship concept showcase built by Cato Labs). A visitor has just arrived on the website. Write the very first message you proactively send them.
 
 BRAND FACTS (only source of truth; do not invent anything beyond them):
 ${facts}
@@ -144,29 +127,26 @@ WRITE THE GREETING:
 - If the signals are unknown, write a warm greeting without any location reference.`;
 
   try {
-    const upstream = await fetch('https://api.perplexity.ai/v1/agent', {
+    const bridgeUrl = await ensureMistralBridge();
+    const upstream = await fetch(`${bridgeUrl}/greeting`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: MODEL,
-        max_output_tokens: 4000,
-        store: true,
         instructions,
         input: '(The visitor has just opened the page. Send your proactive welcome message now.)',
       }),
       cache: 'no-store',
       signal: req.signal,
     });
-    if (!upstream.ok) throw new Error(`Agent API ${upstream.status}`);
-    const data: unknown = await upstream.json();
-    const text = sanitizeGreeting(outputText(data));
-    const id = (data as { id?: unknown })?.id;
-    if (!text) throw new Error(`empty greeting (${(data as { status?: string })?.status ?? "unknown"})`);
+    if (!upstream.ok) throw new Error(`Mistral greeting bridge ${upstream.status}`);
+    const data = (await upstream.json()) as { text?: unknown; responseId?: unknown };
+    const text = sanitizeGreeting(str(data.text));
+    if (!text) throw new Error('empty greeting');
     return Response.json({
       text,
-      responseId: typeof id === 'string' && /^resp_[\w-]{1,128}$/.test(id) ? id : null,
+      responseId: typeof data.responseId === 'string' && /^[\w-]{1,128}$/.test(data.responseId) ? data.responseId : null,
       visitor,
-      source: 'model',
+      source: 'mistral-glm-5.3-flash',
     });
   } catch (err) {
     console.warn('[studio-greeting] falling back to template:', err instanceof Error ? err.message : err);

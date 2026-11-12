@@ -6,6 +6,7 @@ import { industries } from '@/lib/content/industries';
 import { regions } from '@/lib/content/regions';
 import { cases } from '@/lib/content/work';
 import { posts } from '@/lib/content/blog';
+import { flagshipShowcase } from '@/lib/content/studio';
 
 /**
  * Sitemap — every route on the site, derived from the copy decks so
@@ -48,11 +49,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       entry(`/capabilities/${slug}`, 0.85),
     ),
 
-    // Blog index + AI-agent specialisms
+    // Blog index + AI-agent specialisms + Flagship studio concept builds
     entry('/blog', 0.8),
     ...Object.keys(agentChildren).map((slug) =>
       entry(`/capabilities/ai-agent-systems/${slug}`, 0.8),
     ),
+    ...flagshipShowcase.map((f) => entry(f.href, 0.8)),
 
     // Industry + region children
     ...industries.map((i) => entry(`/industries/${i.slug}`, 0.75)),

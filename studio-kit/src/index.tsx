@@ -229,7 +229,13 @@ class TurnErrorBoundary extends React.Component<
 
 function StudioConciergeApp({ hideLauncher }: { hideLauncher: boolean }) {
   const ctx = useMemo(() => readConciergeContext(), []);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('concierge') === 'open';
+    } catch {
+      return false;
+    }
+  });
   const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [streaming, setStreaming] = useState(false);
   const [status, setStatus] = useState<'ready' | 'submitted' | 'streaming' | 'error'>('ready');
@@ -487,22 +493,23 @@ function StudioConciergeApp({ hideLauncher }: { hideLauncher: boolean }) {
                 parsedArgs = item.arguments as Record<string, unknown>;
               }
               const hasError = Boolean(item.error);
-              const wantsUi = name === 'generate_prefab_ui' && typeof parsedArgs.code === 'string' && !hasError;
+              const directPrefab = !hasError ? extractPrefab(item.output) : null;
+              const isPrefabTool = name === 'generate_prefab_ui' || name.endsWith('.generate_prefab_ui');
+              const wantsUi = !hasError && (Boolean(directPrefab) || (isPrefabTool && typeof parsedArgs.code === 'string'));
               const toolId = itemId || `tl-${Date.now()}`;
               if (wantsUi) {
-                // The Agent API returns only a placeholder for MCP UI output, so replay the model's
-                // exact Prefab code against the same MCP server and render the view tree we get back.
-                const direct = extractPrefab(item.output);
                 const apply = (g: ToolCallEntry['genui']) =>
                   patchAssistant((d) => {
                     const tl = d.tools.find((x) => x.id === toolId);
                     if (tl) tl.genui = g;
                   });
-                if (direct) setTimeout(() => apply({ status: 'ready', jsx: prefabToJsx(direct.view), state: direct.state }), 0);
-                else
+                if (directPrefab) {
+                  setTimeout(() => apply({ status: 'ready', jsx: prefabToJsx(directPrefab.view), state: directPrefab.state }), 0);
+                } else {
                   renderPrefab(parsedArgs)
                     .then((r) => apply({ status: 'ready', jsx: r.jsx, state: r.state }))
                     .catch((e: unknown) => apply({ status: 'error', jsx: '', state: {}, error: e instanceof Error ? e.message : 'Render failed' }));
+                }
               }
               if (itemType === 'mcp_call' && item.error) {
                 /* fall through: shown on the tool row */
@@ -831,7 +838,13 @@ function StudioConciergeApp({ hideLauncher }: { hideLauncher: boolean }) {
 
           {turn.role === 'assistant' &&
             turn.tools
-              .filter((tl) => tl.name !== 'search_prefab_components' || !turn.tools.some((x) => x.genui))
+              .filter(
+                (tl) =>
+                  (tl.name !== 'search_prefab_components' &&
+                    !tl.name.endsWith('.search_prefab_components') &&
+                    tl.name !== 'get_page_knowledge_base') ||
+                  (!turn.tools.some((x) => x.genui) && tl.name !== 'get_page_knowledge_base')
+              )
               .map((tl) => (
                 <div key={tl.id} className="sc-tool-wrap">
                   {tl.genui ? (
@@ -1032,7 +1045,7 @@ function StudioConciergeApp({ hideLauncher }: { hideLauncher: boolean }) {
               <PromptInputSubmit status={status} onStop={stop} />
             </PromptInputFooter>
           </PromptInput>
-          <p className="sc-footer__legal">AI concierge · answers may be imperfect · built by Cato Labs</p>
+          <p className="sc-footer__legal">Mistral GLM 5.3 Flash concierge · concept showcase by Cato Labs</p>
         </div>
       </aside>
     </div>

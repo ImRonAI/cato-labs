@@ -1,30 +1,48 @@
 /*
- * Generative UI for the studio concierge.
+ * Generative & Interactive UI for the studio concierge (Prefab 0.3 + JSXPreview).
  *
- * The Telnyx MCP server's `generate_prefab_ui` returns a Prefab view tree
+ * The Telnyx/Oubliai FastMCP server's `generate_prefab_ui` returns a Prefab view tree
  * ({ view, state }). We translate that tree into a JSX string and render it through the
  * AI Elements <JSXPreview> with a component library built here — so tool output and any
- * ```jsx block the model writes go through exactly the same renderer.
+ * ```jsx block the model writes go through the exact same renderer.
  *
- * State is live: inputs, sliders, switches, tabs and buttons read and write a shared store,
- * and {{ template }} expressions in text re-render from it. `sendMessage` actions post back
- * to the chat.
+ * State and MCP actions are live: inputs, sliders, switches, tabs, forms, and buttons read
+ * and write a shared store; {{ template }} expressions re-render reactively; `sendMessage`
+ * posts back to the concierge; and `toolCall` / `callTool` invokes live MCP tools via
+ * `/api/mcp-app` with `$result` / `$error` chaining and dynamic view updates.
  */
-import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import React, { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react';
 import { JSXPreview, JSXPreviewContent, JSXPreviewError } from '../vendor/ai-elements/jsx-preview';
 
 /* ───────── State + templates ───────── */
 type State = Record<string, unknown>;
+interface ToastMsg {
+  text: string;
+  variant: 'default' | 'success' | 'error';
+}
 interface Store {
   state: State;
   set: (k: string, v: unknown) => void;
+  patch: (next: State) => void;
   send: (msg: string) => void;
+  toast: (text: string, variant?: ToastMsg['variant']) => void;
+  replacePrefab: (jsx: string, nextState?: State) => void;
 }
-const StoreCtx = createContext<Store>({ state: {}, set: () => {}, send: () => {} });
+const StoreCtx = createContext<Store>({
+  state: {},
+  set: () => {},
+  patch: () => {},
+  send: () => {},
+  toast: () => {},
+  replacePrefab: () => {},
+});
 const useStore = () => useContext(StoreCtx);
 
 function get(state: State, path: string): unknown {
-  return path.split('.').reduce<unknown>((o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), state);
+  if (path in state) return state[path];
+  return path
+    .split('.')
+    .reduce<unknown>((o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), state);
 }
 
 const PIPES: Record<string, (v: unknown, a?: string) => unknown> = {
@@ -41,7 +59,9 @@ const PIPES: Record<string, (v: unknown, a?: string) => unknown> = {
   },
   currency: (v) => {
     const n = Number(v);
-    return Number.isFinite(n) ? n.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: n % 1 ? 2 : 0 }) : String(v ?? '');
+    return Number.isFinite(n)
+      ? n.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: n % 1 ? 2 : 0 })
+      : String(v ?? '');
   },
 };
 const stripQ = (s: string) => s.trim().replace(/^['"]|['"]$/g, '');
@@ -58,28 +78,49 @@ function evalExpr(src: string, state: State): unknown {
 }
 function splitPipes(s: string): string[] {
   const out: string[] = [];
-  let depth = 0, cur = '', q: string | null = null;
+  let depth = 0,
+    cur = '',
+    q: string | null = null;
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
-    if (q) { cur += c; if (c === q) q = null; continue; }
-    if (c === '"' || c === "'") { q = c; cur += c; continue; }
+    if (q) {
+      cur += c;
+      if (c === q) q = null;
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      q = c;
+      cur += c;
+      continue;
+    }
     if (c === '(') depth++;
     if (c === ')') depth--;
-    if (c === '|' && s[i + 1] !== '|' && s[i - 1] !== '|' && depth === 0) { out.push(cur); cur = ''; continue; }
+    if (c === '|' && s[i + 1] !== '|' && s[i - 1] !== '|' && depth === 0) {
+      out.push(cur);
+      cur = '';
+      continue;
+    }
     cur += c;
   }
   out.push(cur);
   return out;
 }
 function evalPure(src: string, state: State): unknown {
-  const toks = src.match(/\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\d+(?:\.\d+)?|[A-Za-z_$][\w$.]*|===|!==|==|!=|>=|<=|&&|\|\||[-+*/%<>!?:()])\s*/g) || [];
+  const toks =
+    src.match(
+      /\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\d+(?:\.\d+)?|[A-Za-z_$][\w$.]*|===|!==|==|!=|>=|<=|&&|\|\||[-+*/%<>!?:()])\s*/g
+    ) || [];
   let i = 0;
   const peek = () => toks[i]?.trim();
   const next = () => toks[i++]?.trim();
   const primary = (): unknown => {
     const t = next();
     if (t === undefined) return undefined;
-    if (t === '(') { const v = ternary(); next(); return v; }
+    if (t === '(') {
+      const v = ternary();
+      next();
+      return v;
+    }
     if (t === '!') return !primary();
     if (t === '-') return -Number(primary());
     if (/^\d/.test(t)) return Number(t);
@@ -87,6 +128,8 @@ function evalPure(src: string, state: State): unknown {
     if (t === 'true') return true;
     if (t === 'false') return false;
     if (t === 'null') return null;
+    const direct = get(state, t);
+    if (direct !== undefined) return direct;
     return get(state, t.replace(/^\$/, ''));
   };
   const bin = (ops: string[], sub: () => unknown) => (): unknown => {
@@ -94,12 +137,36 @@ function evalPure(src: string, state: State): unknown {
     while (ops.includes(peek() ?? '')) {
       const op = next()!;
       const r = sub();
-      const a = l as never, b = r as never;
-      l = op === '+' ? (typeof a === 'string' || typeof b === 'string' ? `${a}${b}` : Number(a) + Number(b))
-        : op === '-' ? Number(a) - Number(b) : op === '*' ? Number(a) * Number(b) : op === '/' ? Number(a) / Number(b) : op === '%' ? Number(a) % Number(b)
-        : op === '>' ? a > b : op === '<' ? a < b : op === '>=' ? a >= b : op === '<=' ? a <= b
-        : op === '==' || op === '===' ? a == b : op === '!=' || op === '!==' ? a != b
-        : op === '&&' ? a && b : a || b;
+      const a = l as never,
+        b = r as never;
+      l =
+        op === '+'
+          ? typeof a === 'string' || typeof b === 'string'
+            ? `${a}${b}`
+            : Number(a) + Number(b)
+          : op === '-'
+            ? Number(a) - Number(b)
+            : op === '*'
+              ? Number(a) * Number(b)
+              : op === '/'
+                ? Number(a) / Number(b)
+                : op === '%'
+                  ? Number(a) % Number(b)
+                  : op === '>'
+                    ? a > b
+                    : op === '<'
+                      ? a < b
+                      : op === '>='
+                        ? a >= b
+                        : op === '<='
+                          ? a <= b
+                          : op === '==' || op === '==='
+                            ? a == b
+                            : op === '!=' || op === '!=='
+                              ? a != b
+                              : op === '&&'
+                                ? a && b
+                                : a || b;
     }
     return l;
   };
@@ -110,10 +177,20 @@ function evalPure(src: string, state: State): unknown {
   const or = bin(['||'], and);
   const ternary = (): unknown => {
     const c = or();
-    if (peek() === '?') { next(); const a = ternary(); next(); const b = ternary(); return c ? a : b; }
+    if (peek() === '?') {
+      next();
+      const a = ternary();
+      next();
+      const b = ternary();
+      return c ? a : b;
+    }
     return c;
   };
-  try { return ternary(); } catch { return undefined; }
+  try {
+    return ternary();
+  } catch {
+    return undefined;
+  }
 }
 
 /** Resolve "{{ expr }}" in strings. A string that is exactly one template returns the raw value. */
@@ -126,6 +203,21 @@ function tpl(v: unknown, state: State): unknown {
     return r === undefined || r === null ? '' : typeof r === 'object' ? JSON.stringify(r) : String(r);
   });
 }
+
+/** Recursively resolve "{{ expr }}" templates across nested objects and arrays (used for toolCall arguments). */
+function deepTpl(v: unknown, state: State): unknown {
+  if (typeof v === 'string') return tpl(v, state);
+  if (Array.isArray(v)) return v.map((item) => deepTpl(item, state));
+  if (v && typeof v === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
+      out[k] = deepTpl(val, state);
+    }
+    return out;
+  }
+  return v;
+}
+
 const useT = () => {
   const { state } = useStore();
   return (v: unknown) => tpl(v, state);
@@ -136,7 +228,9 @@ const txt = (v: unknown) => (v === undefined || v === null ? '' : String(v));
 function inlineMd(s: string): React.ReactNode[] {
   const out: React.ReactNode[] = [];
   const re = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
-  let last = 0, m: RegExpExecArray | null, k = 0;
+  let last = 0,
+    m: RegExpExecArray | null,
+    k = 0;
   while ((m = re.exec(s))) {
     if (m.index > last) out.push(s.slice(last, m.index));
     const t = m[0];
@@ -149,27 +243,218 @@ function inlineMd(s: string): React.ReactNode[] {
   return out;
 }
 
-/* ───────── Actions ───────── */
-type Action = { action?: string; key?: string; value?: unknown; content?: string; url?: string } | Action[];
-function useRun() {
-  const { state, set, send } = useStore();
-  return (a: unknown) => {
-    const list = Array.isArray(a) ? a : a ? [a] : [];
-    for (const raw of list as Action[]) {
-      const x = raw as Exclude<Action, Action[]>;
-      if (!x || typeof x !== 'object') continue;
-      const key = x.key ?? '';
-      switch (x.action) {
-        case 'setState': set(key, tpl(x.value, state)); break;
-        case 'toggleState': set(key, !get(state, key)); break;
-        case 'appendState': set(key, [...((get(state, key) as unknown[]) || []), tpl(x.value, state)]); break;
-        case 'popState': set(key, ((get(state, key) as unknown[]) || []).slice(0, -1)); break;
-        case 'sendMessage': send(txt(tpl(x.content ?? x.value, state))); break;
-        case 'openLink': if (x.url) window.open(txt(tpl(x.url, state)), '_blank', 'noopener'); break;
-        default: break;
+function unwrapMcpResult(data: unknown): unknown {
+  if (!data || typeof data !== 'object') return data;
+  const rec = data as Record<string, unknown>;
+  if (rec.structuredContent !== undefined) return rec.structuredContent;
+  if (Array.isArray(rec.content)) {
+    for (const block of rec.content) {
+      const t = (block as { text?: unknown })?.text;
+      if (typeof t === 'string') {
+        try {
+          return JSON.parse(t);
+        } catch {
+          return t;
+        }
       }
     }
-  };
+  }
+  return data;
+}
+
+/* ───────── Actions (Prefab 0.3 state + sendMessage + interactive MCP toolCall) ───────── */
+type ActionNode = {
+  action?: string;
+  key?: string;
+  value?: unknown;
+  content?: string;
+  message?: string;
+  description?: string;
+  variant?: string;
+  url?: string;
+  method?: string;
+  headers?: Record<string, string>;
+  body?: unknown;
+  tool?: string;
+  name?: string;
+  arguments?: Record<string, unknown>;
+  resultKey?: string;
+  result_key?: string;
+  context?: Record<string, unknown>;
+  onSuccess?: unknown;
+  on_success?: unknown;
+  onError?: unknown;
+  on_error?: unknown;
+};
+
+function useRun() {
+  const { state, set, patch, send, toast, replacePrefab } = useStore();
+
+  const execChain = useCallback(
+    async (rawActions: unknown, scopedState: State): Promise<State> => {
+      const list = Array.isArray(rawActions) ? rawActions : rawActions ? [rawActions] : [];
+      let cur: State = { ...scopedState };
+
+      for (const raw of list) {
+        if (!raw || typeof raw !== 'object') continue;
+        const x = raw as ActionNode;
+        const key = x.key ?? '';
+
+        switch (x.action) {
+          case 'setState': {
+            const val = deepTpl(x.value, cur);
+            cur = { ...cur, [key]: val };
+            set(key, val);
+            break;
+          }
+          case 'toggleState': {
+            const val = !get(cur, key);
+            cur = { ...cur, [key]: val };
+            set(key, val);
+            break;
+          }
+          case 'appendState': {
+            const val = [...((get(cur, key) as unknown[]) || []), deepTpl(x.value, cur)];
+            cur = { ...cur, [key]: val };
+            set(key, val);
+            break;
+          }
+          case 'popState': {
+            const val = ((get(cur, key) as unknown[]) || []).slice(0, -1);
+            cur = { ...cur, [key]: val };
+            set(key, val);
+            break;
+          }
+          case 'updateContext': {
+            const updates = (deepTpl(x.context ?? x.value ?? {}, cur) as State) || {};
+            cur = { ...cur, ...updates };
+            patch(updates);
+            break;
+          }
+          case 'sendMessage': {
+            const msg = txt(tpl(x.content ?? x.message ?? x.value, cur)).trim();
+            if (msg) send(msg);
+            break;
+          }
+          case 'openLink': {
+            if (x.url) window.open(txt(tpl(x.url, cur)), '_blank', 'noopener,noreferrer');
+            break;
+          }
+          case 'showToast': {
+            const text = txt(tpl(x.message ?? x.description ?? x.content ?? x.value, cur));
+            const v = txt(x.variant);
+            const variant: ToastMsg['variant'] =
+              v === 'destructive' || v === 'error' ? 'error' : v === 'success' ? 'success' : 'default';
+            if (text) toast(text, variant);
+            break;
+          }
+          case 'closeOverlay': {
+            if (key) {
+              cur = { ...cur, [key]: false };
+              set(key, false);
+            }
+            break;
+          }
+          case 'toolCall':
+          case 'callTool': {
+            const toolName = txt(tpl(x.tool ?? x.name, cur)).trim();
+            if (!toolName) break;
+            const resolvedArgs = (deepTpl(x.arguments ?? {}, cur) as Record<string, unknown>) || {};
+            try {
+              const res = await fetch('/api/mcp-app', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ op: 'call', name: toolName, arguments: resolvedArgs }),
+              });
+              const data = (await res.json()) as Record<string, unknown>;
+              const isErr = !res.ok || Boolean(data?.isError) || Boolean(data?.error);
+              if (isErr) {
+                const errMsg =
+                  typeof data?.error === 'string'
+                    ? data.error
+                    : txt(unwrapMcpResult(data)) || `Tool ${toolName} failed (${res.status})`;
+                const errChain = x.onError ?? x.on_error;
+                if (errChain) {
+                  cur = await execChain(errChain, { ...cur, $error: errMsg, error: errMsg });
+                } else {
+                  toast(errMsg, 'error');
+                }
+                break;
+              }
+
+              const nextPrefab = extractPrefab(data);
+              if (nextPrefab) {
+                replacePrefab(prefabToJsx(nextPrefab.view), nextPrefab.state);
+              }
+
+              const unwrapped = unwrapMcpResult(data);
+              const rKey = txt(x.resultKey ?? x.result_key).trim();
+              if (rKey) {
+                cur = { ...cur, [rKey]: unwrapped };
+                set(rKey, unwrapped);
+              }
+              const okChain = x.onSuccess ?? x.on_success;
+              if (okChain) {
+                cur = await execChain(okChain, { ...cur, $result: unwrapped, result: unwrapped });
+              }
+            } catch (err) {
+              const errMsg = err instanceof Error ? err.message : 'Tool request failed';
+              const errChain = x.onError ?? x.on_error;
+              if (errChain) {
+                cur = await execChain(errChain, { ...cur, $error: errMsg, error: errMsg });
+              } else {
+                toast(errMsg, 'error');
+              }
+            }
+            break;
+          }
+          case 'fetch': {
+            const targetUrl = txt(tpl(x.url, cur)).trim();
+            if (!targetUrl) break;
+            try {
+              const method = (txt(x.method) || 'GET').toUpperCase();
+              const resolvedBody = x.body !== undefined ? deepTpl(x.body, cur) : undefined;
+              const res = await fetch(targetUrl, {
+                method,
+                headers: x.headers,
+                ...(resolvedBody !== undefined
+                  ? { body: typeof resolvedBody === 'string' ? resolvedBody : JSON.stringify(resolvedBody) }
+                  : {}),
+              });
+              const payload = await res.json().catch(() => null);
+              const rKey = txt(x.resultKey ?? x.result_key).trim();
+              if (rKey) {
+                cur = { ...cur, [rKey]: payload };
+                set(rKey, payload);
+              }
+              const okChain = x.onSuccess ?? x.on_success;
+              if (res.ok && okChain) {
+                cur = await execChain(okChain, { ...cur, $result: payload, result: payload });
+              } else if (!res.ok && (x.onError ?? x.on_error)) {
+                cur = await execChain(x.onError ?? x.on_error, {
+                  ...cur,
+                  $error: `HTTP ${res.status}`,
+                  error: `HTTP ${res.status}`,
+                });
+              }
+            } catch (err) {
+              const errMsg = err instanceof Error ? err.message : 'Request failed';
+              if (x.onError ?? x.on_error) {
+                cur = await execChain(x.onError ?? x.on_error, { ...cur, $error: errMsg, error: errMsg });
+              }
+            }
+            break;
+          }
+          default:
+            break;
+        }
+      }
+      return cur;
+    },
+    [patch, replacePrefab, send, set, toast]
+  );
+
+  return useCallback((a: unknown) => execChain(a, state), [execChain, state]);
 }
 
 /* ───────── Component library (rendered by JSXPreview) ───────── */
@@ -177,7 +462,11 @@ type P = Record<string, unknown> & { children?: React.ReactNode };
 const cls = (...c: unknown[]) => c.filter(Boolean).join(' ');
 const parse = (v: unknown) => {
   if (typeof v !== 'string') return v;
-  try { return JSON.parse(v); } catch { return v; }
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v;
+  }
 };
 
 function arbitraryGrid(cssClass: string): React.CSSProperties | undefined {
@@ -187,47 +476,131 @@ function arbitraryGrid(cssClass: string): React.CSSProperties | undefined {
 
 function Box(tag: string, base: string) {
   const C = ({ className, children, cssClass }: P) =>
-    React.createElement(tag, { className: cls(base, txt(cssClass), txt(className)), style: arbitraryGrid(txt(cssClass)) }, children);
+    React.createElement(
+      tag,
+      { className: cls(base, txt(cssClass), txt(className)), style: arbitraryGrid(txt(cssClass)) },
+      children
+    );
   C.displayName = base;
   return C;
 }
 function TextLike(tag: string, base: string) {
-  const C = ({ content, label, cssClass, children }: P) => {
+  const C = ({ content, label, text, value, cssClass, children }: P) => {
     const t = useT();
-    const s = txt(t(content ?? label));
+    const s = txt(t(content ?? label ?? text ?? value));
     return React.createElement(tag, { className: cls(base, txt(cssClass)) }, s ? inlineMd(s) : children);
   };
   C.displayName = base;
   return C;
 }
 
-const Heading = ({ content, level, cssClass }: P) => {
+const FormC = ({ onSubmit, on_submit, className, cssClass, children }: P) => {
+  const run = useRun();
+  const submitAction = onSubmit ?? on_submit;
+  return (
+    <form
+      className={cls('gx-col', txt(cssClass), txt(className))}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (submitAction) void run(parse(submitAction));
+      }}
+    >
+      {children}
+    </form>
+  );
+};
+
+const Heading = ({ content, text, level, cssClass, children }: P) => {
   const t = useT();
   const lv = Math.min(4, Math.max(1, Number(level) || 2));
-  return React.createElement(`h${lv}`, { className: cls('gx-h', `gx-h${lv}`, txt(cssClass)) }, txt(t(content)));
+  const body = txt(t(content ?? text));
+  return React.createElement(`h${lv}`, { className: cls('gx-h', `gx-h${lv}`, txt(cssClass)) }, body || children);
 };
 
 const Badge = ({ label, content, variant, cssClass, children }: P) => {
   const t = useT();
-  return <span className={cls('gx-badge', `is-${txt(variant) || 'default'}`, txt(cssClass))}>{txt(t(label ?? content)) || children}</span>;
+  return (
+    <span className={cls('gx-badge', `is-${txt(variant) || 'default'}`, txt(cssClass))}>
+      {txt(t(label ?? content)) || children}
+    </span>
+  );
 };
 
-const Button = ({ label, content, variant, size, onClick, disabled, icon, cssClass }: P) => {
+const Button = ({ label, content, variant, size, onClick, on_click, buttonType, disabled, icon, cssClass, children }: P) => {
   const t = useT();
   const run = useRun();
+  const [busy, setBusy] = useState(false);
+  const clickSpec = onClick ?? on_click;
+  const htmlType: 'button' | 'submit' = clickSpec ? 'button' : txt(buttonType) === 'button' ? 'button' : 'submit';
+
+  const handleClick = async () => {
+    if (!clickSpec || busy) return;
+    setBusy(true);
+    try {
+      await run(parse(clickSpec));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <button type="button" className={cls('gx-btn', `is-${txt(variant) || 'default'}`, `sz-${txt(size) || 'default'}`, txt(cssClass))} disabled={Boolean(t(disabled))} onClick={() => run(parse(onClick))}>
-      {icon ? <span className="gx-ico" aria-hidden="true">{iconGlyph(txt(icon))}</span> : null}
-      {txt(t(label ?? content))}
+    <button
+      type={htmlType}
+      className={cls(
+        'gx-btn',
+        `is-${txt(variant) || 'default'}`,
+        `sz-${txt(size) || 'default'}`,
+        busy && 'is-busy',
+        txt(cssClass)
+      )}
+      disabled={busy || Boolean(t(disabled))}
+      onClick={clickSpec ? () => void handleClick() : undefined}
+    >
+      {busy ? (
+        <span className="gx-loader" aria-hidden="true" />
+      ) : icon ? (
+        <span className="gx-ico" aria-hidden="true">
+          {iconGlyph(txt(icon))}
+        </span>
+      ) : null}
+      {txt(t(label ?? content)) || children}
     </button>
   );
 };
 
 function iconGlyph(name: string) {
-  const map: Record<string, string> = { check: '✓', x: '✕', plus: '+', minus: '−', clock: '◷', calendar: '▦', star: '★', arrow: '→', 'arrow-right': '→', 'arrow-left': '←', info: 'ⓘ', alert: '!', map: '⌖', 'map-pin': '⌖', phone: '☏', mail: '✉', heart: '♥', search: '⌕', user: '◯', users: '◯◯', fish: '⟡', utensils: '⋔', sparkles: '✦' };
+  const map: Record<string, string> = {
+    check: '✓',
+    x: '✕',
+    plus: '+',
+    minus: '−',
+    clock: '◷',
+    calendar: '▦',
+    star: '★',
+    arrow: '→',
+    'arrow-right': '→',
+    'arrow-left': '←',
+    info: 'ⓘ',
+    alert: '!',
+    map: '⌖',
+    'map-pin': '⌖',
+    phone: '☏',
+    mail: '✉',
+    heart: '♥',
+    search: '⌕',
+    user: '◯',
+    users: '◯◯',
+    fish: '⟡',
+    utensils: '⋔',
+    sparkles: '✦',
+  };
   return map[name] ?? '•';
 }
-const Icon = ({ name }: P) => <span className="gx-ico" aria-hidden="true">{iconGlyph(txt(name))}</span>;
+const Icon = ({ name }: P) => (
+  <span className="gx-ico" aria-hidden="true">
+    {iconGlyph(txt(name))}
+  </span>
+);
 
 const Metric = ({ label, value, delta, description, cssClass }: P) => {
   const t = useT();
@@ -245,17 +618,26 @@ const Metric = ({ label, value, delta, description, cssClass }: P) => {
 const Progress = ({ value, max, cssClass }: P) => {
   const t = useT();
   const p = Math.max(0, Math.min(100, (Number(t(value)) / (Number(max) || 100)) * 100));
-  return <div className={cls('gx-progress', txt(cssClass))} role="progressbar" aria-valuenow={p}><i style={{ width: `${p}%` }} /></div>;
+  return (
+    <div className={cls('gx-progress', txt(cssClass))} role="progressbar" aria-valuenow={p}>
+      <i style={{ width: `${p}%` }} />
+    </div>
+  );
 };
 
 const Ring = ({ value, min, max, label, cssClass }: P) => {
   const t = useT();
-  const lo = Number(min) || 0, hi = Number(max) || 100;
+  const lo = Number(min) || 0,
+    hi = Number(max) || 100;
   const p = Math.max(0, Math.min(1, (Number(t(value)) - lo) / (hi - lo || 1)));
-  const r = 26, c = 2 * Math.PI * r;
+  const r = 26,
+    c = 2 * Math.PI * r;
   return (
     <div className={cls('gx-ring', txt(cssClass))}>
-      <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r={r} className="t" /><circle cx="32" cy="32" r={r} className="f" strokeDasharray={c} strokeDashoffset={c * (1 - p)} /></svg>
+      <svg viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} className="t" />
+        <circle cx="32" cy="32" r={r} className="f" strokeDasharray={c} strokeDashoffset={c * (1 - p)} />
+      </svg>
       <span>{txt(t(label))}</span>
     </div>
   );
@@ -267,17 +649,30 @@ const Dot = ({ variant }: P) => <span className={cls('gx-dot', `is-${txt(variant
 const Kbd = ({ label, content }: P) => <kbd className="gx-kbd">{txt(label ?? content)}</kbd>;
 const Code = ({ content }: P) => {
   const t = useT();
-  return <pre className="gx-code"><code>{txt(t(content))}</code></pre>;
+  return (
+    <pre className="gx-code">
+      <code>{txt(t(content))}</code>
+    </pre>
+  );
 };
 const Image = ({ src, alt, cssClass }: P) => {
   const t = useT();
   const s = txt(t(src));
   return /^(https?:|\/)/.test(s) ? <img className={cls('gx-img', txt(cssClass))} src={s} alt={txt(t(alt))} loading="lazy" /> : null;
 };
-const LinkC = ({ content, href, cssClass }: P) => {
+const LinkC = ({ content, label, href, cssClass, children }: P) => {
   const t = useT();
   const h = txt(t(href));
-  return <a className={cls('gx-link', txt(cssClass))} href={/^(https?:|\/|#|mailto:|tel:)/.test(h) ? h : '#'} target={h.startsWith('#') ? undefined : '_blank'} rel="noopener noreferrer">{txt(t(content))}</a>;
+  return (
+    <a
+      className={cls('gx-link', txt(cssClass))}
+      href={/^(https?:|\/|#|mailto:|tel:)/.test(h) ? h : '#'}
+      target={h.startsWith('#') ? undefined : '_blank'}
+      rel="noopener noreferrer"
+    >
+      {txt(t(content ?? label)) || children}
+    </a>
+  );
 };
 const Markdown = ({ content }: P) => {
   const t = useT();
@@ -287,7 +682,12 @@ const Markdown = ({ content }: P) => {
       {lines.map((l, i) => {
         const h = /^(#{1,4})\s+(.*)$/.exec(l);
         if (h) return React.createElement(`h${h[1].length + 1}`, { key: i, className: 'gx-h' }, inlineMd(h[2]));
-        if (/^\s*[-*]\s+/.test(l)) return <div key={i} className="gx-li">• {inlineMd(l.replace(/^\s*[-*]\s+/, ''))}</div>;
+        if (/^\s*[-*]\s+/.test(l))
+          return (
+            <div key={i} className="gx-li">
+              • {inlineMd(l.replace(/^\s*[-*]\s+/, ''))}
+            </div>
+          );
         return l.trim() ? <p key={i}>{inlineMd(l)}</p> : null;
       })}
     </div>
@@ -301,33 +701,69 @@ function useField(name: unknown, fallback: unknown) {
   const v = key ? get(state, key) : undefined;
   return [v === undefined ? fallback : v, (x: unknown) => key && set(key, x)] as const;
 }
-const Slider = ({ name, value, min, max, step, cssClass }: P) => {
+const Slider = ({ name, value, min, max, step, onChange, cssClass }: P) => {
   const [v, setV] = useField(name, Number(value) || 0);
+  const run = useRun();
   return (
     <div className={cls('gx-slider', txt(cssClass))}>
-      <input type="range" min={Number(min ?? 0)} max={Number(max ?? 100)} step={Number(step ?? 1)} value={Number(v)} onChange={(e) => setV(Number(e.target.value))} aria-label={txt(name)} />
+      <input
+        type="range"
+        min={Number(min ?? 0)}
+        max={Number(max ?? 100)}
+        step={Number(step ?? 1)}
+        value={Number(v)}
+        onChange={(e) => {
+          const n = Number(e.target.value);
+          setV(n);
+          if (onChange) void run(parse(onChange));
+        }}
+        aria-label={txt(name)}
+      />
       <output>{txt(v)}</output>
     </div>
   );
 };
-const Input = ({ name, value, placeholder, inputType, label, cssClass }: P) => {
+const Input = ({ name, value, placeholder, inputType, label, required, cssClass }: P) => {
   const [v, setV] = useField(name, value ?? '');
   return (
     <label className={cls('gx-field', txt(cssClass))}>
       {label ? <span>{txt(label)}</span> : null}
-      <input type={txt(inputType) || 'text'} value={txt(v)} placeholder={txt(placeholder)} onChange={(e) => setV(txt(inputType) === 'number' ? Number(e.target.value) : e.target.value)} />
+      <input
+        type={txt(inputType) || 'text'}
+        value={txt(v)}
+        required={Boolean(required)}
+        placeholder={txt(placeholder)}
+        onChange={(e) => setV(txt(inputType) === 'number' ? Number(e.target.value) : e.target.value)}
+      />
     </label>
   );
 };
-const Textarea = ({ name, value, placeholder, cssClass }: P) => {
+const Textarea = ({ name, value, placeholder, label, cssClass }: P) => {
   const [v, setV] = useField(name, value ?? '');
-  return <textarea className={cls('gx-textarea', txt(cssClass))} value={txt(v)} placeholder={txt(placeholder)} onChange={(e) => setV(e.target.value)} />;
+  const el = (
+    <textarea
+      className={cls('gx-textarea', txt(cssClass))}
+      value={txt(v)}
+      placeholder={txt(placeholder)}
+      onChange={(e) => setV(e.target.value)}
+    />
+  );
+  return label ? (
+    <label className="gx-field">
+      <span>{txt(label)}</span>
+      {el}
+    </label>
+  ) : (
+    el
+  );
 };
 const Switch = ({ name, value, label, cssClass }: P) => {
   const [v, setV] = useField(name, Boolean(value));
   return (
     <label className={cls('gx-switch', txt(cssClass))}>
-      <button type="button" role="switch" aria-checked={Boolean(v)} onClick={() => setV(!v)}><i /></button>
+      <button type="button" role="switch" aria-checked={Boolean(v)} onClick={() => setV(!v)}>
+        <i />
+      </button>
       <span>{txt(label)}</span>
     </label>
   );
@@ -344,14 +780,30 @@ const Checkbox = ({ name, value, label, cssClass }: P) => {
 
 /* Options containers receive their options as a JSON prop (built by the translator). */
 type Opt = { value: string; label: string };
-const Select = ({ name, placeholder, options, cssClass }: P) => {
+const Select = ({ name, placeholder, options, label, cssClass }: P) => {
   const opts = (parse(options) as Opt[]) || [];
   const [v, setV] = useField(name, '');
-  return (
+  const sel = (
     <select className={cls('gx-select', txt(cssClass))} value={txt(v)} onChange={(e) => setV(e.target.value)}>
-      {placeholder ? <option value="" disabled>{txt(placeholder)}</option> : null}
-      {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+      {placeholder ? (
+        <option value="" disabled>
+          {txt(placeholder)}
+        </option>
+      ) : null}
+      {opts.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
     </select>
+  );
+  return label ? (
+    <label className="gx-field">
+      <span>{txt(label)}</span>
+      {sel}
+    </label>
+  ) : (
+    sel
   );
 };
 const RadioGroup = ({ name, options, cssClass }: P) => {
@@ -360,7 +812,16 @@ const RadioGroup = ({ name, options, cssClass }: P) => {
   return (
     <div className={cls('gx-radio', txt(cssClass))} role="radiogroup">
       {opts.map((o) => (
-        <button key={o.value} type="button" role="radio" aria-checked={v === o.value} className={v === o.value ? 'on' : ''} onClick={() => setV(o.value)}>{o.label}</button>
+        <button
+          key={o.value}
+          type="button"
+          role="radio"
+          aria-checked={v === o.value}
+          className={v === o.value ? 'on' : ''}
+          onClick={() => setV(o.value)}
+        >
+          {o.label}
+        </button>
       ))}
     </div>
   );
@@ -369,16 +830,21 @@ const RadioGroup = ({ name, options, cssClass }: P) => {
 /* Tabs / Pages / Accordion: children are panels carrying title + value attributes. */
 const TabsC = ({ name, value, children, cssClass }: P) => {
   const panels = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<P>[];
-  const first = txt(value) || txt(panels[0]?.props.value);
+  const first = txt(value) || txt(panels[0]?.props.value) || txt(panels[0]?.props.title);
   const [v, setV] = useField(name || '__tabs', first);
   return (
     <div className={cls('gx-tabs', txt(cssClass))}>
       <div className="gx-tabs__list" role="tablist">
-        {panels.map((p) => (
-          <button key={txt(p.props.value)} type="button" role="tab" aria-selected={v === p.props.value} onClick={() => setV(p.props.value)}>{txt(p.props.title)}</button>
-        ))}
+        {panels.map((p, idx) => {
+          const pVal = txt(p.props.value) || txt(p.props.title) || String(idx);
+          return (
+            <button key={pVal} type="button" role="tab" aria-selected={v === pVal} onClick={() => setV(pVal)}>
+              {txt(p.props.title) || pVal}
+            </button>
+          );
+        })}
       </div>
-      {panels.filter((p) => p.props.value === v)}
+      {panels.filter((p, idx) => (txt(p.props.value) || txt(p.props.title) || String(idx)) === v)}
     </div>
   );
 };
@@ -400,7 +866,11 @@ const ChoiceCard = ({ name, value, children, cssClass }: P) => {
   );
 };
 
-const TooltipC = ({ content, children }: P) => <span className="gx-tip" title={txt(content)}>{children}</span>;
+const TooltipC = ({ content, children }: P) => (
+  <span className="gx-tip" title={txt(content)}>
+    {children}
+  </span>
+);
 
 /* Conditions and loops. */
 const Condition = ({ cases, otherwise, children }: P) => {
@@ -413,26 +883,47 @@ const Condition = ({ cases, otherwise, children }: P) => {
 const Case = ({ children }: P) => <>{children}</>;
 const ForEachC = ({ items, children }: P) => {
   const store = useStore();
-  const arr = (get(store.state, txt(items)) as unknown[]) || [];
+  const rawItems = txt(items);
+  const resolved = rawItems.includes('{{') ? tpl(rawItems, store.state) : get(store.state, rawItems);
+  const arr = Array.isArray(resolved) ? resolved : [];
   return (
     <>
       {arr.map((item, index) => (
-        <StoreCtx.Provider key={index} value={{ ...store, state: { ...store.state, item, $item: item, index, $index: index } }}>{children}</StoreCtx.Provider>
+        <StoreCtx.Provider key={index} value={{ ...store, state: { ...store.state, item, $item: item, index, $index: index } }}>
+          {children}
+        </StoreCtx.Provider>
       ))}
     </>
   );
 };
 
-/* Tables. DataTable gets rows/columns as JSON. */
+/* Tables. DataTable gets rows/columns as JSON or state reference. */
 const DataTable = ({ columns, rows, cssClass }: P) => {
+  const { state } = useStore();
   const cols = (parse(columns) as { key: string; header?: string }[]) || [];
-  const data = (parse(rows) as Record<string, unknown>[]) || [];
+  const parsedRows = parse(rows);
+  const resolvedRows = typeof parsedRows === 'string' ? tpl(parsedRows, state) : parsedRows;
+  const data = Array.isArray(resolvedRows) ? (resolvedRows as Record<string, unknown>[]) : [];
   const t = useT();
   return (
     <div className={cls('gx-tablewrap', txt(cssClass))}>
       <table className="gx-table">
-        <thead><tr>{cols.map((c) => <th key={c.key}>{c.header ?? c.key}</th>)}</tr></thead>
-        <tbody>{data.map((r, i) => <tr key={i}>{cols.map((c) => <td key={c.key}>{txt(t(r[c.key]))}</td>)}</tr>)}</tbody>
+        <thead>
+          <tr>
+            {cols.map((c) => (
+              <th key={c.key}>{c.header ?? c.key}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((r, i) => (
+            <tr key={i}>
+              {cols.map((c) => (
+                <td key={c.key}>{txt(t(r[c.key]))}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );
@@ -440,17 +931,28 @@ const DataTable = ({ columns, rows, cssClass }: P) => {
 
 /* Charts: dependency-free SVG bar/line/area/pie, enough for published figures. */
 type Series = { dataKey: string; label?: string };
-const PALETTE = ['var(--sc-accent)', 'color-mix(in oklab, var(--sc-accent) 55%, var(--sc-fg))', 'color-mix(in oklab, var(--sc-fg) 55%, transparent)', 'color-mix(in oklab, var(--sc-accent) 40%, var(--sc-bg))'];
+const PALETTE = [
+  'var(--sc-accent)',
+  'color-mix(in oklab, var(--sc-accent) 55%, var(--sc-fg))',
+  'color-mix(in oklab, var(--sc-fg) 55%, transparent)',
+  'color-mix(in oklab, var(--sc-accent) 40%, var(--sc-bg))',
+];
 const ChartC = (kind: 'bar' | 'line' | 'area') => {
   const C = ({ data, series, xAxis, horizontal, stacked }: P) => {
     const rows = (parse(data) as Record<string, unknown>[]) || [];
     const ser = (parse(series) as Series[]) || [];
     const xk = txt(xAxis);
     if (!rows.length || !ser.length) return null;
-    const W = 320, H = 170, pad = { l: 34, r: 8, t: 10, b: 26 };
+    const W = 320,
+      H = 170,
+      pad = { l: 34, r: 8, t: 10, b: 26 };
     const vals = rows.flatMap((r) => ser.map((s) => Number(r[s.dataKey]) || 0));
-    const max = Math.max(1, ...(stacked ? rows.map((r) => ser.reduce((a, s) => a + (Number(r[s.dataKey]) || 0), 0)) : vals));
-    const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+    const max = Math.max(
+      1,
+      ...(stacked ? rows.map((r) => ser.reduce((a, s) => a + (Number(r[s.dataKey]) || 0), 0)) : vals)
+    );
+    const iw = W - pad.l - pad.r,
+      ih = H - pad.t - pad.b;
     const bw = iw / rows.length;
     const y = (v: number) => pad.t + ih - (v / max) * ih;
     const fmt = (v: number) => (Math.abs(v) >= 1000 ? `${Math.round(v / 100) / 10}k` : String(Math.round(v * 10) / 10));
@@ -463,9 +965,13 @@ const ChartC = (kind: 'bar' | 'line' | 'area') => {
               const v = Number(r[ser[0].dataKey]) || 0;
               return (
                 <g key={i}>
-                  <text x={pad.l - 4} y={pad.t + bh * i + bh / 2 + 3} textAnchor="end" className="gx-ax">{txt(r[xk])}</text>
+                  <text x={pad.l - 4} y={pad.t + bh * i + bh / 2 + 3} textAnchor="end" className="gx-ax">
+                    {txt(r[xk])}
+                  </text>
                   <rect x={pad.l} y={pad.t + bh * i + bh * 0.18} width={(v / max) * iw} height={bh * 0.64} rx="3" fill={PALETTE[0]} />
-                  <text x={pad.l + (v / max) * iw + 4} y={pad.t + bh * i + bh / 2 + 3} className="gx-ax">{fmt(v)}</text>
+                  <text x={pad.l + (v / max) * iw + 4} y={pad.t + bh * i + bh / 2 + 3} className="gx-ax">
+                    {fmt(v)}
+                  </text>
                 </g>
               );
             })}
@@ -480,11 +986,15 @@ const ChartC = (kind: 'bar' | 'line' | 'area') => {
           {[0, 0.5, 1].map((f) => (
             <g key={f}>
               <line x1={pad.l} x2={W - pad.r} y1={y(max * f)} y2={y(max * f)} className="gx-grid" />
-              <text x={pad.l - 4} y={y(max * f) + 3} textAnchor="end" className="gx-ax">{fmt(max * f)}</text>
+              <text x={pad.l - 4} y={y(max * f) + 3} textAnchor="end" className="gx-ax">
+                {fmt(max * f)}
+              </text>
             </g>
           ))}
           {rows.map((r, i) => (
-            <text key={i} x={pad.l + bw * i + bw / 2} y={H - 8} textAnchor="middle" className="gx-ax">{txt(r[xk])}</text>
+            <text key={i} x={pad.l + bw * i + bw / 2} y={H - 8} textAnchor="middle" className="gx-ax">
+              {txt(r[xk])}
+            </text>
           ))}
           {kind === 'bar'
             ? rows.map((r, i) => {
@@ -503,7 +1013,13 @@ const ChartC = (kind: 'bar' | 'line' | 'area') => {
                 const pts = rows.map((r, i) => `${pad.l + bw * i + bw / 2},${y(Number(r[s.dataKey]) || 0)}`);
                 return (
                   <g key={k}>
-                    {kind === 'area' ? <polygon points={`${pad.l + bw / 2},${pad.t + ih} ${pts.join(' ')} ${pad.l + bw * (rows.length - 0.5)},${pad.t + ih}`} fill={PALETTE[k % PALETTE.length]} opacity=".18" /> : null}
+                    {kind === 'area' ? (
+                      <polygon
+                        points={`${pad.l + bw / 2},${pad.t + ih} ${pts.join(' ')} ${pad.l + bw * (rows.length - 0.5)},${pad.t + ih}`}
+                        fill={PALETTE[k % PALETTE.length]}
+                        opacity=".18"
+                      />
+                    ) : null}
                     <polyline points={pts.join(' ')} fill="none" stroke={PALETTE[k % PALETTE.length]} strokeWidth="1.8" />
                   </g>
                 );
@@ -519,15 +1035,22 @@ const ChartC = (kind: 'bar' | 'line' | 'area') => {
 const Legend = ({ ser }: { ser: Series[] }) =>
   ser.length > 1 || ser[0]?.label ? (
     <figcaption className="gx-legend">
-      {ser.map((s, k) => <span key={s.dataKey}><i style={{ background: PALETTE[k % PALETTE.length] }} />{s.label ?? s.dataKey}</span>)}
+      {ser.map((s, k) => (
+        <span key={s.dataKey}>
+          <i style={{ background: PALETTE[k % PALETTE.length] }} />
+          {s.label ?? s.dataKey}
+        </span>
+      ))}
     </figcaption>
   ) : null;
 const PieChart = ({ data, dataKey, nameKey, innerRadius }: P) => {
   const rows = (parse(data) as Record<string, unknown>[]) || [];
-  const dk = txt(dataKey), nk = txt(nameKey);
+  const dk = txt(dataKey),
+    nk = txt(nameKey);
   const total = rows.reduce((a, r) => a + (Number(r[dk]) || 0), 0) || 1;
   let a0 = -Math.PI / 2;
-  const R = 70, r0 = Number(innerRadius) ? 40 : 0;
+  const R = 70,
+    r0 = Number(innerRadius) ? 40 : 0;
   return (
     <figure className="gx-chart gx-pie">
       <svg viewBox="0 0 160 160">
@@ -541,7 +1064,14 @@ const PieChart = ({ data, dataKey, nameKey, innerRadius }: P) => {
           return <path key={i} d={d} fill={PALETTE[i % PALETTE.length]} stroke="var(--sc-bg)" strokeWidth="1" />;
         })}
       </svg>
-      <figcaption className="gx-legend">{rows.map((r, i) => <span key={i}><i style={{ background: PALETTE[i % PALETTE.length] }} />{txt(r[nk])}</span>)}</figcaption>
+      <figcaption className="gx-legend">
+        {rows.map((r, i) => (
+          <span key={i}>
+            <i style={{ background: PALETTE[i % PALETTE.length] }} />
+            {txt(r[nk])}
+          </span>
+        ))}
+      </figcaption>
     </figure>
   );
 };
@@ -563,7 +1093,7 @@ export const GEN_COMPONENTS: Record<string, React.ComponentType<P>> = {
   CardFooter: Box('footer', 'gx-card__f'),
   CardTitle: TextLike('h3', 'gx-card__t'),
   CardDescription: TextLike('p', 'gx-card__d'),
-  Form: Box('div', 'gx-col'),
+  Form: FormC,
   Field: Box('div', 'gx-fieldwrap'),
   FieldContent: Box('div', 'gx-col'),
   FieldTitle: TextLike('span', 'gx-fieldtitle'),
@@ -627,13 +1157,23 @@ export const GEN_COMPONENTS: Record<string, React.ComponentType<P>> = {
   ForEach: ForEachC,
   Slot: Fallback,
   DataTable,
-  Table: ({ children }: P) => <div className="gx-tablewrap"><table className="gx-table">{children}</table></div>,
+  Table: ({ children }: P) => (
+    <div className="gx-tablewrap">
+      <table className="gx-table">{children}</table>
+    </div>
+  ),
   TableHeader: ({ children }: P) => <thead>{children}</thead>,
   TableBody: ({ children }: P) => <tbody>{children}</tbody>,
   TableFooter: ({ children }: P) => <tfoot>{children}</tfoot>,
   TableRow: ({ children }: P) => <tr>{children}</tr>,
-  TableHead: ({ content, children }: P) => { const t = useT(); return <th>{txt(t(content)) || children}</th>; },
-  TableCell: ({ content, children }: P) => { const t = useT(); return <td>{content !== undefined ? inlineMd(txt(t(content))) : children}</td>; },
+  TableHead: ({ content, children }: P) => {
+    const t = useT();
+    return <th>{txt(t(content)) || children}</th>;
+  },
+  TableCell: ({ content, children }: P) => {
+    const t = useT();
+    return <td>{content !== undefined ? inlineMd(txt(t(content))) : children}</td>;
+  },
   TableCaption: TextLike('caption', 'gx-muted'),
   BarChart: ChartC('bar'),
   LineChart: ChartC('line'),
@@ -645,7 +1185,14 @@ export const GEN_COMPONENTS: Record<string, React.ComponentType<P>> = {
 
 /* ───────── Prefab view → JSX string ───────── */
 type Node = Record<string, unknown> & { type?: string; children?: Node[] };
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
+const esc = (s: string) =>
+  s
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\{/g, '&#123;')
+    .replace(/\}/g, '&#125;');
 const SKIP_KEYS = new Set(['type', 'children', 'let']);
 
 function attrs(node: Node): string {
@@ -670,7 +1217,8 @@ export function prefabToJsx(node: unknown, depth = 0): string {
   if (type === 'Select' || type === 'Combobox' || type === 'RadioGroup') {
     const opts: { value: string; label: string }[] = [];
     const walk = (c: Node) => {
-      if (c.type === 'SelectOption' || c.type === 'ComboboxOption' || c.type === 'Radio') opts.push({ value: String(c.value ?? ''), label: String(c.label ?? c.option ?? c.value ?? '') });
+      if (c.type === 'SelectOption' || c.type === 'ComboboxOption' || c.type === 'Radio')
+        opts.push({ value: String(c.value ?? ''), label: String(c.label ?? c.option ?? c.value ?? '') });
       (c.children || []).forEach(walk);
     };
     kids.forEach(walk);
@@ -686,7 +1234,7 @@ export function prefabToJsx(node: unknown, depth = 0): string {
     return `<Condition cases="${esc(JSON.stringify(cases.map((c) => ({ when: c.when }))))}"${elseKids.length ? ' otherwise="1"' : ''}>${caseJsx}${elseJsx}</Condition>`;
   }
   const inner = kids.map((k) => prefabToJsx(k, depth + 1)).join('');
-  if (n.type === 'ForEach') return `<ForEach items="${esc(String(n.key ?? ''))}">${inner}</ForEach>`;
+  if (n.type === 'ForEach') return `<ForEach items="${esc(String(n.key ?? n.items ?? ''))}">${inner}</ForEach>`;
   return inner ? `<${type}${attrs(n)}>${inner}</${type}>` : `<${type}${attrs(n)} />`;
 }
 
@@ -697,6 +1245,7 @@ export function extractPrefab(output: unknown): { view: unknown; state: State } 
     const r = o as Record<string, unknown>;
     if (r.view && typeof r.view === 'object') return { view: r.view, state: (r.state as State) || {} };
     if (r.structuredContent) return tryObj(r.structuredContent);
+    if (r.structured_content) return tryObj(r.structured_content);
     if (Array.isArray(r.content)) {
       for (const c of r.content) {
         const t = (c as { text?: unknown }).text;
@@ -730,15 +1279,41 @@ export function GenerativeUI({
   streaming?: boolean;
   onSendMessage: (m: string) => void;
 }) {
+  const [activeJsx, setActiveJsx] = useState(jsx);
   const [state, setState] = useState<State>(() => ({ ...(initialState || {}) }));
+  const [toastBanner, setToastBanner] = useState<ToastMsg | null>(null);
+
+  useEffect(() => {
+    setActiveJsx(jsx);
+  }, [jsx]);
+
   const set = useCallback((k: string, v: unknown) => setState((s) => ({ ...s, [k]: v })), []);
-  const store = useMemo(() => ({ state, set, send: onSendMessage }), [state, set, onSendMessage]);
+  const patch = useCallback((next: State) => setState((s) => ({ ...s, ...next })), []);
+  const toast = useCallback((text: string, variant: ToastMsg['variant'] = 'default') => {
+    setToastBanner({ text, variant });
+    window.setTimeout(() => setToastBanner((cur) => (cur?.text === text ? null : cur)), 4200);
+  }, []);
+  const replacePrefab = useCallback((nextJsx: string, nextState?: State) => {
+    setActiveJsx(nextJsx);
+    if (nextState) setState((s) => ({ ...s, ...nextState }));
+  }, []);
+
+  const store = useMemo(
+    () => ({ state, set, patch, send: onSendMessage, toast, replacePrefab }),
+    [state, set, patch, onSendMessage, toast, replacePrefab]
+  );
+
   return (
     <StoreCtx.Provider value={store}>
-      <JSXPreview jsx={jsx} isStreaming={streaming} components={GEN_COMPONENTS as never} className="sc-genui">
+      <JSXPreview jsx={activeJsx} isStreaming={streaming} components={GEN_COMPONENTS as never} className="sc-genui">
         <JSXPreviewContent />
         <JSXPreviewError />
       </JSXPreview>
+      {toastBanner ? (
+        <div className={cls('gx-toast', `is-${toastBanner.variant}`)} role="status" aria-live="polite">
+          {toastBanner.text}
+        </div>
+      ) : null}
     </StoreCtx.Provider>
   );
 }

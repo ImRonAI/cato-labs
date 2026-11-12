@@ -88,7 +88,9 @@
 
 @media (max-width: 820px) {
   .sig {
-    min-height: 240vh !important;
+    /* Match DWELL_VH = 280 in SignatureDwell.tsx & agents/signature.ts so
+       STICK_IN (100/380) and STICK_OUT (280/380) stay exact on mobile */
+    min-height: 280vh;
   }
   .sig-legend {
     width: 100%;
